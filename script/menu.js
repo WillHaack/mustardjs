@@ -24,14 +24,14 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
       "    {{#menu}}",
       "      <li class=\"menuCategory\" data-mgid=\"{{id}}\">",
       "        <div class=\"menu-hd\">",
-      "          <p class=\"header itemListName\" data-listener=\"itemListName\">{{name}}</p>",
+      "          <p class=\"header itemListName\">{{name}}</p>",
       "        </div>",
       "        <ul class=\"itemList menu main-menu\">",
       "          {{#children}}",
       "            <li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\">",
-      "              <p class=\"name\" data-listener=\"menuItem\">{{name}}</p>",
+      "              <p class=\"name\">{{name}}</p>",
       "              <p>",
-      "                <span class=\"price\" data-listener=\"menuItem\">{{price}}</span>",
+      "                <span class=\"price\">{{price}}</span>",
       "              </p>",
       "            </li>",
       "          {{/children}}",
@@ -53,62 +53,60 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
   if(!ordrin.hasOwnProperty("dialogTemplate")){
     ordrin.dialogTemplate = [
       "    <div class=\"popup-box-container dialog\">",
-      "      <form name=\"ordrin-dialog\" onSubmit=\"return false;\">",
-      "        <div class=\"close-popup-box\">",
-      "          <img class=\"closeDialog\" data-listener=\"closeDialog\" src=\"https://fb.ordr.in/images/popup-close.png\" />",
-      "        </div>",
-      "        <div class=\"mItem-add-to-tray popup-content\">",
-      "          <div class=\"menu-hd\">",
-      "            <div class=\"boxright\">",
-      "              <h1 class=\"big-col itemTitle\">{{name}}</h1>",
-      "              <p class=\"slim-col itemPrice\">{{price}}</p>",
-      "            </div>",
-      "            <div class=\"clear\"></div>",
+      "      <div class=\"close-popup-box\">",
+      "        <img class=\"closeDialog\" data-listener=\"closeDialog\" src=\"https://fb.ordr.in/images/popup-close.png\" />",
+      "      </div>",
+      "      <div class=\"mItem-add-to-tray popup-content\">",
+      "        <div class=\"menu-hd\">",
+      "          <div class=\"boxright\">",
+      "            <h1 class=\"big-col itemTitle\">{{name}}</h1>",
+      "            <p class=\"slim-col itemPrice\">{{price}}</p>",
       "          </div>",
-      "          <p class=\"desc dialogDescription\">{{descrip}}</p>",
+      "          <div class=\"clear\"></div>",
       "        </div>",
-      "        <div class=\"optionContainer\">",
-      "          <ul class=\"optionCategoryList\">",
-      "            {{#children}}",
-      "              <li data-mogid=\"{{id}}\" class=\"optionCategory\">",
-      "                <span class=\"header\">{{name}}</span>",
-      "                <span class=\"error\"></span>",
-      "                <ul class=\"optionList\">",
-      "                  {{#children}}",
-      "                    <li class=\"option\" data-moid=\"{{id}}\">",
-      "                      <input type=\"checkbox\" class=\"optionCheckbox\" data-listener=\"optionCheckbox\" name=\"options\" />",
-      "                      <span class=\"optionName\">{{name}}</span>",
-      "                      <span class=\"optionPrice\">{{price}}</span>",
-      "                    </li>",
-      "                  {{/children}}",
-      "                </ul>",
-      "                <div class=\"clear\"></div>",
-      "              </li>",
-      "            {{/children}}",
-      "          </ul>",      
-      "        </div>",
-      "        <label for=\"itemQuantity\">Quantity: </label>",
-      "        <input type=\"number\" class=\"itemQuantity\" name=\"itemQuantity\" value=\"1\" />",
-      "        <br />",
-      "        <input type=\"submit\" class=\"buttonRed\" data-listener=\"addToTray\" value=\"Add to Tray\" />",
-      "      </form>",
-      "    </div>"].join("");
+      "        <p class=\"desc dialogDescription\">{{descrip}}</p>",
+      "      </div>",
+      "      <div class=\"optionContainer\">",
+      "        <ul class=\"optionCategoryList\">",
+      "          {{#children}}",
+      "            <li data-mogid=\"{{id}}\" class=\"optionCategory\">",
+      "              <span class=\"header\">{{name}}</span>",
+      "              <span class=\"error\"></span>",
+      "              <ul class=\"optionList\">",
+      "                {{#children}}",
+      "                  <li class=\"option\" data-moid=\"{{id}}\">",
+      "                    <input type=\"checkbox\" class=\"optionCheckbox\" data-listener=\"optionCheckbox\" name=\"options\" />",
+      "                    <span class=\"optionName\">{{name}}</span>",
+      "                    <span class=\"optionPrice\">{{price}}</span>",
+      "                  </li>",
+      "                {{/children}}",
+      "              </ul>",
+      "              <div class=\"clear\"></div>",
+      "            </li>",
+      "          {{/children}}",
+      "        </ul>",      
+      "      </div>",
+      "      <label for=\"itemQuantity\">Quantity: </label>",
+      "      <input type=\"number\" class=\"itemQuantity\" name=\"itemQuantity\" value=\"1\" min=\"1\" />",
+      "      <br />",
+      "      <input type=\"submit\" class=\"buttonRed\" data-listener=\"addToTray\" value=\"Add to Tray\" />",
+      "  </div>"].join("");
   }
 
   if(!ordrin.hasOwnProperty("trayItemTemlate")){
     ordrin.trayItemTemplate = [
       "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\">",
-      "  <div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">",
+      "  <div class=\"trayItemRemove\">",
       "     X",
       "  </div>",
-      "  <span class=\"trayItemName\" data-listener=\"editTrayItem\">{{itemName}}</span>",
-      "  <span class=\"trayItemPrice\" data-listener=\"editTrayItem\">{{price}}</span>",
-      "  <span class=\"trayItemQuantity\" data-listener=\"editTrayItem\">({{quantity}})</span>",
+      "  <span class=\"trayItemName\">{{itemName}}</span>",
+      "  <span class=\"trayItemPrice\">{{price}}</span>",
+      "  <span class=\"trayItemQuantity\">({{quantity}})</span>",
       "  <ul>",
       "    {{#options}}",
-      "      <li class=\"trayOption\" data-listener=\"editTrayItem\">",
-      "        <span class=\"trayOptionName\" data-listener=\"editTrayItem\">{{name}}</span>",
-      "        <span class=\"trayOptionPrice\" data-listener=\"editTrayItem\">{{price}}</span>",
+      "      <li class=\"trayOption\">",
+      "        <span class=\"trayOptionName\">{{name}}</span>",
+      "        <span class=\"trayOptionPrice\">{{price}}</span>",
       "      </li>",
       "    {{/options}}",
       "  </ul>",
@@ -302,8 +300,15 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
       removeTrayItem : removeTrayItem,
       optionCheckbox : validateCheckbox
     }
-
-    var name = event.srcElement.getAttribute("data-listener");
+    var node = event.srcElement;
+    var name;
+    while(!node.hasAttribute("data-listener")){
+      node = node.parentNode;
+      if(node===null){
+        return;
+      }
+    }
+    var name = node.getAttribute("data-listener");
 
     if (typeof routes[name] != "undefined"){
       routes[name](event.srcElement);
@@ -334,14 +339,12 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
 
   function createDialogBox(node){
     // get the correct node, if it's not the current one
-    node = goUntilParent(node, "mi");
     var itemId = node.getAttribute("data-miid");
     buildDialogBox(itemId);
     showDialogBox();
   }
 
   function createEditDialogBox(node){
-    node = goUntilParent(node, "trayItem");
     var itemId = node.getAttribute("data-miid");
     var trayItemId = node.getAttribute("data-tray-id");
     var trayItem = ordrin.tray.items[trayItemId];
@@ -421,8 +424,10 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
 
   function createItemFromDialog(){
     var id = elements.dialog.getAttribute("data-miid");
-    var form = document.forms["ordrin-dialog"];
     var quantity = form.elements["itemQuantity"].value;
+    if(quantity<1){
+      quantity = 1;
+    }
 
     var error = false;
     var categories = getElementsByClassName(elements.dialog, "optionCategory");
@@ -436,17 +441,15 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
       return;
     }
     var options = [];
-    if(form.options){
-      var checkBoxes = form.options;
-      for(var i=0; i<checkBoxes.length; i++){
-        if(checkBoxes[i].checked){
-          var listItem = goUntilParent(checkBoxes[i], "option")
-          var optionId = listItem.getAttribute("data-moid");
-          var optionName = allItems[optionId].name;
-          var optionPrice = allItems[optionId].price;
-          var option = new Option(optionId, optionName, optionPrice)
-          options.push(option);
-        }
+    var checkBoxes = getElementsByClassName(elements.dialog, "optionCheckbox");
+    for(var i=0; i<checkBoxes.length; i++){
+      if(checkBoxes[i].checked){
+        var listItem = goUntilParent(checkBoxes[i], "option")
+        var optionId = listItem.getAttribute("data-moid");
+        var optionName = allItems[optionId].name;
+        var optionPrice = allItems[optionId].price;
+        var option = new Option(optionId, optionName, optionPrice)
+        options.push(option);
       }
     }
     var itemName = allItems[id].name;
