@@ -96,7 +96,7 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
   if(!ordrin.hasOwnProperty("trayItemTemlate")){
     ordrin.trayItemTemplate = [
       "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\">",
-      "  <div class=\"trayItemRemove\">",
+      "  <div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">",
       "     X",
       "  </div>",
       "  <span class=\"trayItemName\">{{itemName}}</span>",
