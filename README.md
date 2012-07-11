@@ -1,6 +1,6 @@
 # Readme
 
-This library allows anyone to easily place a menu in any web page simply by including `script/menu.js`. This menu will be placed in an empty `<div>` that has the id `ordrinMenu`. The provided file `style/main.css` gives default styling for the menu. For example, the following HTML would create a page with just the menu if `{{{menu}}}` is replaced with a menu array as detailed in the Input Data section:
+This library allows anyone to easily place a menu in any web page simply by including `script/menu.js`. This menu will be placed in an empty `<div>` that has the id `ordrinMenu`. The provided file `style/main.css` gives default styling for the menu. For example, the following HTML would create a page with just the menu with default styling if `{{{menu}}}` is replaced with a menu array as detailed in the Input Data section:
 ```html
 <!Doctype html>
 <html>
@@ -13,7 +13,6 @@ This library allows anyone to easily place a menu in any web page simply by incl
   <body>
     <script type="text/javascript">
       var ordrin = (ordrin instanceof Object) ? ordrin : {};
-      ordrin.render = true;
       ordrin.menu   = {{{menu}}}
     </script>
     <div id="ordrinMenu"></div>
@@ -21,11 +20,13 @@ This library allows anyone to easily place a menu in any web page simply by incl
 </html>
 ```
 
+This assumes that the script is at `/script/menu.js` and the stylesheet is at `/style/main.css`.
+
 ## Javascript
 The following classes are used for externally visible data:
 
 ### Option
-### Fields:
+#### Fields:
 
 1. `id`: The menu id of the option
 2. `name`: The name of the option
