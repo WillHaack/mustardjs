@@ -1,0 +1,27 @@
+<div id=\"yourTray\">Your Tray</div>
+<ul class=\"menuList\">
+  {{#menu}}
+  <li class=\"menuCategory\" data-mgid=\"{{id}}\">
+    <div class=\"menu-hd\">
+      <p class=\"header itemListName\">{{name}}</p>
+    </div>
+    <ul class=\"itemList menu main-menu\">
+      {{#children}}
+      <li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\">
+	<p class=\"name\">{{name}}</p>
+	<p>
+	  <span class=\"price\">{{price}}</span>
+	</p>
+      </li>
+      {{/children}}
+    </ul>
+  </li>
+  {{/menu}}
+</ul>
+<div class=\"trayContainer\">
+  <ul class=\"tray\">
+  </ul>
+</div>
+<!-- Menu Item Dialog -->
+<div class=\"optionsDialog popup-container hidden\"></div>
+<div class=\"dialogBg fade-to-gray hidden\"></div>"
