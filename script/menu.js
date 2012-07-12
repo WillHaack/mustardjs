@@ -1,7 +1,17 @@
 var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
-  "use strict";
+  if(!ordrin.hasOwnProperty("template")){
+    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
+  }
+
+  if(!ordrin.hasOwnProperty("dialogTemplate")){
+    ordrin.dialogTemplate = "<div class=\"popup-box-container dialog\"><div class=\"close-popup-box\"><img class=\"closeDialog\" data-listener=\"closeDialog\" src=\"https://fb.ordr.in/images/popup-close.png\" /></div><div class=\"mItem-add-to-tray popup-content\"><div class=\"menu-hd\"><div class=\"boxright\"><h1 class=\"big-col itemTitle\">{{name}}</h1><p class=\"slim-col itemPrice\">{{price}}</p></div><div class=\"clear\"></div></div><p class=\"desc dialogDescription\">{{descrip}}</p></div><div class=\"optionContainer\"><ul class=\"optionCategoryList\">{{#children}}<li data-mogid=\"{{id}}\" class=\"optionCategory\"><span class=\"header\">{{name}}</span><span class=\"error\"></span><ul class=\"optionList\">{{#children}}<li class=\"option\" data-moid=\"{{id}}\"><input type=\"checkbox\" class=\"optionCheckbox\" data-listener=\"optionCheckbox\" /><span class=\"optionName\">{{name}}</span><span class=\"optionPrice\">{{price}}</span></li>{{/children}}</ul><div class=\"clear\"></div></li>{{/children}}</ul>      </div><label for=\"itemQuantity\">Quantity: </label><input type=\"number\" class=\"itemQuantity\" value=\"1\" min=\"1\" /><br /><input type=\"submit\" class=\"buttonRed\" data-listener=\"addToTray\" value=\"Add to Tray\" /></div>";
+  }
+
+  if(!ordrin.hasOwnProperty("trayItemTemlate")){
+    ordrin.trayItemTemplate = "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\"><div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">X</div><span class=\"trayItemName\">{{itemName}}</span><span class=\"trayItemPrice\">{{price}}</span><span class=\"trayItemQuantity\">({{quantity}})</span><ul>{{#options}}<li class=\"trayOption\"><span class=\"trayOptionName\">{{name}}</span><span class=\"trayOptionPrice\">{{price}}</span></li>{{/options}}</ul></li>";
+  }
 
   var Mustache="undefined"!==typeof module&&module.exports||{};
 (function(j){function G(a){return(""+a).replace(/&(?!\w+;)|[<>"']/g,function(a){return H[a]||a})}function t(a,c,d,e){for(var e=e||"<template>",b=c.split("\n"),f=Math.max(d-3,0),g=Math.min(b.length,d+3),b=b.slice(f,g),i=0,l=b.length;i<l;++i)g=i+f+1,b[i]=(g===d?" >> ":"    ")+b[i];a.template=c;a.line=d;a.file=e;a.message=[e+":"+d,b.join("\n"),"",a.message].join("\n");return a}function u(a,c,d){if("."===a)return c[c.length-1];for(var a=a.split("."),e=a.length-1,b=a[e],f,g,i=c.length,l,j;i;){j=c.slice(0);
@@ -14,104 +24,15 @@ n[n.length-1].name+'" was not closed properly'),a,s,c.file);r();f.push('";',"\nr
 a,i.line,c.file);}}}function B(a,c){c=c||{};return!1!==c.cache?(p[a]||(p[a]=A(a,c)),p[a]):A(a,c)}function r(a,c,d){return B(a)(c,d)}j.name="mustache.js";j.version="0.5.0-dev";j.tags=["{{","}}"];j.parse=z;j.compile=B;j.render=r;j.clearCache=function(){p={}};j.to_html=function(a,c,d,e){a=r(a,c,d);if("function"===typeof e)e(a);else return a};var J=Object.prototype.toString,C=Array.isArray,E=Array.prototype.forEach,F=String.prototype.trim,q;q=C?C:function(a){return"[object Array]"===J.call(a)};var y;
 y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length;e<b;++e)c.call(d,a[e],e,a)};var D=/^\s*$/,o;if(F)o=function(a){return null==a?"":F.call(a)};else{var w,x;D.test("\u00a0")?(w=/^\s+/,x=/\s+$/):(w=/^[\s\xA0]+/,x=/[\s\xA0]+$/);o=function(a){return a==null?"":(""+a).replace(w,"").replace(x,"")}}var H={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},p={}})(Mustache);
 
+  ordrin.Mustache = Mustache;
+})();
+var  ordrin = (ordrin instanceof Object) ? ordrin : {};
+
+(function(){
+  "use strict";
+
   if(!ordrin.hasOwnProperty("render")){
-    ordrin.render = true;
-  }
-  
-  if(!ordrin.hasOwnProperty("template")){
-    ordrin.template = [
-      "  <div id=\"yourTray\">Your Tray</div>",
-      "  <ul class=\"menuList\">",
-      "    {{#menu}}",
-      "      <li class=\"menuCategory\" data-mgid=\"{{id}}\">",
-      "        <div class=\"menu-hd\">",
-      "          <p class=\"header itemListName\">{{name}}</p>",
-      "        </div>",
-      "        <ul class=\"itemList menu main-menu\">",
-      "          {{#children}}",
-      "            <li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\">",
-      "              <p class=\"name\">{{name}}</p>",
-      "              <p>",
-      "                <span class=\"price\">{{price}}</span>",
-      "              </p>",
-      "            </li>",
-      "          {{/children}}",
-      "        </ul>",
-      "      </li>",
-      "    {{/menu}}",
-      "  </ul>",
-      "  <div class=\"trayContainer\">",
-      "    <ul class=\"tray\">",
-      "    </ul>",
-      "  </div>",
-      "  <!-- Menu Item Dialog -->",
-      "  <div class=\"optionsDialog popup-container hidden\">",
-      "  </div>",
-      "  <div class=\"dialogBg fade-to-gray hidden\"></div>"
-    ].join("");
-  }
-
-  if(!ordrin.hasOwnProperty("dialogTemplate")){
-    ordrin.dialogTemplate = [
-      "    <div class=\"popup-box-container dialog\">",
-      "      <div class=\"close-popup-box\">",
-      "        <img class=\"closeDialog\" data-listener=\"closeDialog\" src=\"https://fb.ordr.in/images/popup-close.png\" />",
-      "      </div>",
-      "      <div class=\"mItem-add-to-tray popup-content\">",
-      "        <div class=\"menu-hd\">",
-      "          <div class=\"boxright\">",
-      "            <h1 class=\"big-col itemTitle\">{{name}}</h1>",
-      "            <p class=\"slim-col itemPrice\">{{price}}</p>",
-      "          </div>",
-      "          <div class=\"clear\"></div>",
-      "        </div>",
-      "        <p class=\"desc dialogDescription\">{{descrip}}</p>",
-      "      </div>",
-      "      <div class=\"optionContainer\">",
-      "        <ul class=\"optionCategoryList\">",
-      "          {{#children}}",
-      "            <li data-mogid=\"{{id}}\" class=\"optionCategory\">",
-      "              <span class=\"header\">{{name}}</span>",
-      "              <span class=\"error\"></span>",
-      "              <ul class=\"optionList\">",
-      "                {{#children}}",
-      "                  <li class=\"option\" data-moid=\"{{id}}\">",
-      "                    <input type=\"checkbox\" class=\"optionCheckbox\" data-listener=\"optionCheckbox\" />",
-      "                    <span class=\"optionName\">{{name}}</span>",
-      "                    <span class=\"optionPrice\">{{price}}</span>",
-      "                  </li>",
-      "                {{/children}}",
-      "              </ul>",
-      "              <div class=\"clear\"></div>",
-      "            </li>",
-      "          {{/children}}",
-      "        </ul>",      
-      "      </div>",
-      "      <label for=\"itemQuantity\">Quantity: </label>",
-      "      <input type=\"number\" class=\"itemQuantity\" value=\"1\" min=\"1\" />",
-      "      <br />",
-      "      <input type=\"submit\" class=\"buttonRed\" data-listener=\"addToTray\" value=\"Add to Tray\" />",
-      "  </div>"].join("");
-  }
-
-  if(!ordrin.hasOwnProperty("trayItemTemlate")){
-    ordrin.trayItemTemplate = [
-      "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\">",
-      "  <div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">",
-      "     X",
-      "  </div>",
-      "  <span class=\"trayItemName\">{{itemName}}</span>",
-      "  <span class=\"trayItemPrice\">{{price}}</span>",
-      "  <span class=\"trayItemQuantity\">({{quantity}})</span>",
-      "  <ul>",
-      "    {{#options}}",
-      "      <li class=\"trayOption\">",
-      "        <span class=\"trayOptionName\">{{name}}</span>",
-      "        <span class=\"trayOptionPrice\">{{price}}</span>",
-      "      </li>",
-      "    {{/options}}",
-      "  </ul>",
-      "</li>"].join("");
+	  ordrin.render = true;
   }
 
   var elements = {}; // variable to store elements so we don't have to continually DOM them
@@ -144,7 +65,7 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
 
     this.renderTrayHtml = function(){
       if(typeof this.trayItemNode === "undefined"){
-        var html = Mustache.render(ordrin.trayItemTemplate, this);
+        var html = ordrin.Mustache.render(ordrin.trayItemTemplate, this);
         var div = document.createElement("div");
         div.innerHTML = html;
         this.trayItemNode = div.firstChild;
@@ -283,7 +204,7 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
   listen("DOMContentLoaded", window, function(){
     allItems = extractAllItems(ordrin.menu);
     if(ordrin.render){
-      var menuHtml = Mustache.render(ordrin.template, ordrin);
+      var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
       document.getElementById("ordrinMenu").innerHTML = menuHtml;
       getElements();
     }
@@ -366,7 +287,7 @@ y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length
   }
 
   function buildDialogBox(id){
-    elements.dialog.innerHTML = Mustache.render(ordrin.dialogTemplate, allItems[id]);
+    elements.dialog.innerHTML = ordrin.Mustache.render(ordrin.dialogTemplate, allItems[id]);
     elements.dialog.setAttribute("data-miid", id);
   }
   

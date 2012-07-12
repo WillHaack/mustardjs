@@ -1,6 +1,6 @@
 # Readme
 
-This library allows anyone to easily place a menu in any web page simply by including `script/menu.js`. This menu will be placed in an empty `<div>` that has the id `ordrinMenu`. The provided file `style/main.css` gives default styling for the menu. For example, the following HTML would create a page with just the menu with default styling if `{{{menu}}}` is replaced with a menu array as detailed in the **Input Data** section:
+This library allows anyone to easily place a menu in any web page simply by including `script/menu.js` or `script/menu.min.js`. This menu will be placed in an empty `<div>` that has the id `ordrinMenu`. The provided file `style/main.css` gives default styling for the menu. For example, the following HTML would create a page with just the menu with default styling if `{{{menu}}}` is replaced with a menu array as detailed in the **Input Data** section:
 ```html
 <!Doctype html>
 <html>
@@ -8,7 +8,7 @@ This library allows anyone to easily place a menu in any web page simply by incl
     <!-- for IE6-8 support of HTML5 elements-->
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <link rel="stylesheet" href="/style/main.css" />
-    <script type="text/javascript" src="/script/menu.js"></script>
+    <script type="text/javascript" src="/script/menu.min.js"></script>
   </head>
   <body>
     <script type="text/javascript">
