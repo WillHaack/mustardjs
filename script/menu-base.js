@@ -74,7 +74,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         var newNode = item.renderTrayHtml();
         var pageTrayItems = getElementsByClassName(elements.tray, "trayItem");
         for(var i=0; i<pageTrayItems.length; i++){
-          if(pageTrayItems[i].getAttribute("data-tray-id")==item.trayItemId){
+          if(+(pageTrayItems[i].getAttribute("data-tray-id"))===item.trayItemId){
             elements.tray.replaceChild(newNode, pageTrayItems[i]);
             return;
           }
@@ -220,6 +220,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function getElementsByClassName(node, className){
+    if(typeof node.getElementsByClassName !== "undefined"){
+      return node.getElementsByClassName(className);
+    }
     var re = new RegExp("\\b"+className+"\\b");
     var nodes = [];
     for(var i=0; i<node.children.length; i++){
@@ -351,7 +354,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var itemPrice = allItems[id].price;
     var trayItem =  new TrayItem(id, quantity, options, itemName, itemPrice);
     if(elements.dialog.hasAttribute("data-tray-id")){
-      trayItem.trayItemId = +(elements.dialog.getAttribute("data-tray-item"));
+      trayItem.trayItemId = +(elements.dialog.getAttribute("data-tray-id"));
     }
     return trayItem;
   }
