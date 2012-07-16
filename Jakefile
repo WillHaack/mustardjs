@@ -32,6 +32,15 @@ task('menu.min.js', ['menu.js'], function(){
                    });
 });
 
-task('default', ['menu.min.js'], function(){
+task('main.min.css', function(){
+  var child = exec("cleancss -o ./style/main.min.css ./style/main.css",
+                   function(error, stdout, stderr){
+                     if(error !== null){
+                       console.log('error: ' + error);
+                     }
+                   });
+});
+
+task('default', ['menu.min.js', 'main.min.css'], function(){
   console.log("Finished building");
 });
