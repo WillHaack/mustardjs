@@ -24,7 +24,7 @@ task('menu.js', ['templateLoader.js'], function(){
 });
 
 task('menu.min.js', ['menu.js'], function(){
-  var child = exec("uglifyjs -o ./script/menu.min.js  ./script/menu.js",
+  var child = exec("uglifyjs --unsafe --lift-vars -o ./script/menu.min.js  ./script/menu.js",
                    function(error, stdout, stderr){
                      if(error !== null){
                        console.log('error: ' + error);
