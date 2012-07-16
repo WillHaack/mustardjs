@@ -1,10 +1,10 @@
-.center{
+#ordrinMenu .center{
   margin-right: auto;
   margin-left: auto;
   text-align: center;
 }
 /* form styling */
-.close-popup-box {
+#ordrinMenu .close-popup-box {
   position: relative;
   top: -18px;
   left: 98%;
@@ -12,7 +12,7 @@
   width: 56px;
   float: left;
 }
-.popup-box-container{
+#ordrinMenu .popup-box-container{
   border-radius: 10px;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -25,7 +25,7 @@
   -moz-box-shadow: 3px 3px 15px 0 #222222;
   -webkit-box-shadow: 3px 3px 15px 0 #222222;
 }
-.dialog{
+#ordrinMenu .dialog{
   z-index: 1050;
   position: fixed;
   background-color: white;
@@ -40,25 +40,25 @@
   -webkit-border-radius: 6px;
   border-radius: 6px;
 }
-.closeDialog{
+#ordrinMenu .closeDialog{
   position: absolute;
   top: 0;
   left: 0;
   clip: rect(0 56px 57px 0);
 }
-.closeDialog:hover {
+#ordrinMenu .closeDialog:hover {
   clip: rect(57px 56px 114px 0);
   top: -57px;
   cursor: pointer;
 }
-.popup-container{
+#ordrinMenu .popup-container{
   position: fixed;
   top: 0;
   left: 0;
   margin: 0;
   z-index: 2006;
 }
-.fade-to-gray, .fade-to-white {
+#ordrinMenu .fade-to-gray, .fade-to-white {
   position: fixed;
   top: 0;
   left: 0;
@@ -67,7 +67,7 @@
   width: 100%;
   z-index: 2005;
 }
-.fade-to-gray {
+#ordrinMenu .fade-to-gray {
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
   filter: alpha(opacity=50);
   -moz-opacity: 0.5;
@@ -75,7 +75,7 @@
   opacity: 0.5;
   background: black;
 }
-.buttonRed {
+#ordrinMenu .buttonRed {
   background: #C81E1E;
   border-radius: 8px;
   -webkit-border-radius: 8px;
@@ -97,50 +97,50 @@
 - Blue: #8ed4ce;
 - Salmon: #ff6762;
 **/
-body {
+#ordrinMenu body {
     font-family: Arial, Helvetica, sans-serif;
 }
-h1 {
+#ordrinMenu h1 {
     font-family: "Arial Black", Arial, Helvetica, sans-serif;
     font-size: 30px;
     padding-bottom: 20px;
     padding-top: 30px;
 }
- address {
+#ordrinMenu  address {
     border: 5px solid #d2142e;
     padding: 15px;
     font-size: 20px;
     margin-bottom: 20px;
     width: 610px;
 }
-ul{
+#ordrinMenu ul{
   list-style-type: none;
   padding-left: 0;
 }
-body{
+#ordrinMenu body{
   font-weight: normal;
   font-family: "Helvetica";
   font-size: 15px;
   padding-left: 10px;
 }
-.header{
+#ordrinMenu .header{
   font-weight: bold;
   font-size: 18px;
 }
-.hidden{
+#ordrinMenu .hidden{
   display: none;
 }
-.price{
+#ordrinMenu .price{
   padding-right: 5px;
 }
-.clear{
+#ordrinMenu .clear{
   clear: both;
 }
-.optionCategory{
+#ordrinMenu .optionCategory{
   padding-top: 5px;
   padding-bottom: 5px;
 }
-.option{
+#ordrinMenu .option{
   width: 210px;
   float: left;
   padding-left: 10px;
@@ -150,28 +150,28 @@ body{
 /*=== the div that shows the info of the restaurant you selected on the menu page ===*/
 /*======menu styles======*/
 /* menu header*/
-.menu-hd {
+#ordrinMenu .menu-hd {
   border-bottom: 1px solid #e6e6dc;
   padding-bottom: 8px;
 }
-.menu-hd p:first-child, .header {
+#ordrinMenu .menu-hd p:first-child, .header {
   font-weight: bold;
   font-size: 16px;
   color: #d2142e;
   padding-bottom: 5px;
 }
 /* menu items */
-.menu {
+#ordrinMenu .menu {
   margin-bottom: 6px;
   overflow: hidden;
 }
-.menu li p {
+#ordrinMenu .menu li p {
   margin: 0;
 }
-.menu li p:first-child {
+#ordrinMenu .menu li p:first-child {
   width: 78%;
 }
-.menu li {
+#ordrinMenu .menu li {
   font-size: 12px;
   padding: 8px 0;
   border-bottom: 1px solid #e6e6dc;
@@ -181,23 +181,23 @@ body{
   position: relative;
   height: 14px;
 }
-.menu li:nth-of-type(2n + 1){
+#ordrinMenu .menu li:nth-of-type(2n + 1){
   margin-right: 16px;
 }
-.menu>li:first-child + li + li {
+#ordrinMenu .menu>li:first-child + li + li {
   margin-right: 16px;
 }
-.mi > ul {
+#ordrinMenu .mi > ul {
   display:none;
 }
-.mi{
+#ordrinMenu .mi{
   display: block;
 }
-.menu li:hover {
+#ordrinMenu .menu li:hover {
   cursor: pointer;
   background: #f9f8ed;
 }
-.menu li .price {
+#ordrinMenu .menu li .price {
   text-align: right;
   width: 22%;
   color: #55544b;
@@ -206,15 +206,15 @@ body{
   right: 0;
 }
 /*popup menu item*/
-.mItem-add-to-tray {
+#ordrinMenu .mItem-add-to-tray {
   font-size: 12px;
 }
 /* popup menu : heading of the menu item pop-up */
-.mItem-add-to-tray .boxright {
+#ordrinMenu .mItem-add-to-tray .boxright {
   border-bottom: 1px dashed #a7a69b;
   padding-right: 10px;
 }
-.mItem-add-to-tray h1 {
+#ordrinMenu .mItem-add-to-tray h1 {
   font-weight: bold;
   font-size: 18px;
   color: #d2142e;
@@ -223,29 +223,29 @@ body{
   padding: 0;
   margin: 0;
 }
-.mItem-add-to-tray .menu-hd .boxright .slim-col {
+#ordrinMenu .mItem-add-to-tray .menu-hd .boxright .slim-col {
   font-size: 18px;
   text-align: right;
 }
-.mItem-add-to-tray .desc {
+#ordrinMenu .mItem-add-to-tray .desc {
   padding-top: 5px;
 }
-.mItem-add-to-tray .menu-hd {
+#ordrinMenu .mItem-add-to-tray .menu-hd {
   border: none;
   margin-bottom: 15px;
 }
-.menuList{
+#ordrinMenu .menuList{
   width: 80%;
   float: left;
 }
-p.desc.dialogDescription {
+#ordrinMenu p.desc.dialogDescription {
     font-style: italic;
     font-size: 11px;
     color: rgb(117, 116, 105);
     margin-top: -40px;
 }
 
-label {
+#ordrinMenu label {
     margin-left: 55px;
     color: rgb(117, 116, 105);
     text-transform: uppercase;
@@ -253,7 +253,7 @@ label {
     font-size: 12px;
 }
 
-.buttonRed {
+#ordrinMenu .buttonRed {
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 55px;
@@ -262,45 +262,45 @@ label {
     font-weight: bold;
 }
 
-span.header {
+#ordrinMenu span.header {
     color: rgb(117, 116, 105);
     font-size: 14px;
 }
 
-span.optionPrice {
+#ordrinMenu span.optionPrice {
     color: rgb(117, 116, 105);
     font-size: 12px;
 }
 
-span.optionName {
+#ordrinMenu span.optionName {
     color: rgb(117, 116, 105);
     font-size: 12px;
 }
 
-li.optionCategory {
+#ordrinMenu li.optionCategory {
     margin-left: 55px;
 }
 
-p.slim-col.itemPrice {
+#ordrinMenu p.slim-col.itemPrice {
     margin-right: 55px;
     color: rgb(210, 20, 46);
     font-size: 18px;
     font-weight: bold;
 }
 
-h1.big-col.itemTitle {
+#ordrinMenu h1.big-col.itemTitle {
     color: rgb(210, 20, 46);
     font-size: 18px;
     font-family: Arial, Helvetica, sans-serif;
     font-weight: bold;
 }
 
-input.itemQuantity {
+#ordrinMenu input.itemQuantity {
     width: 30px;
     margin-left: 5px;
 }
 
-div.trayContainer {
+#ordrinMenu div.trayContainer {
 background: #eeeeee; /* Old browsers */
 background: -moz-linear-gradient(top,  #eeeeee 0%, #cccccc 100%); /* FF3.6+ */
 background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
@@ -318,7 +318,7 @@ border: 1px solid rgb(117, 116, 105);
     padding: 5px;
 }
 
-#yourTray {
+#ordrinMenu #yourTray {
     float: right;
     width: 20%;
     font-family: "Arial Black", sans-serif;
@@ -326,14 +326,14 @@ border: 1px solid rgb(117, 116, 105);
     margin-bottom: 10px;
 }
 
-li.trayItem {
+#ordrinMenu li.trayItem {
     border-bottom: 1px dashed rgb(117, 116, 105);
     margin-bottom: 30px;
     font-size: 12px;
     cursor: pointer;
 }
 
-div.trayItemRemove {
+#ordrinMenu div.trayItemRemove {
     width: 2%;
     float: left;
     color: #fff;
@@ -354,26 +354,26 @@ padding: 3px;
 margin-right: 3%;
 }
 
-span.trayItemQuantity {
+#ordrinMenu span.trayItemQuantity {
 font-size: 10px;
 width: 10%;
 }
 
-span.trayOptionPrice {
+#ordrinMenu span.trayOptionPrice {
     font-size: 10px;
     float: right;
 }
 
-span.trayOptionName {
+#ordrinMenu span.trayOptionName {
     font-size: 10px;
 }
 
-span.trayItemName {
+#ordrinMenu span.trayItemName {
     font-weight: bold;
     width: 72%;
 }
 
-span.trayItemPrice {
+#ordrinMenu span.trayItemPrice {
     float: right;
     font-weight: bold;
 }
