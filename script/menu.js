@@ -206,8 +206,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     if(ordrin.render){
       var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
       document.getElementById("ordrinMenu").innerHTML = menuHtml;
-      getElements();
     }
+    getElements();
     listen("click", document, clicked);
   });
 
