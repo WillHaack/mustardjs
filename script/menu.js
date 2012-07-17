@@ -31,6 +31,18 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 (function(){
   "use strict";
 
+  function Mustard(){
+    this.getTray = function(){
+      return ordrin.tray;
+    }
+
+    this.setAddress = function(address){
+      ordrin.address = address;
+    }
+  }
+
+  ordrin.mustard = new Mustard();
+
   if(!ordrin.hasOwnProperty("render")){
 	  ordrin.render = true;
   }
@@ -201,7 +213,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
   var allItems = {};
 
-  listen("DOMContentLoaded", window, function(){
+  function init(){
     allItems = extractAllItems(ordrin.menu);
     if(ordrin.render){
       var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
@@ -209,7 +221,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
     getElements();
     listen("click", document, clicked);
-  });
+  };
 
   function clicked(event){
     if (typeof event.srcElement == "undefined"){
@@ -400,4 +412,6 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     elements.dialogBg = getElementsByClassName(menu, "dialogBg")[0];
     elements.tray     = getElementsByClassName(menu, "tray")[0];
   }
+
+  init();
 })();
