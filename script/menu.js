@@ -246,7 +246,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   if(!ordrin.hasOwnProperty("trayItemTemlate")){
-    ordrin.trayItemTemplate = "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\"><div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">X</div><span class=\"trayItemName\">{{itemName}}</span><span class=\"trayItemPrice\">{{price}}</span><span class=\"trayItemQuantity\">({{quantity}})</span><ul>{{#options}}<li class=\"trayOption\"><span class=\"trayOptionName\">{{name}}</span><span class=\"trayOptionPrice\">{{price}}</span></li>{{/options}}</ul></li>";
+    ordrin.trayItemTemplate = "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\"><div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">X</div><span class=\"trayItemName\">{{itemName}}</span><span class=\"trayItemPrice\">{{quantityPrice}}</span><span class=\"trayItemQuantity\">({{quantity}})</span><ul>{{#options}}<li class=\"trayOption\"><span class=\"trayOptionName\">{{name}}</span><span class=\"trayOptionPrice\">{{totalPrice}}</span></li>{{/options}}</ul></li>";
   }
 
   var Mustache="undefined"!==typeof module&&module.exports||{};
@@ -305,8 +305,12 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.itemId   = itemId;
     this.itemName = itemName;
     this.quantity = quantity;
+    for(int i=0; i<options.length; i++){
+      options[i].totalPrice = options[i].price * (+quantity);
+    }
     this.options  = options;
     this.price = price;
+    this.quantityPrice = (+quantity) * (+price);
 
     this.buildItemString = function(){
       var string = this.itemId + "/" + this.quantity;
@@ -395,15 +399,15 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     this.updateFee = function(){
       var subtotal = this.getSubtotal();
-      getElementsByClassName(elements.menu, "subtotalValue")[0].innerHtml = subtotal;
+      getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = subtotal;
       ordrin.api.restaurant.getFee(ordrin.rid, this.getSubtotal(), 0, "ASAP", ordrin.address, function(err, data){
         if(err){
           console.log(err);
         } else {
-          getElementsByClassName(elements.menu, "feeValue")[0].innerHtml = data.fee;
-          getElementsByClassName(elements.menu, "taxValue")[0].innerHtml = data.tax;
+          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
+          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
           var total = subtotal + (+data.fee) + (+data.tax);
-          getElementsByClassName(elements.menu, "totalValue")[0].innerHtml = total;
+          getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = total;
         }
       });
     }
