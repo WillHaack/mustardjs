@@ -17,9 +17,10 @@ task('templateLoader.js', function(){
 });
 
 task('menu.js', ['templateLoader.js'], function(){
+  var api = fs.readFileSync("./script/api.js", "utf8");
   var templateLoader = fs.readFileSync("./script/templateLoader.js", "utf8");
   var menu_base = fs.readFileSync("./script/menu-base.js", "utf8");
-  var output = (templateLoader+menu_base).replace(/\r/g, "");
+  var output = (api+templateLoader+menu_base).replace(/\r/g, "");
   fs.writeFileSync("./script/menu.js", output, "utf8");
 });
 
