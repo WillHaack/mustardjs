@@ -41,7 +41,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.itemId   = itemId;
     this.itemName = itemName;
     this.quantity = quantity;
-    for(int i=0; i<options.length; i++){
+    for(var i=0; i<options.length; i++){
       options[i].totalPrice = options[i].price * (+quantity);
     }
     this.options  = options;
