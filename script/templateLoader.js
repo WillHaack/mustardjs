@@ -2,7 +2,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
   if(!ordrin.hasOwnProperty("template")){
-    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
+    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\"></span></div><div class=\"fee\">Fee: <span class=\"feeValue\"></span></div><div class=\"tax\">Tax: <span class=\"taxValue\"></span></div><div class=\"total\">Total: <span class=\"totalValue\"></span></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
   }
 
   if(!ordrin.hasOwnProperty("dialogTemplate")){

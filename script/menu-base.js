@@ -11,6 +11,12 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.setAddress = function(address){
       ordrin.address = address;
     }
+
+    this.deliveryCheck = function(){
+      ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, "ASAP", ordrin.address, function(err, data){
+        console.log(data);
+      });
+    }
   }
 
   ordrin.mustard = new Mustard();
@@ -93,12 +99,14 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         }
         elements.tray.appendChild(newNode);
       }
+      this.updateFee();
     }
 
     this.removeItem = function(id){
       var removed = this.items[id];
       delete this.items[id];
       elements.tray.removeChild(removed.trayItemNode);
+      this.updateFee();
     }
 
     this.buildTrayString = function(){
@@ -119,6 +127,21 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         }
       }
       return subtotal;
+    }
+
+    this.updateFee = function(){
+      var subtotal = this.getSubtotal();
+      getElementsByClassName(elements.menu, "subtotalValue")[0].innerHtml = subtotal;
+      ordrin.api.restaurant.getFee(ordrin.rid, this.getSubtotal(), 0, "ASAP", ordrin.address, function(err, data){
+        if(err){
+          console.log(err);
+        } else {
+          getElementsByClassName(elements.menu, "feeValue")[0].innerHtml = data.fee;
+          getElementsByClassName(elements.menu, "taxValue")[0].innerHtml = data.tax;
+          var total = subtotal + (+data.fee) + (+data.tax);
+          getElementsByClassName(elements.menu, "totalValue")[0].innerHtml = total;
+        }
+      });
     }
   };
 
@@ -385,6 +408,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   // UTILITY FUNCTIONS
   function getElements(){
     var menu          = document.getElementById("ordrinMenu");
+    elements.menu     = menu;
     elements.dialog   = getElementsByClassName(menu, "optionsDialog")[0];
     elements.dialogBg = getElementsByClassName(menu, "dialogBg")[0];
     elements.tray     = getElementsByClassName(menu, "tray")[0];
