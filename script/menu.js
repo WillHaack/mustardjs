@@ -450,6 +450,11 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   var allItems = {};
 
   function init(){
+    if(typeof ordrin.menu === "undefined"){
+      ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
+        ordin.menu = data.menu;
+      });
+    }
     allItems = extractAllItems(ordrin.menu);
     if(ordrin.render){
       var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
