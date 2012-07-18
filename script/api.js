@@ -50,7 +50,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }).join('&');
   }
 
-  var Tools = function(globals){
+  var Tools = function(){
 
     /*
      * Base function to make a request to the ordr.in api
@@ -67,7 +67,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       //   uri += "?" + data;
       // }
 
-      var req = getXhr().open(method, host+uri, false);
+      var req = getXhr();
+      req.open(method, host+uri, false);
 
       if (method != "GET"){
         req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
@@ -81,7 +82,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         return;
       }
 
-      callback(null, req.response);
+      callback(null, JSON.parse(req.response));
     }
 
     this.buildUriString = function(baseUri, params){
@@ -92,8 +93,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
   };
 
-  var Restaurant = function(globals){
-    var tools    = new Tools(globals);
+  var Restaurant = function(restaurantUrl){
+    var tools    = new Tools();
 
 
     this.getDeliveryList = function(dateTime, address, callback){
@@ -154,7 +155,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.makeRestaurantRequest = function(uri, params, data, method, callback){
       var uriString = tools.buildUriString(uri, params);
       
-      tools.makeApiRequest(globals.restaurantUrl, uriString, method, data, {}, callback);
+      tools.makeApiRequest(restaurantUrl, uriString, method, data, callback);
     }
 
     this.checkDateTime = function(dateTime){
@@ -223,18 +224,9 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.validate();
   }
 
-  var init = function(options){    
-    if (typeof options.servers !== "undefined"){
-      var servers = String(options.servers).toUpperCase();
-      if (servers === "PRODUCTION"){
-        options.restaurantUrl = "r.ordr.in";
-      } else if (servers === "TEST"){
-        options.restaurantUrl = "r-test.ordr.in";
-      }
-    }
-
+  var init = function(){
     return {
-      restaurant: new restaurantLib.Restaurant(options),
+      restaurant: new Restaurant(ordrin.restaurantUrl),
       Address: Address
     };
   };
