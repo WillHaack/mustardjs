@@ -452,7 +452,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   function init(){
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
-        ordin.menu = data.menu;
+        ordrin.menu = data.menu;
       });
     }
     allItems = extractAllItems(ordrin.menu);
