@@ -577,7 +577,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var form = document.forms["ordrinAddress"];
     var inputs = ['addr', 'addr2', 'city', 'state', 'zip', 'phone'];
     for(var i=0; i<inputs.length; i++){
-      getElementsByClassName(elements.menu, inputs[i]+"Error")[0].innerHtml = '';
+      getElementsByClassName(elements.menu, inputs[i]+"Error")[0].innerHTML = '';
     }
     try {
       var address = new ordrin.api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
