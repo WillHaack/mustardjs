@@ -162,18 +162,23 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.updateFee = function(){
       var subtotal = this.getSubtotal();
       getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
-      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), 0, "ASAP", ordrin.address, function(err, data){
+      var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
+      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), "ASAP", ordrin.address, function(err, data){
         if(err){
           console.log(err);
         } else {
           getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
-          var total = subtotal + toCents(data.fee) + toCents(data.tax);
+          var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
         }
       });
     }
   };
+
+  function updateTray(){
+    ordrin.tray.updateFee();
+  }
 
   ordrin.tray = new Tray()
   ordrin.getTrayString = function(){
@@ -264,7 +269,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       closeDialog : hideDialogBox,
       addToTray : addTrayItem,
       removeTrayItem : removeTrayItem,
-      optionCheckbox : validateCheckbox
+      optionCheckbox : validateCheckbox,
+      updateTray : updateTray
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){

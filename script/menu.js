@@ -238,7 +238,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
   if(!ordrin.hasOwnProperty("template")){
-    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\"></span></div><div class=\"fee\">Fee: <span class=\"feeValue\"></span></div><div class=\"tax\">Tax: <span class=\"taxValue\"></span></div><div class=\"total\">Total: <span class=\"totalValue\"></span></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
+    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\"></span></div><div class=\"tip\"><input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div><div class=\"fee\">Fee: <span class=\"feeValue\"></span></div><div class=\"tax\">Tax: <span class=\"taxValue\"></span></div><div class=\"total\">Total: <span class=\"totalValue\"></span></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
   }
 
   if(!ordrin.hasOwnProperty("dialogTemplate")){
@@ -426,18 +426,23 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.updateFee = function(){
       var subtotal = this.getSubtotal();
       getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
-      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), 0, "ASAP", ordrin.address, function(err, data){
+      var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
+      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), "ASAP", ordrin.address, function(err, data){
         if(err){
           console.log(err);
         } else {
           getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
-          var total = subtotal + toCents(data.fee) + toCents(data.tax);
+          var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
         }
       });
     }
   };
+
+  function updateTray(){
+    ordrin.tray.updateFee();
+  }
 
   ordrin.tray = new Tray()
   ordrin.getTrayString = function(){
@@ -528,7 +533,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       closeDialog : hideDialogBox,
       addToTray : addTrayItem,
       removeTrayItem : removeTrayItem,
-      optionCheckbox : validateCheckbox
+      optionCheckbox : validateCheckbox,
+      updateTray : updateTray
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
