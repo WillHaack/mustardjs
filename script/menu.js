@@ -583,6 +583,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       var address = new ordrin.api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
       ordrin.mustard.setAddress(address);
     } catch(e){
+      console.log(e);
       if(typeof e.fields !== "undefined"){
         var keys = Object.keys(e.fields);
         for(var i=0; i<keys.length; i++){
