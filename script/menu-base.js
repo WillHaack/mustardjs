@@ -268,10 +268,10 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
-      node = node.parentNode;
       if(node.tagName.toUpperCase() === "HTML"){
         return;
       }
+      node = node.parentNode;
     }
     var name = node.getAttribute("data-listener");
 
