@@ -27,10 +27,22 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
   var elements = {}; // variable to store elements so we don't have to continually DOM them
 
+  //All prices should be in cents
+
+  function toCents(value){
+    return +(value.replace(/[^\d]/g));
+  }
+
+  function toDollars(value){
+    var cents = value.toString();
+    var index = cents.length - 2;
+    return cents.substring(0, index) + '.' + cents.substring(index);
+  }
+  
   var Option = function(id, name, price){
     this.id = id;
     this.name = name;
-    this.price = price;
+    this.price = toCents(price);
   }
 
   var nextId = 0;
@@ -40,13 +52,13 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.trayItemId = nextId++;
     this.itemId   = itemId;
     this.itemName = itemName;
-    this.quantity = quantity;
+    this.quantity = +quantity;
     for(var i=0; i<options.length; i++){
-      options[i].totalPrice = options[i].price * (+quantity);
+      options[i].totalPrice = toDollars(options[i].price * quantity);
     }
     this.options  = options;
-    this.price = price;
-    this.quantityPrice = (+quantity) * (+price);
+    this.price = toCents(price);
+    this.quantityPrice = toDollars(quantity * price)
 
     this.buildItemString = function(){
       var string = this.itemId + "/" + this.quantity;
@@ -77,11 +89,11 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
 
     this.getTotalPrice = function(){
-      var price = +(this.price);
+      var price = this.price;
       for(var i=0; i<this.options.length; i++){
-        price += +(this.options[i].price);
+        price += this.options[i].price;
       }
-      return price*(+(this.quantity));
+      return toDollars(price*this.quantity);
     }
   }
 
