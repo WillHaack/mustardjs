@@ -30,7 +30,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   //All prices should be in cents
 
   function toCents(value){
-    return +(value.replace(/[^\d]/g));
+    return +(value.replace(/[^\d]/g, ''));
   }
 
   function toDollars(value){
