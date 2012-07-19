@@ -533,7 +533,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
       node = node.parentNode;
-      if(node===null){
+      if(element.tagName.toUpperCase() === "HTML"){
         return;
       }
     }
