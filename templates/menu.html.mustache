@@ -37,14 +37,14 @@
   <div class="total">
     Total: <span class="totalValue"></span>
   </div>
-  <div class="address">
+  <div class="addressForm">
     <form name="ordrinAddress">
-      <label>Street Address 1: <input type="text" name="addr1" placeholder="Street Address 1"></label></br>
-      <label>Street Address 2: <input type="text" name="addr2" placeholder="Street Address 2"></label></br>
-      <label>City: <input type="text" name="city" placeholder="City"></label></br>
-      <label>State: <input type="text" name="state" placeholder="State"></label></br>
-      <label>Zip Code: <input type="text" name="zip" placeholder="Zip Code"></label></br>
-      <label>Phone Number: <input type="tel" name="phone" placeholder="Phone Number"></label></br>
+      <label>Street Address 1: <input type="text" name="addr" placeholder="Street Address 1"></label><span class="addrError"></span></br>
+      <label>Street Address 2: <input type="text" name="addr2" placeholder="Street Address 2"></label><span class="addr2Error"></span></br>
+      <label>City: <input type="text" name="city" placeholder="City"></label><span class="cityError"></span></br>
+      <label>State: <input type="text" name="state" placeholder="State"></label><span class="stateError"></span></br>
+      <label>Zip Code: <input type="text" name="zip" placeholder="Zip Code"></label><span class="zipError"></span></br>
+      <label>Phone Number: <input type="tel" name="phone" placeholder="Phone Number"></label><span class="phoneError"></span></br>
       <input type="button" value="Update" data-listener="updateAddress">
     </form>
   </div>
