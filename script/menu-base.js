@@ -246,12 +246,12 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   function populateAddressForm(){
     if(typeof ordrin.address !== "undefined"){
       var form = document.forms["ordrinAddress"];
-      form.addr1.value = ordrin.address.addr;
-      form.addr2.value = ordrin.address.addr2;
-      form.city.value = ordrin.address.city;
-      form.state.value = ordrin.address.state;
-      form.zip.value = ordrin.address.zip;
-      form.phone.value = ordrin.address.phone;
+      form.addr1.value = ordrin.address.addr || '';
+      form.addr2.value = ordrin.address.addr2 || '';
+      form.city.value = ordrin.address.city || '';
+      form.state.value = ordrin.address.state || '';
+      form.zip.value = ordrin.address.zip || '';
+      form.phone.value = ordrin.address.phone || '';
     }
   }
 
