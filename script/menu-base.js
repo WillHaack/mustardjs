@@ -323,7 +323,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       if(typeof e.fields !== "undefined"){
         var keys = Object.keys(e.fields);
         for(var i=0; i<keys.length; i++){
-          getElementsByClassName(elements.menu, keys[i]+"Error")[0].innerHtml = e.fields[keys[i]];
+          getElementsByClassName(elements.menu, keys[i]+"Error")[0].innerHTML = e.fields[keys[i]];
         }
       }
     }
