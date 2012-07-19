@@ -412,7 +412,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.updateFee = function(){
       var subtotal = this.getSubtotal();
       getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
-      ordrin.api.restaurant.getFee(ordrin.rid, this.getSubtotal(), 0, "ASAP", ordrin.address, function(err, data){
+      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), 0, "ASAP", ordrin.address, function(err, data){
         if(err){
           console.log(err);
         } else {
