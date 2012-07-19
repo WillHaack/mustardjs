@@ -243,7 +243,20 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
   var allItems = {};
 
+  function populateAddressForm(){
+    if(typeof ordrin.address !== "undefined"){
+      var form = document.forms["ordrinAddress"];
+      form.addr1.value = ordrin.address.addr;
+      form.addr2.value = ordrin.address.addr2;
+      form.city.value = ordrin.address.city;
+      form.state.value = ordrin.address.state;
+      form.zip.value = ordrin.address.zip;
+      form.phone.value = ordrin.address.phone;
+    }
+  }
+
   function init(){
+    populateAddressForm();
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
         ordrin.menu = data.menu;
@@ -270,7 +283,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       addToTray : addTrayItem,
       removeTrayItem : removeTrayItem,
       optionCheckbox : validateCheckbox,
-      updateTray : updateTray
+      updateTray : updateTray,
+      updateAddress : saveAddressForm
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
@@ -283,6 +297,16 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     if (typeof routes[name] != "undefined"){
       routes[name](node);
+    }
+  }
+
+  function saveAddressForm(){
+    var form = document.forms["ordrinAddress"];
+    try {
+      var address = new ordrin.api.Address(form.addr1.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
+      ordrin.address = address;
+    } catch(e){
+      console.log(e);
     }
   }
 

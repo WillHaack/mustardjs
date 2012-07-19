@@ -238,7 +238,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
   if(!ordrin.hasOwnProperty("template")){
-    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\"></span></div><div class=\"tip\"><input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div><div class=\"fee\">Fee: <span class=\"feeValue\"></span></div><div class=\"tax\">Tax: <span class=\"taxValue\"></span></div><div class=\"total\">Total: <span class=\"totalValue\"></span></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
+    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\"></span></div><div class=\"tip\"><input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div><div class=\"fee\">Fee: <span class=\"feeValue\"></span></div><div class=\"tax\">Tax: <span class=\"taxValue\"></span></div><div class=\"total\">Total: <span class=\"totalValue\"></span></div><div class=\"address\"><form name=\"ordrinAddress\"><p><label>Street Address 1: <input type=\"text\" name=\"addr1\" placeholder=\"Street Address 1\"></label></p><p><label>Street Address 2: <input type=\"text\" name=\"addr2\" placeholder=\"Street Address 2\"></label></p><p><label>City: <input type=\"text\" name=\"city\" placeholder=\"City\"></label></p><p><label>State: <input type=\"text\" name=\"state\" placeholder=\"State\"></label></p><p><label>Zip Code: <input type=\"text\" name=\"zip\" placeholder=\"Zip Code\"></label></p><p><label>Phone Number: <input type=\"tel\" name=\"phone\" placeholder=\"Phone Number\"></label></p><p><input type=\"button\" value=\"Update\" data-listener=\"updateAddress\"></p></form></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
   }
 
   if(!ordrin.hasOwnProperty("dialogTemplate")){
@@ -507,7 +507,20 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
   var allItems = {};
 
+  function populateAddressForm(){
+    if(typeof ordrin.address !== "undefined"){
+      var form = document.forms["ordrinAddress"];
+      form.addr1.value = ordrin.address.addr;
+      form.addr2.value = ordrin.address.addr2;
+      form.city.value = ordrin.address.city;
+      form.state.value = ordrin.address.state;
+      form.zip.value = ordrin.address.zip;
+      form.phone.value = ordrin.address.phone;
+    }
+  }
+
   function init(){
+    populateAddressForm();
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
         ordrin.menu = data.menu;
@@ -534,7 +547,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       addToTray : addTrayItem,
       removeTrayItem : removeTrayItem,
       optionCheckbox : validateCheckbox,
-      updateTray : updateTray
+      updateTray : updateTray,
+      updateAddress : saveAddressForm
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
@@ -547,6 +561,16 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     if (typeof routes[name] != "undefined"){
       routes[name](node);
+    }
+  }
+
+  function saveAddressForm(){
+    var form = document.forms["ordrinAddress"];
+    try {
+      var address = new ordrin.api.Address(form.addr1.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
+      ordrin.address = address;
+    } catch(e){
+      console.log(e);
     }
   }
 
