@@ -294,7 +294,21 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   //All prices should be in cents
 
   function toCents(value){
-    return +(value.replace(/[^\d]/g, ''));
+    if(value.indexOf('.') < 0){
+      return (+value)*100;
+    } else {
+      var match = value.match(/(\d*)\.(\d{2})\d+$/);
+      if(match){
+        return +(match[1]+match[2]);
+      } else {
+        match = value.match(/(\d*)\.(\d)$/);
+        if(match){
+          return +(match[1]+match[2])*10;
+        } else {
+          console.log(value+" is not an amount of money");
+        }
+      }
+    }
   }
 
   function toDollars(value){
