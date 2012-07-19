@@ -33,7 +33,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     if(value.indexOf('.') < 0){
       return (+value)*100;
     } else {
-      var match = value.match(/(\d*)\.(\d{2})\d+$/);
+      var match = value.match(/(\d*)\.(\d{2})\d*$/);
       if(match){
         return +(match[1]+match[2]);
       } else {
