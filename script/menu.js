@@ -318,11 +318,11 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.itemName = itemName;
     this.quantity = +quantity;
     for(var i=0; i<options.length; i++){
-      options[i].totalPrice = toDollars(options[i].price * quantity);
+      options[i].totalPrice = toDollars(options[i].price * this.quantity);
     }
     this.options  = options;
     this.price = toCents(price);
-    this.quantityPrice = toDollars(quantity * price)
+    this.quantityPrice = toDollars(this.quantity * this.price)
 
     this.buildItemString = function(){
       var string = this.itemId + "/" + this.quantity;
