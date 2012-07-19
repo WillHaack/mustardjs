@@ -406,20 +406,20 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
           subtotal += this.items[id].getTotalPrice();
         }
       }
-      return toDollars(subtotal);
+      return subtotal;
     }
 
     this.updateFee = function(){
       var subtotal = this.getSubtotal();
-      getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = subtotal;
+      getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
       ordrin.api.restaurant.getFee(ordrin.rid, this.getSubtotal(), 0, "ASAP", ordrin.address, function(err, data){
         if(err){
           console.log(err);
         } else {
           getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
-          var total = subtotal + (+data.fee) + (+data.tax);
-          getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = total;
+          var total = subtotal + toCents(data.fee) + toCents(data.tax);
+          getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
         }
       });
     }
