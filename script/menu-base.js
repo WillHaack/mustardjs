@@ -10,6 +10,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     this.setAddress = function(address){
       ordrin.address = address;
+      populateAddressForm();
     }
 
     this.deliveryCheck = function(){
@@ -304,7 +305,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var form = document.forms["ordrinAddress"];
     try {
       var address = new ordrin.api.Address(form.addr1.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
-      ordrin.address = address;
+      ordrin.mustard.setAddress(address);
     } catch(e){
       console.log(e);
     }
