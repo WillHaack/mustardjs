@@ -357,7 +357,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       for(var i=0; i<this.options.length; i++){
         price += this.options[i].price;
       }
-      return toDollars(price*this.quantity);
+      return price*this.quantity;
     }
   }
 
@@ -400,13 +400,13 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
 
     this.getSubtotal = function(){
-      var subtotal = 0.00;
+      var subtotal = 0;
       for(var id in this.items){
         if(this.items.hasOwnProperty(id)){
           subtotal += this.items[id].getTotalPrice();
         }
       }
-      return subtotal;
+      return toDollars(subtotal);
     }
 
     this.updateFee = function(){
