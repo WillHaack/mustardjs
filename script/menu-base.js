@@ -265,7 +265,6 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function init(){
-    populateAddressForm();
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
         ordrin.menu = data.menu;
@@ -276,6 +275,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
       document.getElementById("ordrinMenu").innerHTML = menuHtml;
     }
+    populateAddressForm();
     getElements();
     listen("click", document, clicked);
   };
