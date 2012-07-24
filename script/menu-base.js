@@ -11,12 +11,41 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.setAddress = function(address){
       ordrin.address = address;
       populateAddressForm();
+      this.deliveryCheck();
     }
 
     this.deliveryCheck = function(){
-      ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, "ASAP", ordrin.address, function(err, data){
-        console.log(data);
+      ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, ordrin.deliveryTime, ordrin.address, function(err, data){
+        if(err){
+          handleError(err);
+        } else {
+          console.log(data);
+          ordrin.delivery = data.delivery;
+          if(data.delivery === 0){
+            handleError(data);
+          }
+        }
       });
+    }
+
+    this.getRid = function(){
+      return ordrin.rid;
+    }
+
+    this.getAddress = function(){
+      return ordrin.address;
+    }
+
+    this.setDeliveryTime = function(time){
+      ordrin.deliveryTime = time;
+    }
+
+    this.getDeliveryTime = function(){
+      return ordrin.deliveryTime;
+    }
+
+    this.getTip = function(){
+      return ordrin.tip;
     }
   }
 
@@ -50,6 +79,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
   function toDollars(value){
     var cents = value.toString();
+    while(cents.length<3){
+      cents = '0'+cents;
+    }
     var index = cents.length - 2;
     return cents.substring(0, index) + '.' + cents.substring(index);
   }
@@ -125,6 +157,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         for(var i=0; i<pageTrayItems.length; i++){
           if(+(pageTrayItems[i].getAttribute("data-tray-id"))===item.trayItemId){
             elements.tray.replaceChild(newNode, pageTrayItems[i]);
+            this.updateFee();
             return;
           }
         }
@@ -164,14 +197,19 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       var subtotal = this.getSubtotal();
       getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
       var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
-      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), "ASAP", ordrin.address, function(err, data){
+      ordrin.tip = tip;
+      getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
+      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
         if(err){
-          console.log(err);
+          handleError(err);
         } else {
           getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+          if(data.delivery === 0){
+            handleError({delivery:0, msg:data.msg});
+          }
         }
       });
     }
@@ -191,7 +229,27 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       ordrin.callback(error);
     } else {
       console.log(error);
+      if(typeof error === "object" && typeof error.msg !== "undefined"){
+        showErrorDialog(error.msg);
+      } else {
+        showErrorDialog(JSON.stringify(error));
+      }
     }
+  }
+
+  function showErrorDialog(msg){
+    // show background
+    elements.errorBg.className = elements.errorBg.className.replace("hidden", "");
+
+    getElementsByClassName(elements.errorDialog, "errorMsg")[0].innerHTML = msg;
+    // show the dialog
+    elements.errorDialog.className = elements.errorDialog.className.replace("hidden", "");
+  }
+
+  function hideErrorDialog(){
+    elements.errorBg.className   += " hidden";
+    elements.errorDialog.className += " hidden";
+    clearNode(getElementsByClassName(elements.errorDialog, "errorMsg")[0]);
   }
   
   function listen(evnt, elem, func) {
@@ -265,6 +323,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function init(){
+    ordrin.deliveryTime = "ASAP";
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
         ordrin.menu = data.menu;
@@ -277,6 +336,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
     populateAddressForm();
     getElements();
+    if(ordrin.address){
+      ordrin.mustard.deliveryCheck();
+    }
     listen("click", document, clicked);
   };
 
@@ -293,7 +355,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       removeTrayItem : removeTrayItem,
       optionCheckbox : validateCheckbox,
       updateTray : updateTray,
-      updateAddress : saveAddressForm
+      updateAddress : saveAddressForm,
+      closeError : hideErrorDialog
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
@@ -355,29 +418,37 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function createDialogBox(node){
-    // get the correct node, if it's not the current one
-    var itemId = node.getAttribute("data-miid");
-    buildDialogBox(itemId);
-    showDialogBox();
+    if(ordrin.delivery){
+      // get the correct node, if it's not the current one
+      var itemId = node.getAttribute("data-miid");
+      buildDialogBox(itemId);
+      showDialogBox();
+    } else {
+      handleError("The restaurant will not deliver to this address at the chosen time");
+    }
   }
 
   function createEditDialogBox(node){
-    var itemId = node.getAttribute("data-miid");
-    var trayItemId = node.getAttribute("data-tray-id");
-    var trayItem = ordrin.tray.items[trayItemId];
-    buildDialogBox(itemId);
-    var options = getElementsByClassName(elements.dialog, "option");
-    for(var i=0; i<options.length; i++){
-      var optId = options[i].getAttribute("data-moid");
-      var checkbox = getElementsByClassName(options[i], "optionCheckbox")[0];
-      checkbox.checked = trayItem.hasOptionSelected(optId);
+    if(ordrin.delivery){
+      var itemId = node.getAttribute("data-miid");
+      var trayItemId = node.getAttribute("data-tray-id");
+      var trayItem = ordrin.tray.items[trayItemId];
+      buildDialogBox(itemId);
+      var options = getElementsByClassName(elements.dialog, "option");
+      for(var i=0; i<options.length; i++){
+        var optId = options[i].getAttribute("data-moid");
+        var checkbox = getElementsByClassName(options[i], "optionCheckbox")[0];
+        checkbox.checked = trayItem.hasOptionSelected(optId);
+      }
+      var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
+      button.setAttribute("value", "Save to Tray");
+      var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
+      quantity.setAttribute("value", trayItem.quantity);
+      elements.dialog.setAttribute("data-tray-id", trayItemId);
+      showDialogBox();
+    } else {
+      handleError("The restaurant will not deliver to this address at the chosen time");
     }
-    var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
-    button.setAttribute("value", "Save to Tray");
-    var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
-    quantity.setAttribute("value", trayItem.quantity);
-    elements.dialog.setAttribute("data-tray-id", trayItemId);
-    showDialogBox();
   }
 
   function buildDialogBox(id){
@@ -490,6 +561,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     elements.menu     = menu;
     elements.dialog   = getElementsByClassName(menu, "optionsDialog")[0];
     elements.dialogBg = getElementsByClassName(menu, "dialogBg")[0];
+    elements.errorDialog = getElementsByClassName(menu, "errorDialog")[0];
+    elements.errorBg = getElementsByClassName(menu, "errorBg")[0];
     elements.tray     = getElementsByClassName(menu, "tray")[0];
   }
 

@@ -50,6 +50,13 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }).join('&');
   }
 
+  function formatExpirationMonth(expirationMonth){
+    if (String(expirationMonth).length == 1){
+      expirationMonth = "0" + String(expirationMonth);
+    }
+    return expirationMonth;
+  }
+
   var Tools = function(){
 
     /*
@@ -63,16 +70,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.makeApiRequest = function(host, uri, method, data, callback){
       data = stringify(data);
 
-      // if (method === "GET" && data.length > 0){
-      //   uri += "?" + data;
-      // }
-
       var req = getXhr();
       req.open(method, host+uri, false);
 
       if (method != "GET"){
         req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
-        req.setRequestHeader("Content-Length", data.length);
       }
 
       req.send(data);
@@ -187,6 +189,52 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
   }
 
+  var Order = function(orderUrl){
+    var tools    = new Tools();
+
+    this.placeOrder = function(restaurantId, tray, tip, deliveryTime, firstName, lastName, address, creditCard, email, callback){
+      var params = [
+        restaurantId
+      ];
+
+      if (deliveryTime != "ASAP"){
+        var delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
+        var delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
+      }else{
+        var delivery_date = "ASAP";
+        var delivery_time = "";
+      }
+
+      var data = {
+        tray: tray.buildTrayString(),
+        tip: tip,
+        delivery_date: delivery_date,
+        delivery_time: delivery_time,
+        first_name: firstName,
+        last_name: lastName,
+        addr: address.addr,
+        city: address.city,
+        state: address.state,
+        zip: address.zip,
+        phone: address.phone,
+        card_name: creditCard.name,
+        card_number: creditCard.number,
+        card_cvc: creditCard.cvc,
+        card_expiry: creditCard.formatExpirationDate(),
+        card_bill_addr: creditCard.billAddress.addr,
+        card_bill_addr2: creditCard.billAddress.addr2,
+        card_bill_city: creditCard.billAddress.city,
+        card_bill_state: creditCard.billAddress.state,
+        card_bill_zip: creditCard.billAddress.zip,
+        em: email,
+        type: "res"
+      };
+
+      var uriString = tools.buildUriString("/o", params);
+      tools.makeApiRequest(orderUrl, uriString, "POST",  data, callback);
+    }
+  }
+
   var Address = function (addr, city, state, zip, phone, addr2){
     this.addr  = addr;
     this.city  = city;
@@ -224,10 +272,145 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.validate();
   }
 
+  var CreditCard = function(name, expiryMonth, expiryYear, billAddress, number, cvc){
+    this.name        = name;
+    this.expiryMonth = formatExpirationMonth(expiryMonth);
+    this.expiryYear  = expiryYear;
+    this.billAddress = billAddress;
+    this.number      = String(number);
+    this.cvc         = cvc;
+
+    this.validate = function(){
+      var fieldErrors = [];
+      // validate card number
+      if (!this.numberLuhn()){
+        fieldErrors.push(new FieldError("number", "Invalid Credit Card Number"));
+      }
+      // determine the type of card for cvc check
+      this.type        = this.creditCardType();
+      // validate cvc
+      var cvcExpression = /^\d{3}$/;
+      if (this.type == "amex"){
+        cvcExpression = /^\d{4}$/;
+      }
+      if (cvcExpression.test(this.cvc) == false){
+        fieldErrors.push(new FieldError("cvc", "Invalid cvc"));
+      }
+
+      // // validate address
+      // if (!(this.billAddress instanceof Address)){
+      //   fieldErrors.push(new FieldError("address", "Address must be an instance of the Address class"));
+      // }
+
+      // validate expiration year
+      if (/^\d{4}$/.test(this.expiryYear) == false){
+        fieldErrors.push(new FieldError("expiryYear", "Expiration Year must be 4 digits"));
+      }
+
+      // validate expiration month
+      if (/^\d{2}$/.test(this.expiryMonth) == false){
+        fieldErrors.push(new FieldError("expiryMonth", "Expiratoin Month must be 2 digits"));
+      }
+
+      if (this.name.length == 0){
+        fieldErrors.push(new FieldError("name", "Name can not be blank"));
+      }
+
+      if (fieldErrors.length != 0){
+        var error = new ValidationError("Validation Error", "Check fields object for more details");
+        error.addFields(fieldErrors);
+        throw error;
+      }
+    }
+
+    // credit card validation checksum. From http://typicalprogrammer.com/?p=4
+    this.numberLuhn = function(){
+      // digits 0-9 doubled with nines cast out
+      var doubled = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9];
+
+      // remove non-digit characters
+      this.number = this.number.replace(/[^\d]/g, '');
+      var digits = this.number.split('');
+
+      // alternate between summing the digits
+      // or the result of doubling the digits and
+      // casting out nines (see Luhn description)
+      var alt = false;
+      var total = 0;
+      while (digits.length)
+      {
+        var d = Number(digits.pop());
+        total += (alt ? doubled[d] : d);
+        alt = !alt;
+      }
+      return total % 10 == 0;
+    }
+
+    // credit card tpype check. From http://typicalprogrammer.com/?p=4
+    this.creditCardType = function(){
+      // regular expressions to match common card types
+      // delete or comment out cards not athis.numberepted
+      // see: www.merriampark.com/anatomythis.number.htm
+      var cardpatterns = {
+        'visa'       : /^(4\d{12})|(4\d{15})$/,
+        'mastercard' : /^5[1-5]\d{14}$/,
+        'discover'   : /^6011\d{12}$/,
+        'amex'       : /^3[47]\d{13}$/,
+        'diners'     : /^(30[0-5]\d{11})|(3[68]\d{12})$/
+      };
+
+      // return type of credit card
+      // or 'unknown' if no match
+
+      for (var type in cardpatterns){
+        if (cardpatterns[type].test(this.number))
+          return type;
+      }
+      return 'unknown';
+    }
+
+    this.formatExpirationDate = function(){
+      return this.expiryMonth + "/" + this.expiryYear;
+    }
+
+    this.validate();
+  }
+
+  var TrayItem = function(itemId, quantity, options){
+    this.itemId   = itemId;
+    this.quantity = quantity;
+    this.options  = options;
+
+    this.buildItemString = function(){
+      var string = this.itemId + "/" + this.quantity;
+
+      for (var i = 0; i< this.options.length; i++){
+        string += "," + this.options[i];
+      }
+      return string;
+    }
+  }
+
+  var Tray = function(items){
+    this.items = items;
+
+    this.buildTrayString = function(){
+      var string = "";
+      for (var i = 0; i < this.items.length; i++){
+        string += "+" + this.items[i].buildItemString();
+      }
+      return string.substring(1); // remove that first plus
+    };
+  };
+
   var init = function(){
     return {
       restaurant: new Restaurant(ordrin.restaurantUrl),
-      Address: Address
+      order: new Order(ordrin.orderUrl),
+      Address: Address,
+      CreditCard: CreditCard,
+      TrayItem: TrayItem,
+      Tray: Tray
     };
   };
 
@@ -238,7 +421,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
   if(!ordrin.hasOwnProperty("template")){
-    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\"></span></div><div class=\"tip\">Tip: <input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div><div class=\"fee\">Fee: <span class=\"feeValue\"></span></div><div class=\"tax\">Tax: <span class=\"taxValue\"></span></div><div class=\"total\">Total: <span class=\"totalValue\"></span></div><div class=\"addressForm\"><form name=\"ordrinAddress\"><label>Street Address 1: <input type=\"text\" name=\"addr\" placeholder=\"Street Address 1\"></label><span class=\"addrError\"></span></br><label>Street Address 2: <input type=\"text\" name=\"addr2\" placeholder=\"Street Address 2\"></label><span class=\"addr2Error\"></span></br><label>City: <input type=\"text\" name=\"city\" placeholder=\"City\"></label><span class=\"cityError\"></span></br><label>State: <input type=\"text\" name=\"state\" placeholder=\"State\"></label><span class=\"stateError\"></span></br><label>Zip Code: <input type=\"text\" name=\"zip\" placeholder=\"Zip Code\"></label><span class=\"zipError\"></span></br><label>Phone Number: <input type=\"tel\" name=\"phone\" placeholder=\"Phone Number\"></label><span class=\"phoneError\"></span></br><input type=\"button\" value=\"Update\" data-listener=\"updateAddress\"></form></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div>";
+    ordrin.template = "<div id=\"yourTray\">Your Tray</div><ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\">0.00</span></div><div class=\"tip\">Tip: <span class=\"tipValue\">0.00</span><input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div><div class=\"fee\">Fee: <span class=\"feeValue\">0.00</span></div><div class=\"tax\">Tax: <span class=\"taxValue\">0.00</span></div><div class=\"total\">Total: <span class=\"totalValue\">0.00</span></div><div class=\"addressForm\"><form name=\"ordrinAddress\"><label>Street Address 1: <input type=\"text\" name=\"addr\" placeholder=\"Street Address 1\"></label><span class=\"addrError\"></span></br><label>Street Address 2: <input type=\"text\" name=\"addr2\" placeholder=\"Street Address 2\"></label><span class=\"addr2Error\"></span></br><label>City: <input type=\"text\" name=\"city\" placeholder=\"City\"></label><span class=\"cityError\"></span></br><label>State: <input type=\"text\" name=\"state\" placeholder=\"State\"></label><span class=\"stateError\"></span></br><label>Zip Code: <input type=\"text\" name=\"zip\" placeholder=\"Zip Code\"></label><span class=\"zipError\"></span></br><label>Phone Number: <input type=\"tel\" name=\"phone\" placeholder=\"Phone Number\"></label><span class=\"phoneError\"></span></br><input type=\"button\" value=\"Update\" data-listener=\"updateAddress\"></form></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div><div class=\"errorDialog popup-container hidden\"><div class=\"dialog popup-box-container\"><div class=\"close-popup-box\"><img class=\"closeDialog\" data-listener=\"closeError\" src=\"https://fb.ordr.in/images/popup-close.png\" /></div><span class=\"errorMsg\"></span></div></div><div class=\"errorBg fade-to-gray hidden\"></div>";
   }
 
   if(!ordrin.hasOwnProperty("dialogTemplate")){
@@ -275,12 +458,41 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     this.setAddress = function(address){
       ordrin.address = address;
       populateAddressForm();
+      this.deliveryCheck();
     }
 
     this.deliveryCheck = function(){
-      ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, "ASAP", ordrin.address, function(err, data){
-        console.log(data);
+      ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, ordrin.deliveryTime, ordrin.address, function(err, data){
+        if(err){
+          handleError(err);
+        } else {
+          console.log(data);
+          ordrin.delivery = data.delivery;
+          if(data.delivery === 0){
+            handleError(data);
+          }
+        }
       });
+    }
+
+    this.getRid = function(){
+      return ordrin.rid;
+    }
+
+    this.getAddress = function(){
+      return ordrin.address;
+    }
+
+    this.setDeliveryTime = function(time){
+      ordrin.deliveryTime = time;
+    }
+
+    this.getDeliveryTime = function(){
+      return ordrin.deliveryTime;
+    }
+
+    this.getTip = function(){
+      return ordrin.tip;
     }
   }
 
@@ -314,6 +526,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
   function toDollars(value){
     var cents = value.toString();
+    while(cents.length<3){
+      cents = '0'+cents;
+    }
     var index = cents.length - 2;
     return cents.substring(0, index) + '.' + cents.substring(index);
   }
@@ -389,6 +604,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         for(var i=0; i<pageTrayItems.length; i++){
           if(+(pageTrayItems[i].getAttribute("data-tray-id"))===item.trayItemId){
             elements.tray.replaceChild(newNode, pageTrayItems[i]);
+            this.updateFee();
             return;
           }
         }
@@ -428,14 +644,19 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       var subtotal = this.getSubtotal();
       getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
       var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
-      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), "ASAP", ordrin.address, function(err, data){
+      ordrin.tip = tip;
+      getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
+      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
         if(err){
-          console.log(err);
+          handleError(err);
         } else {
           getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+          if(data.delivery === 0){
+            handleError({delivery:0, msg:data.msg});
+          }
         }
       });
     }
@@ -455,7 +676,27 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       ordrin.callback(error);
     } else {
       console.log(error);
+      if(typeof error === "object" && typeof error.msg !== "undefined"){
+        showErrorDialog(error.msg);
+      } else {
+        showErrorDialog(JSON.stringify(error));
+      }
     }
+  }
+
+  function showErrorDialog(msg){
+    // show background
+    elements.errorBg.className = elements.errorBg.className.replace("hidden", "");
+
+    getElementsByClassName(elements.errorDialog, "errorMsg")[0].innerHTML = msg;
+    // show the dialog
+    elements.errorDialog.className = elements.errorDialog.className.replace("hidden", "");
+  }
+
+  function hideErrorDialog(){
+    elements.errorBg.className   += " hidden";
+    elements.errorDialog.className += " hidden";
+    clearNode(getElementsByClassName(elements.errorDialog, "errorMsg")[0]);
   }
   
   function listen(evnt, elem, func) {
@@ -529,6 +770,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function init(){
+    ordrin.deliveryTime = "ASAP";
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
         ordrin.menu = data.menu;
@@ -541,6 +783,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
     populateAddressForm();
     getElements();
+    if(ordrin.address){
+      ordrin.mustard.deliveryCheck();
+    }
     listen("click", document, clicked);
   };
 
@@ -557,7 +802,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       removeTrayItem : removeTrayItem,
       optionCheckbox : validateCheckbox,
       updateTray : updateTray,
-      updateAddress : saveAddressForm
+      updateAddress : saveAddressForm,
+      closeError : hideErrorDialog
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
@@ -619,29 +865,37 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function createDialogBox(node){
-    // get the correct node, if it's not the current one
-    var itemId = node.getAttribute("data-miid");
-    buildDialogBox(itemId);
-    showDialogBox();
+    if(ordrin.delivery){
+      // get the correct node, if it's not the current one
+      var itemId = node.getAttribute("data-miid");
+      buildDialogBox(itemId);
+      showDialogBox();
+    } else {
+      handleError("The restaurant will not deliver to this address at the chosen time");
+    }
   }
 
   function createEditDialogBox(node){
-    var itemId = node.getAttribute("data-miid");
-    var trayItemId = node.getAttribute("data-tray-id");
-    var trayItem = ordrin.tray.items[trayItemId];
-    buildDialogBox(itemId);
-    var options = getElementsByClassName(elements.dialog, "option");
-    for(var i=0; i<options.length; i++){
-      var optId = options[i].getAttribute("data-moid");
-      var checkbox = getElementsByClassName(options[i], "optionCheckbox")[0];
-      checkbox.checked = trayItem.hasOptionSelected(optId);
+    if(ordrin.delivery){
+      var itemId = node.getAttribute("data-miid");
+      var trayItemId = node.getAttribute("data-tray-id");
+      var trayItem = ordrin.tray.items[trayItemId];
+      buildDialogBox(itemId);
+      var options = getElementsByClassName(elements.dialog, "option");
+      for(var i=0; i<options.length; i++){
+        var optId = options[i].getAttribute("data-moid");
+        var checkbox = getElementsByClassName(options[i], "optionCheckbox")[0];
+        checkbox.checked = trayItem.hasOptionSelected(optId);
+      }
+      var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
+      button.setAttribute("value", "Save to Tray");
+      var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
+      quantity.setAttribute("value", trayItem.quantity);
+      elements.dialog.setAttribute("data-tray-id", trayItemId);
+      showDialogBox();
+    } else {
+      handleError("The restaurant will not deliver to this address at the chosen time");
     }
-    var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
-    button.setAttribute("value", "Save to Tray");
-    var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
-    quantity.setAttribute("value", trayItem.quantity);
-    elements.dialog.setAttribute("data-tray-id", trayItemId);
-    showDialogBox();
   }
 
   function buildDialogBox(id){
@@ -754,6 +1008,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     elements.menu     = menu;
     elements.dialog   = getElementsByClassName(menu, "optionsDialog")[0];
     elements.dialogBg = getElementsByClassName(menu, "dialogBg")[0];
+    elements.errorDialog = getElementsByClassName(menu, "errorDialog")[0];
+    elements.errorBg = getElementsByClassName(menu, "errorBg")[0];
     elements.tray     = getElementsByClassName(menu, "tray")[0];
   }
 

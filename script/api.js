@@ -50,6 +50,13 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }).join('&');
   }
 
+  function formatExpirationMonth(expirationMonth){
+    if (String(expirationMonth).length == 1){
+      expirationMonth = "0" + String(expirationMonth);
+    }
+    return expirationMonth;
+  }
+
   var Tools = function(){
 
     /*
@@ -63,16 +70,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.makeApiRequest = function(host, uri, method, data, callback){
       data = stringify(data);
 
-      // if (method === "GET" && data.length > 0){
-      //   uri += "?" + data;
-      // }
-
       var req = getXhr();
       req.open(method, host+uri, false);
 
       if (method != "GET"){
         req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
-        req.setRequestHeader("Content-Length", data.length);
       }
 
       req.send(data);
@@ -187,6 +189,52 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
   }
 
+  var Order = function(orderUrl){
+    var tools    = new Tools();
+
+    this.placeOrder = function(restaurantId, tray, tip, deliveryTime, firstName, lastName, address, creditCard, email, callback){
+      var params = [
+        restaurantId
+      ];
+
+      if (deliveryTime != "ASAP"){
+        var delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
+        var delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
+      }else{
+        var delivery_date = "ASAP";
+        var delivery_time = "";
+      }
+
+      var data = {
+        tray: tray.buildTrayString(),
+        tip: tip,
+        delivery_date: delivery_date,
+        delivery_time: delivery_time,
+        first_name: firstName,
+        last_name: lastName,
+        addr: address.addr,
+        city: address.city,
+        state: address.state,
+        zip: address.zip,
+        phone: address.phone,
+        card_name: creditCard.name,
+        card_number: creditCard.number,
+        card_cvc: creditCard.cvc,
+        card_expiry: creditCard.formatExpirationDate(),
+        card_bill_addr: creditCard.billAddress.addr,
+        card_bill_addr2: creditCard.billAddress.addr2,
+        card_bill_city: creditCard.billAddress.city,
+        card_bill_state: creditCard.billAddress.state,
+        card_bill_zip: creditCard.billAddress.zip,
+        em: email,
+        type: "res"
+      };
+
+      var uriString = tools.buildUriString("/o", params);
+      tools.makeApiRequest(orderUrl, uriString, "POST",  data, callback);
+    }
+  }
+
   var Address = function (addr, city, state, zip, phone, addr2){
     this.addr  = addr;
     this.city  = city;
@@ -224,10 +272,145 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.validate();
   }
 
+  var CreditCard = function(name, expiryMonth, expiryYear, billAddress, number, cvc){
+    this.name        = name;
+    this.expiryMonth = formatExpirationMonth(expiryMonth);
+    this.expiryYear  = expiryYear;
+    this.billAddress = billAddress;
+    this.number      = String(number);
+    this.cvc         = cvc;
+
+    this.validate = function(){
+      var fieldErrors = [];
+      // validate card number
+      if (!this.numberLuhn()){
+        fieldErrors.push(new FieldError("number", "Invalid Credit Card Number"));
+      }
+      // determine the type of card for cvc check
+      this.type        = this.creditCardType();
+      // validate cvc
+      var cvcExpression = /^\d{3}$/;
+      if (this.type == "amex"){
+        cvcExpression = /^\d{4}$/;
+      }
+      if (cvcExpression.test(this.cvc) == false){
+        fieldErrors.push(new FieldError("cvc", "Invalid cvc"));
+      }
+
+      // // validate address
+      // if (!(this.billAddress instanceof Address)){
+      //   fieldErrors.push(new FieldError("address", "Address must be an instance of the Address class"));
+      // }
+
+      // validate expiration year
+      if (/^\d{4}$/.test(this.expiryYear) == false){
+        fieldErrors.push(new FieldError("expiryYear", "Expiration Year must be 4 digits"));
+      }
+
+      // validate expiration month
+      if (/^\d{2}$/.test(this.expiryMonth) == false){
+        fieldErrors.push(new FieldError("expiryMonth", "Expiratoin Month must be 2 digits"));
+      }
+
+      if (this.name.length == 0){
+        fieldErrors.push(new FieldError("name", "Name can not be blank"));
+      }
+
+      if (fieldErrors.length != 0){
+        var error = new ValidationError("Validation Error", "Check fields object for more details");
+        error.addFields(fieldErrors);
+        throw error;
+      }
+    }
+
+    // credit card validation checksum. From http://typicalprogrammer.com/?p=4
+    this.numberLuhn = function(){
+      // digits 0-9 doubled with nines cast out
+      var doubled = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9];
+
+      // remove non-digit characters
+      this.number = this.number.replace(/[^\d]/g, '');
+      var digits = this.number.split('');
+
+      // alternate between summing the digits
+      // or the result of doubling the digits and
+      // casting out nines (see Luhn description)
+      var alt = false;
+      var total = 0;
+      while (digits.length)
+      {
+        var d = Number(digits.pop());
+        total += (alt ? doubled[d] : d);
+        alt = !alt;
+      }
+      return total % 10 == 0;
+    }
+
+    // credit card tpype check. From http://typicalprogrammer.com/?p=4
+    this.creditCardType = function(){
+      // regular expressions to match common card types
+      // delete or comment out cards not athis.numberepted
+      // see: www.merriampark.com/anatomythis.number.htm
+      var cardpatterns = {
+        'visa'       : /^(4\d{12})|(4\d{15})$/,
+        'mastercard' : /^5[1-5]\d{14}$/,
+        'discover'   : /^6011\d{12}$/,
+        'amex'       : /^3[47]\d{13}$/,
+        'diners'     : /^(30[0-5]\d{11})|(3[68]\d{12})$/
+      };
+
+      // return type of credit card
+      // or 'unknown' if no match
+
+      for (var type in cardpatterns){
+        if (cardpatterns[type].test(this.number))
+          return type;
+      }
+      return 'unknown';
+    }
+
+    this.formatExpirationDate = function(){
+      return this.expiryMonth + "/" + this.expiryYear;
+    }
+
+    this.validate();
+  }
+
+  var TrayItem = function(itemId, quantity, options){
+    this.itemId   = itemId;
+    this.quantity = quantity;
+    this.options  = options;
+
+    this.buildItemString = function(){
+      var string = this.itemId + "/" + this.quantity;
+
+      for (var i = 0; i< this.options.length; i++){
+        string += "," + this.options[i];
+      }
+      return string;
+    }
+  }
+
+  var Tray = function(items){
+    this.items = items;
+
+    this.buildTrayString = function(){
+      var string = "";
+      for (var i = 0; i < this.items.length; i++){
+        string += "+" + this.items[i].buildItemString();
+      }
+      return string.substring(1); // remove that first plus
+    };
+  };
+
   var init = function(){
     return {
       restaurant: new Restaurant(ordrin.restaurantUrl),
-      Address: Address
+      order: new Order(ordrin.orderUrl),
+      Address: Address,
+      CreditCard: CreditCard,
+      TrayItem: TrayItem,
+      Tray: Tray
     };
   };
 
