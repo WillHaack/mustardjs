@@ -424,7 +424,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       buildDialogBox(itemId);
       showDialogBox();
     } else {
-      handleError("The restaurant will not deliver to this address at the chosen time");
+      handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
     }
   }
 
@@ -447,7 +447,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       elements.dialog.setAttribute("data-tray-id", trayItemId);
       showDialogBox();
     } else {
-      handleError("The restaurant will not deliver to this address at the chosen time");
+      handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
     }
   }
 
