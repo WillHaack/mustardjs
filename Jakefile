@@ -16,16 +16,16 @@ task('templateLoader.js', function(){
   fs.writeFileSync("./script/templateLoader.js", output, "utf8");
 });
 
-task('menu.js', ['templateLoader.js'], function(){
+task('mustard.js', ['templateLoader.js'], function(){
   var api = fs.readFileSync("./script/api.js", "utf8");
   var templateLoader = fs.readFileSync("./script/templateLoader.js", "utf8");
-  var menu_base = fs.readFileSync("./script/menu-base.js", "utf8");
-  var output = (api+templateLoader+menu_base).replace(/\r/g, "");
-  fs.writeFileSync("./script/menu.js", output, "utf8");
+  var mustard_base = fs.readFileSync("./script/mustard-base.js", "utf8");
+  var output = (api+templateLoader+mustard_base).replace(/\r/g, "");
+  fs.writeFileSync("./script/mustard.js", output, "utf8");
 });
 
-task('menu.min.js', ['menu.js'], function(){
-  var child = exec("uglifyjs --unsafe --lift-vars -o ./script/menu.min.js  ./script/menu.js",
+task('mustard.min.js', ['mustard.js'], function(){
+  var child = exec("uglifyjs --unsafe --lift-vars -o ./script/mustard.min.js  ./script/mustard.js",
                    function(error, stdout, stderr){
                      if(error !== null){
                        console.log('error: ' + error);
@@ -42,6 +42,6 @@ task('main.min.css', function(){
                    });
 });
 
-task('default', ['menu.min.js', 'main.min.css'], function(){
+task('default', ['mustard.min.js', 'main.min.css'], function(){
   console.log("Finished building");
 });
