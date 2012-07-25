@@ -866,37 +866,29 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function createDialogBox(node){
-    if(ordrin.delivery){
-      // get the correct node, if it's not the current one
-      var itemId = node.getAttribute("data-miid");
-      buildDialogBox(itemId);
-      showDialogBox();
-    } else {
-      handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
-    }
+    // get the correct node, if it's not the current one
+    var itemId = node.getAttribute("data-miid");
+    buildDialogBox(itemId);
+    showDialogBox();
   }
 
   function createEditDialogBox(node){
-    if(ordrin.delivery){
-      var itemId = node.getAttribute("data-miid");
-      var trayItemId = node.getAttribute("data-tray-id");
-      var trayItem = ordrin.tray.items[trayItemId];
-      buildDialogBox(itemId);
-      var options = getElementsByClassName(elements.dialog, "option");
-      for(var i=0; i<options.length; i++){
-        var optId = options[i].getAttribute("data-moid");
-        var checkbox = getElementsByClassName(options[i], "optionCheckbox")[0];
-        checkbox.checked = trayItem.hasOptionSelected(optId);
-      }
-      var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
-      button.setAttribute("value", "Save to Tray");
-      var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
-      quantity.setAttribute("value", trayItem.quantity);
-      elements.dialog.setAttribute("data-tray-id", trayItemId);
-      showDialogBox();
-    } else {
-      handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
+    var itemId = node.getAttribute("data-miid");
+    var trayItemId = node.getAttribute("data-tray-id");
+    var trayItem = ordrin.tray.items[trayItemId];
+    buildDialogBox(itemId);
+    var options = getElementsByClassName(elements.dialog, "option");
+    for(var i=0; i<options.length; i++){
+      var optId = options[i].getAttribute("data-moid");
+      var checkbox = getElementsByClassName(options[i], "optionCheckbox")[0];
+      checkbox.checked = trayItem.hasOptionSelected(optId);
     }
+    var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
+    button.setAttribute("value", "Save to Tray");
+    var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
+    quantity.setAttribute("value", trayItem.quantity);
+    elements.dialog.setAttribute("data-tray-id", trayItemId);
+    showDialogBox();
   }
 
   function buildDialogBox(id){
@@ -1001,6 +993,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var trayItem = createItemFromDialog();
     ordrin.tray.addItem(trayItem);
     hideDialogBox();
+    if(!ordrin.delivery){
+      handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
+    }
   }
 
   // UTILITY FUNCTIONS
