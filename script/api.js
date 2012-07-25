@@ -197,12 +197,16 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         restaurantId
       ];
 
-      if (deliveryTime != "ASAP"){
-        var delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
-        var delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
+      deliveryTime = deliveryTime.toUpperCase();
+
+      var delivery_date, delivery_time;
+
+      if (deliveryTime !== "ASAP"){
+        delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
+        delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
       }else{
-        var delivery_date = "ASAP";
-        var delivery_time = "";
+        delivery_date = "ASAP";
+        delivery_time = "";
       }
 
       var data = {
@@ -283,7 +287,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.validate = function(){
       var fieldErrors = [];
       // validate card number
-      if (!this.numberLuhn()){
+      if (!this.checkLuhn()){
         fieldErrors.push(new FieldError("number", "Invalid Credit Card Number"));
       }
       // determine the type of card for cvc check
@@ -309,7 +313,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
       // validate expiration month
       if (/^\d{2}$/.test(this.expiryMonth) == false){
-        fieldErrors.push(new FieldError("expiryMonth", "Expiratoin Month must be 2 digits"));
+        fieldErrors.push(new FieldError("expiryMonth", "Expiration Month must be 2 digits"));
       }
 
       if (this.name.length == 0){
@@ -324,7 +328,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     // credit card validation checksum. From http://typicalprogrammer.com/?p=4
-    this.numberLuhn = function(){
+    this.checkLuhn = function(){
       // digits 0-9 doubled with nines cast out
       var doubled = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9];
 
@@ -383,10 +387,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
     this.buildItemString = function(){
       var string = this.itemId + "/" + this.quantity;
-
-      for (var i = 0; i< this.options.length; i++){
-        string += "," + this.options[i];
-      }
+      string += "," + this.options.join(',');
       return string;
     }
   }

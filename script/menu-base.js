@@ -327,9 +327,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     if(typeof ordrin.menu === "undefined"){
       ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
         ordrin.menu = data.menu;
+        allItems = extractAllItems(ordrin.menu);
       });
     }
-    allItems = extractAllItems(ordrin.menu);
     if(ordrin.render){
       var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
       document.getElementById("ordrinMenu").innerHTML = menuHtml;
