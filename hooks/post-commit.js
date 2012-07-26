@@ -6,5 +6,5 @@ for(var i=0; i<split.length-1; i++){
   wild+=split[i]+'.';
 }
 wild+="x";
-spawn("git", ["tag", "v"+version]);
-spawn("git", ["tag", "v"+wild]);
+spawn("git", ["tag", "-f", "v"+version], {stdio:"inherit"});
+spawn("git", ["tag", "-f", "v"+wild], {stdio:"inherit"});
