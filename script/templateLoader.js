@@ -14,7 +14,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   if(!ordrin.hasOwnProperty("restaurantsTemplate")){
-    ordrin.restaurantsTemplate = "<article><ul>{{#restaurants}}<li><section><h1><a href=\"{{menu_uri}}/{{id}}\">{{na}}</a></h1><p>{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}<li>{{.}}</li>{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></li>{{/restaurants}}</ul></article>";
+    ordrin.restaurantsTemplate = "<article><ul>{{#restaurants}}<li><section>{{#params}}<h1><a href=\"{{menu_uri}}/{{id}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}\">{{na}}</a></h1>{{/params}}<p>{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}<li>{{.}}</li>{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></li>{{/restaurants}}</ul></article>";
   }
 
   var Mustache="undefined"!==typeof module&&module.exports||{};
