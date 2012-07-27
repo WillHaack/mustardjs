@@ -433,6 +433,10 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     ordrin.trayItemTemplate = "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{itemId}}\" data-tray-id=\"{{trayItemId}}\"><div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">X</div><span class=\"trayItemName\">{{itemName}}</span><span class=\"trayItemPrice\">{{quantityPrice}}</span><span class=\"trayItemQuantity\">({{quantity}})</span><ul>{{#options}}<li class=\"trayOption\"><span class=\"trayOptionName\">{{name}}</span><span class=\"trayOptionPrice\">{{totalPrice}}</span></li>{{/options}}</ul></li>";
   }
 
+  if(!ordrin.hasOwnProperty("restaurantsTemplate")){
+    ordrin.restaurantsTemplate = "<article><ul>{{#restaurants}}<li><section><h1><a href=\"{{menu_uri}}/{{id}}\">{{na}}</a></h1><p>{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}<li>{{.}}</li>{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></li>{{/restaurants}}</ul></article>";
+  }
+
   var Mustache="undefined"!==typeof module&&module.exports||{};
 (function(j){function G(a){return(""+a).replace(/&(?!\w+;)|[<>"']/g,function(a){return H[a]||a})}function t(a,c,d,e){for(var e=e||"<template>",b=c.split("\n"),f=Math.max(d-3,0),g=Math.min(b.length,d+3),b=b.slice(f,g),i=0,l=b.length;i<l;++i)g=i+f+1,b[i]=(g===d?" >> ":"    ")+b[i];a.template=c;a.line=d;a.file=e;a.message=[e+":"+d,b.join("\n"),"",a.message].join("\n");return a}function u(a,c,d){if("."===a)return c[c.length-1];for(var a=a.split("."),e=a.length-1,b=a[e],f,g,i=c.length,l,j;i;){j=c.slice(0);
 g=c[--i];for(l=0;l<e;){g=g[a[l++]];if(null==g)break;j.push(g)}if(g&&"object"===typeof g&&b in g){f=g[b];break}}"function"===typeof f&&(f=f.call(j[j.length-1]));return null==f?d:f}function I(a,c,d,e){var b="",a=u(a,c);if(e){if(null==a||!1===a||q(a)&&0===a.length)b+=d()}else if(q(a))y(a,function(a){c.push(a);b+=d();c.pop()});else if("object"===typeof a)c.push(a),b+=d(),c.pop();else if("function"===typeof a)var f=c[c.length-1],b=b+(a.call(f,d(),function(a){return r(a,f)})||"");else a&&(b+=d());return b}
@@ -475,7 +479,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         }
       });
     }
-
+    
     this.getRid = function(){
       return ordrin.rid;
     }
@@ -494,6 +498,33 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     this.getTip = function(){
       return ordrin.tip;
+    }
+
+    this.downloadMenu = function(rid){
+      ordrin.api.restaurant.getDetails(rid, function(err, data){
+        ordrin.menu = data.menu;
+      });
+      return ordrin.menu;
+    }
+
+    this.downloadRestaurants = function(dateTime, address){
+      ordrin.api.restaurant.getDeliveryList(dateTime, address, function(err, data){
+        ordrin.restaurants = data;
+        for(var i=0; i<ordrin.restaurants.length; i++){
+          ordrin.restaurants[i].is_delivering = !!(ordrin.restaurants[i].is_delivering);
+        }
+      });
+    }
+    
+    this.renderMenu = function(){
+      var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
+      document.getElementById("ordrinMenu").innerHTML = menuHtml;
+      getElements();
+    }
+
+    this.renderRestaurants = function(){
+      var restaurantsHtml = ordrin.Mustache.render(ordrin.restaurantsTemplate, ordrin);
+      document.getElementById("ordrinRestaurants").innerHTML = restaurantsHtml;
     }
   }
 
@@ -771,23 +802,31 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function init(){
-    ordrin.deliveryTime = "ASAP";
-    if(typeof ordrin.menu === "undefined"){
-      ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
-        ordrin.menu = data.menu;
-        allItems = extractAllItems(ordrin.menu);
-      });
+    if(typeof ordrin.deliveryTime === "undefined"){
+      ordrin.deliveryTime = "ASAP";
     }
-    if(ordrin.render){
-      var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
-      document.getElementById("ordrinMenu").innerHTML = menuHtml;
+    if(typeof ordrin.rid !== "undefined"){
+      if(typeof ordrin.menu === "undefined"){
+        ordrin.mustard.downloadMenu(ordrin.rid);
+      }
+      allItems = extractAllItems(ordrin.menu);
+      if(ordrin.render === "menu"){
+        ordrin.mustard.renderMenu();
+      } else {
+        getElements();
+      }
+      listen("click", document, clicked);
+      populateAddressForm();
+      if(ordrin.address){
+        ordrin.mustard.deliveryCheck();
+      }
     }
-    populateAddressForm();
-    getElements();
-    if(ordrin.address){
-      ordrin.mustard.deliveryCheck();
+    if(ordrin.render === "restaurants"){
+      if(typeof ordrin.restaurants === "undefined"){
+        ordrin.mustard.downloadRestaurants(ordrin.deliveryTime, ordrin.address);
+      }
+      ordrin.mustard.renderRestaurants();
     }
-    listen("click", document, clicked);
   };
 
   function clicked(event){

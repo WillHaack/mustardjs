@@ -27,7 +27,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         }
       });
     }
-
+    
     this.getRid = function(){
       return ordrin.rid;
     }
@@ -46,6 +46,33 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     this.getTip = function(){
       return ordrin.tip;
+    }
+
+    this.downloadMenu = function(rid){
+      ordrin.api.restaurant.getDetails(rid, function(err, data){
+        ordrin.menu = data.menu;
+      });
+      return ordrin.menu;
+    }
+
+    this.downloadRestaurants = function(dateTime, address){
+      ordrin.api.restaurant.getDeliveryList(dateTime, address, function(err, data){
+        ordrin.restaurants = data;
+        for(var i=0; i<ordrin.restaurants.length; i++){
+          ordrin.restaurants[i].is_delivering = !!(ordrin.restaurants[i].is_delivering);
+        }
+      });
+    }
+    
+    this.renderMenu = function(){
+      var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
+      document.getElementById("ordrinMenu").innerHTML = menuHtml;
+      getElements();
+    }
+
+    this.renderRestaurants = function(){
+      var restaurantsHtml = ordrin.Mustache.render(ordrin.restaurantsTemplate, ordrin);
+      document.getElementById("ordrinRestaurants").innerHTML = restaurantsHtml;
     }
   }
 
@@ -323,23 +350,31 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   function init(){
-    ordrin.deliveryTime = "ASAP";
-    if(typeof ordrin.menu === "undefined"){
-      ordrin.api.restaurant.getDetails(ordrin.rid, function(err, data){
-        ordrin.menu = data.menu;
-        allItems = extractAllItems(ordrin.menu);
-      });
+    if(typeof ordrin.deliveryTime === "undefined"){
+      ordrin.deliveryTime = "ASAP";
     }
-    if(ordrin.render){
-      var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
-      document.getElementById("ordrinMenu").innerHTML = menuHtml;
+    if(typeof ordrin.rid !== "undefined"){
+      if(typeof ordrin.menu === "undefined"){
+        ordrin.mustard.downloadMenu(ordrin.rid);
+      }
+      allItems = extractAllItems(ordrin.menu);
+      if(ordrin.render === "menu"){
+        ordrin.mustard.renderMenu();
+      } else {
+        getElements();
+      }
+      listen("click", document, clicked);
+      populateAddressForm();
+      if(ordrin.address){
+        ordrin.mustard.deliveryCheck();
+      }
     }
-    populateAddressForm();
-    getElements();
-    if(ordrin.address){
-      ordrin.mustard.deliveryCheck();
+    if(ordrin.render === "restaurants"){
+      if(typeof ordrin.restaurants === "undefined"){
+        ordrin.mustard.downloadRestaurants(ordrin.deliveryTime, ordrin.address);
+      }
+      ordrin.mustard.renderRestaurants();
     }
-    listen("click", document, clicked);
   };
 
   function clicked(event){

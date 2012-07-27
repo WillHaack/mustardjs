@@ -10,6 +10,8 @@ task('templateLoader.js', function(){
   data.dialog = dialog.replace(spaces, "").replace(/"/g, "\\\"");
   var trayItem = fs.readFileSync("./templates/trayItem.html.mustache", "utf8");
   data.trayItem = trayItem.replace(spaces, "").replace(/"/g, "\\\"");
+  var restaurants = fs.readFileSync("./templates/restaurants.html.mustache", "utf8");
+  data.restaurants = restaurants.replace(spaces, "").replace(/"/g, "\\\"");
   data.mustache = fs.readFileSync("./script/mustache.min.js", "utf8");
   var input = fs.readFileSync("./script/templateLoader.js.mustache", "utf8");
   var output = Mustache.render(input, data).replace(/\r/g, "");

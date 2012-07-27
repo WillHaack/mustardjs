@@ -1,0 +1,20 @@
+<article>
+<ul>
+  {{#restaurants}}
+    <li>
+      <section>
+        <h1><a href="{{menu_uri}}/{{id}}">{{na}}</a></h1>
+        <p>{{ad}}</p>
+        <p>Expected delivery time: {{del}} minutes</p>
+        <p>Minimum order amount: ${{mino}}</p>
+        <ul>
+          {{#cu}}
+            <li>{{.}}</li>
+          {{/cu}}
+        </ul>
+        <p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p>
+      </section>
+    </li>
+  {{/restaurants}}
+</ul>
+</article>

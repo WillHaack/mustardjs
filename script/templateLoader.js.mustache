@@ -13,6 +13,10 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     ordrin.trayItemTemplate = "{{{trayItem}}}";
   }
 
+  if(!ordrin.hasOwnProperty("restaurantsTemplate")){
+    ordrin.restaurantsTemplate = "{{{restaurants}}}";
+  }
+
   {{{mustache}}}
   ordrin.Mustache = Mustache;
 })();
