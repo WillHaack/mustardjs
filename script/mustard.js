@@ -526,7 +526,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       var params = {};
       for(var prop in ordrin.address){
         if(ordrin.address.hasOwnProperty(prop)){
-          params[prop] = encodeURIComponent(ordrin.address[prop]);
+          params[prop] = encodeURIComponent(ordrin.address[prop] || '');
         }
       }
       params.dateTime = ordrin.deliveryTime;
