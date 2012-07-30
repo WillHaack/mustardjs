@@ -71,8 +71,6 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
 
     this.renderRestaurants = function(){
-      var data = {};
-      data.restaurants = ordrin.restaurants;
       var params = {};
       for(var prop in ordrin.address){
         if(ordrin.address.hasOwnProperty(prop)){
@@ -81,8 +79,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       }
       params.dateTime = ordrin.deliveryTime;
       console.log(params);
-      for(var i=0; i<data.restaurants.length; i++){
-        data.restaurants[i].params = params;
+      for(var i=0; i<ordrin.restaurants.length; i++){
+        ordrin.restaurants[i].params = params;
       }
       var restaurantsHtml = ordrin.Mustache.render(ordrin.restaurantsTemplate, ordrin);
       document.getElementById("ordrinRestaurants").innerHTML = restaurantsHtml;

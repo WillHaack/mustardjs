@@ -3,9 +3,7 @@
   {{#restaurants}}
     <li>
       <section>
-        {{#params}}
-          <h1><a href="{{menu_uri}}/{{id}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}">{{na}}</a></h1>
-        {{/params}}
+          <h1><a href="{{#params}}{{menu_uri}}{{/params}}/{{id}}{{#params}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}{{/params}}">{{na}}</a></h1>
         <p>{{ad}}</p>
         <p>Expected delivery time: {{del}} minutes</p>
         <p>Minimum order amount: ${{mino}}</p>
