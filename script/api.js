@@ -162,9 +162,12 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
     this.checkDateTime = function(dateTime){
       if (dateTime != "ASAP"){
-        var delivery_date = String(dateTime.getMonth() + 1) + "-" +  String(dateTime.getDate());
-        var delivery_time = dateTime.getHours() + ":" + dateTime.getMinutes();
-        dateTime = delivery_date + "+" + delivery_time;
+        // Accept strings that this function would output
+        if(dateTime instanceof Date){
+          var delivery_date = String(dateTime.getMonth() + 1) + "-" +  String(dateTime.getDate());
+          var delivery_time = dateTime.getHours() + ":" + dateTime.getMinutes();
+          dateTime = delivery_date + "+" + delivery_time;
+        }
       }
       return dateTime;
     }
@@ -202,9 +205,20 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       var delivery_date, delivery_time;
 
       if (deliveryTime !== "ASAP"){
-        delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
-        delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
-      }else{
+        if(deliveryTime instanceof Date){
+          delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
+          delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
+        } else {
+          var match = deliveryTime.match(/(\d{2}-\d{2})\+(\d{2}:\d{2})/);
+          if(match){
+            delivery_date = match[1];
+            delivery_time = match[2];
+          } else {
+            delivery_date = "ASAP";
+            delivery_time = "";
+          }
+        }
+      } else {
         delivery_date = "ASAP";
         delivery_time = "";
       }
