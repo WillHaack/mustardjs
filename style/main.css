@@ -377,3 +377,78 @@ width: 10%;
     float: right;
     font-weight: bold;
 }
+
+/* RESTAURANT PAGE */
+#ordrinRestaurants .restaurant-container p {
+  font-size: 16px;
+  margin: 0 0 10px 0;
+  color: #757469;
+}
+
+#ordrinRestaurants .wide .restaurants {
+	margin-right: 38px;
+}
+#ordrinRestaurants .rest-info {
+	width: 71%;
+}
+#ordrinRestaurants .restaurants li .price-range {
+	font: bold 18px Arial, sans-serif;
+	text-align: right;
+  visibility: hidden;  //until we have this data
+}
+#ordrinRestaurants .restaurants li .rest-info h1 {
+	color: #d2142e;
+	font-weight: bold;
+	font-size: 18px;
+	margin-bottom: 5px;
+}
+#ordrinRestaurants .restaurants li {
+	border-top: 1px dashed #e1deb3;
+	padding: 15px 0;
+	margin: 0;
+}
+#ordrinRestaurants .restaurants li .slim-col {
+	width: 150px;
+	float: right;
+}
+#ordrinRestaurants .restaurants li .rest-info p {
+	font-size: 14px;
+	margin-bottom: 5px;
+}
+#ordrinRestaurants .rest-info p span {
+	margin-right: 10px;
+}
+#ordrinRestaurants .restaurants li .rest-info .address {
+	font-weight: bold;
+}
+#ordrinRestaurants .big-col .detail-col {
+  /*width:275px;*/
+  float:left;
+  margin-left:5px;
+}
+#ordrinRestaurants .big-col:after {
+	clear: both;
+	display: block;
+	visibility: hidden;
+	overflow: hidden;
+	height: 0 !important;
+	line-height: 0;
+	font-size: xx-large;
+	content: " x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x x ";
+}
+#ordrinRestaurants .restaurants li .rest-info .address {
+	font-weight: bold;
+}
+#ordrinRestaurants {
+	color: #757469;
+	font-family: Arial, sans-serif;
+  margin: 0 auto 0 auto;
+	/*remove the following styles for production */
+	background: #fff;
+	width: 520px;
+	/**************************/
+
+}
+#ordrinRestaurants a{
+  color: #D2142E;
+}

@@ -57,6 +57,29 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     return expirationMonth;
   }
 
+  function parseDateTime(dateTime){
+    var date, time;
+    if(dateTime instanceof Date){
+      date = String(dateTime.getMonth() + 1) + "-" +  String(dateTime.getDate());
+      time = dateTime.getHours() + ":" + dateTime.getMinutes();
+    } else {
+      if(typeof dateTime !== "string" && ! dateTime instanceof String){
+        return {error:true};
+      }
+      var match = dateTime.match(/(\d{2}-\d{2})\+(\d{2}:\d{2})/);
+      if(match){
+        date = match[1];
+        time = match[2];
+      } else if(dateTime.toUpperCase() === "ASAP") {
+        date = "ASAP";
+        time = "";
+      } else {
+        return {error:true};
+      }
+      return {date:date, time:time, error:false};
+    }
+  }
+
   var Tools = function(){
 
     /*
@@ -100,7 +123,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
 
     this.getDeliveryList = function(dateTime, address, callback){
-      dateTime = this.checkDateTime(dateTime);
+      dateTime = this.parseDateTime(dateTime);
+
+      if(dateTime === null){
+        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+      }
 
       var params = [
         dateTime,
@@ -113,7 +140,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     this.getDeliveryCheck = function(restaurantId, dateTime, address, callback){
-      dateTime = this.checkDateTime(dateTime);
+      dateTime = this.parseDateTime(dateTime);
+
+      if(dateTime === null){
+        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+      }
 
       var params = [
         restaurantId,
@@ -127,7 +158,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     this.getFee = function(restaurantId, subtotal, tip, dateTime, address, callback){
-      dateTime = this.checkDateTime(dateTime);
+      dateTime = this.parseDateTime(dateTime);
+
+      if(dateTime === null){
+        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+      }
 
       var params = [
         restaurantId,
@@ -160,16 +195,17 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       tools.makeApiRequest(restaurantUrl, uriString, method, data, callback);
     }
 
-    this.checkDateTime = function(dateTime){
-      if (dateTime != "ASAP"){
-        // Accept strings that this function would output
-        if(dateTime instanceof Date){
-          var delivery_date = String(dateTime.getMonth() + 1) + "-" +  String(dateTime.getDate());
-          var delivery_time = dateTime.getHours() + ":" + dateTime.getMinutes();
-          dateTime = delivery_date + "+" + delivery_time;
+    this.parseDateTime = function(dateTime, callback){
+      var delivery = parseDateTime(dateTime);
+      if(delivery.error){
+        return null;
+      } else {
+        if(delivery.date === "ASAP"){
+          return "ASAP";
+        } else {
+          return delivery.date+'+'+delivery.time;
         }
       }
-      return dateTime;
     }
   };
 
@@ -200,34 +236,20 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         restaurantId
       ];
 
-      deliveryTime = deliveryTime.toUpperCase();
 
       var delivery_date, delivery_time;
 
-      if (deliveryTime !== "ASAP"){
-        if(deliveryTime instanceof Date){
-          delivery_date = String(deliveryTime.getMonth() + 1) + "-" +  String(deliveryTime.getDate());
-          delivery_time = deliveryTime.getHours() + ":" + deliveryTime.getMinutes();
-        } else {
-          var match = deliveryTime.match(/(\d{2}-\d{2})\+(\d{2}:\d{2})/);
-          if(match){
-            delivery_date = match[1];
-            delivery_time = match[2];
-          } else {
-            delivery_date = "ASAP";
-            delivery_time = "";
-          }
-        }
-      } else {
-        delivery_date = "ASAP";
-        delivery_time = "";
+      var delivery = parseDateTime(deliveryTime);
+      if(delivery.error){
+        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+        return;
       }
 
       var data = {
         tray: tray.buildTrayString(),
         tip: tip,
-        delivery_date: delivery_date,
-        delivery_time: delivery_time,
+        delivery_date: delivery.date,
+        delivery_time: delivery.time,
         first_name: firstName,
         last_name: lastName,
         addr: address.addr,
@@ -448,7 +470,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   }
 
   if(!ordrin.hasOwnProperty("restaurantsTemplate")){
-    ordrin.restaurantsTemplate = "<article><ul>{{#restaurants}}<li><section><h1><a href=\"{{#params}}{{menu_uri}}{{/params}}/{{id}}{{#params}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}{{/params}}\">{{na}}</a></h1><p>{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}<li>{{.}}</li>{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></li>{{/restaurants}}</ul></article>";
+    ordrin.restaurantsTemplate = "<article class=\"restaurant-container\"><div><ul class=\"restaurants\">{{#restaurants}}<li><div class=\"rest-info big-col\"><section class=\"detail-col\"><a href=\"{{#params}}{{menu_uri}}{{/params}}/{{id}}{{#params}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}{{/params}}\"><h1 class=\"restaurant\">{{na}}</h1></a><p class=\"address\">{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}{{.}},{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></div></li>{{/restaurants}}</ul></div></article>";
   }
 
   var Mustache="undefined"!==typeof module&&module.exports||{};
