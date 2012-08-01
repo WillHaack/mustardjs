@@ -65,7 +65,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
     
     this.renderMenu = function(){
-      var menuHtml = ordrin.Mustache.render(ordrin.template, ordrin);
+      var menuHtml = ordrin.Mustache.render(ordrin.menuTemplate, ordrin);
       document.getElementById("ordrinMenu").innerHTML = menuHtml;
       getElements();
     }

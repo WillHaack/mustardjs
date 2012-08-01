@@ -236,9 +236,6 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         restaurantId
       ];
 
-
-      var delivery_date, delivery_time;
-
       var delivery = parseDateTime(deliveryTime);
       if(delivery.error){
         callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
