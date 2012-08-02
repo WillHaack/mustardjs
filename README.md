@@ -4,7 +4,7 @@ Mustard is a library that makes it easy to add Ordr.in powered food ordering to 
 
 ## Installation
 
-Mustard currently must be served by a server that proxies the [Ordr.in API](http://ordr.in/developers/api). Currently, we provide the node module [deliveratorjs](https://github.com/ordrin/deliveratorjs), which provides this and other functionality.
+Mustard currently must be served by a server that proxies the [Ordr.in API](http://ordr.in/developers/api) or can make requests to the API and insert the result into the page. Currently, we provide the node module [deliveratorjs](https://github.com/ordrin/deliveratorjs), which provides this and other functionality.
 
 ## Quick start
 
@@ -17,7 +17,7 @@ The minimal page that will serve an menu is the following (assuming that `mustar
     <link href="/ordrin/style/main.css" rel="stylesheet" type="text/css">
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <script>
-      ordrin = typeof ordrin==="undefined"?{}:ordrin;
+      var ordrin = typeof ordrin==="undefined"?{}:ordrin;
       ordrin.rid = 141; // the restaurant's ordr.in ID
       ordrin.render = "menu";
       ordrin.restaurantUrl = ordrin.orderUrl = location.origin+"path/to/api/proxy";
@@ -36,9 +36,21 @@ The minimal page that will serve an menu is the following (assuming that `mustar
 ```
 
 A few things to note about the page:
+
 1. We only support loading Mustard asynchronously.
 2. Currently, all parameters must be passed to Mustard by assigning to keys in the `ordrin` javascript object.
 3. For Mustard to function, the menu HTML must be in a `<div>` with the id `ordrinMenu`. If Mustard is rendering the menu, as in this example, the `<div>` should be empty as its contents will be overwritten.
+
+### No Proxy
+
+If you want to make this quick start page but don't have a server that proxies the Ordr.in API, you can still render the page by adding only a couple of lines of code to the script tag in the quick start page. After the line that sets the `ordrin` variable, the following two lines should be added:
+
+```js
+ordrin.noProxy = true;
+ordrin.menu = {{{data}}};
+```
+
+Fill in `{{{data}}}` by making a request to the restaurant details function of the [Restaurant API](http://ordr.in/developers/restaurant) and replacing `{{{data}}}` with the value of the `menu` key in the repsonse to that API call.
 
 ## API
 
@@ -90,6 +102,8 @@ Represents an option on an item in the tray
 3. `price`: The price of the option in cents
 4. `totalPrice`: the price of the option multiplied by the item quantity in dollars
 
+---
+
 ### TrayItem
 Represents an item in the tray
 #### Fields:
@@ -109,6 +123,8 @@ Represents an item in the tray
 3. `hasOptionSelected(optionId)`: Returns true if this item has an option selected with this `optionId` and false otherwise
 4. `getTotalPrice()`: Returns the total price of this tray item, taking into account selected options and quantity
 
+---
+
 ### Tray
 Represents a tray of food to be ordered.
 #### Fields:
@@ -121,6 +137,10 @@ Represents a tray of food to be ordered.
 2. `removeItem(id)`: Removes the item with the tray id `id` from the tray
 3. `buildTrayString()`: Returns the part of the ordr.in API query string corresponding to the tray
 4. `getSubtotal()`: Returns the total price of all items in the tray
+
+---
+
+### The Pages
 
 Mustard can render two pages: a list of restaurants and a menu.
 
@@ -154,6 +174,11 @@ Direct: `ordrin.resaurantUrl`
 The base URL for requests to the order API. Setting this after Mustard loads has no effect.
 
 Direct: `ordrin.orderUrl`
+
+#### No Proxy
+Mustard will not make any API requests if this value is truthy.
+
+Direct: `ordrin.noProxy`
 
 ### Restaurant List
 

@@ -14,17 +14,19 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
 
     this.deliveryCheck = function(){
-      ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, ordrin.deliveryTime, ordrin.address, function(err, data){
-        if(err){
-          handleError(err);
-        } else {
-          console.log(data);
-          ordrin.delivery = data.delivery;
-          if(data.delivery === 0){
-            handleError(data);
+      if(!ordrin.noProxy){
+        ordrin.api.restaurant.getDeliveryCheck(ordrin.rid, ordrin.deliveryTime, ordrin.address, function(err, data){
+          if(err){
+            handleError(err);
+          } else {
+            console.log(data);
+            ordrin.delivery = data.delivery;
+            if(data.delivery === 0){
+              handleError(data);
+            }
           }
-        }
-      });
+        });
+      }
     }
     
     this.getRid = function(){
@@ -241,19 +243,21 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
     ordrin.tip = tip;
     getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
-    ordrin.api.restaurant.getFee(ordrin.rid, toDollars(subtotal), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
-      if(err){
-        handleError(err);
-      } else {
-        getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
-        getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
-        var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
-        getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
-        if(data.delivery === 0){
-          handleError({delivery:0, msg:data.msg});
+    if(!ordrin.noProxy){
+      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(subtotal), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
+        if(err){
+          handleError(err);
+        } else {
+          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
+          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
+          var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
+          getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+          if(data.delivery === 0){
+            handleError({delivery:0, msg:data.msg});
+          }
         }
-      }
-    });
+      });
+    }
   }
 
   ordrin.tray = new Tray()
@@ -364,7 +368,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       ordrin.deliveryTime = "ASAP";
     }
     if(typeof ordrin.rid !== "undefined"){
-      if(typeof ordrin.menu === "undefined"){
+      if(typeof ordrin.menu === "undefined" && !ordrin.noProxy){
         ordrin.mustard.downloadMenu(ordrin.rid);
       }
       allItems = extractAllItems(ordrin.menu);
@@ -380,7 +384,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       }
     }
     if(ordrin.render === "restaurants" || ordrin.render === "all"){
-      if(typeof ordrin.restaurants === "undefined"){
+      if(typeof ordrin.restaurants === "undefined" && !ordrin.noProxy){
         ordrin.mustard.downloadRestaurants(ordrin.deliveryTime, ordrin.address);
       }
       ordrin.mustard.renderRestaurants();
