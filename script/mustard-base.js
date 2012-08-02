@@ -10,7 +10,6 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
     this.setAddress = function(address){
       ordrin.address = address;
-      populateAddressForm();
       this.deliveryCheck();
     }
 
@@ -30,6 +29,10 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     
     this.getRid = function(){
       return ordrin.rid;
+    }
+
+    this.setRid = function(rid){
+      ordrin.rid = rid;
     }
 
     this.getAddress = function(){
@@ -195,20 +198,20 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         for(var i=0; i<pageTrayItems.length; i++){
           if(+(pageTrayItems[i].getAttribute("data-tray-id"))===item.trayItemId){
             elements.tray.replaceChild(newNode, pageTrayItems[i]);
-            this.updateFee();
+            updateFee();
             return;
           }
         }
         elements.tray.appendChild(newNode);
       }
-      this.updateFee();
+      updateFee();
     }
 
     this.removeItem = function(id){
       var removed = this.items[id];
       delete this.items[id];
       elements.tray.removeChild(removed.trayItemNode);
-      this.updateFee();
+      updateFee();
     }
 
     this.buildTrayString = function(){
@@ -230,31 +233,27 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       }
       return subtotal;
     }
-
-    this.updateFee = function(){
-      var subtotal = this.getSubtotal();
-      getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
-      var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
-      ordrin.tip = tip;
-      getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
-      ordrin.api.restaurant.getFee(ordrin.rid, toDollars(this.getSubtotal()), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
-        if(err){
-          handleError(err);
-        } else {
-          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
-          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
-          var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
-          getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
-          if(data.delivery === 0){
-            handleError({delivery:0, msg:data.msg});
-          }
-        }
-      });
-    }
   };
 
-  function updateTray(){
-    ordrin.tray.updateFee();
+  function updateFee(){
+    var subtotal = ordrin.tray.getSubtotal();
+    getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
+    var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
+    ordrin.tip = tip;
+    getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
+    ordrin.api.restaurant.getFee(ordrin.rid, toDollars(subtotal), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
+      if(err){
+        handleError(err);
+      } else {
+        getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
+        getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
+        var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
+        getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+        if(data.delivery === 0){
+          handleError({delivery:0, msg:data.msg});
+        }
+      }
+    });
   }
 
   ordrin.tray = new Tray()
@@ -369,7 +368,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         ordrin.mustard.downloadMenu(ordrin.rid);
       }
       allItems = extractAllItems(ordrin.menu);
-      if(ordrin.render === "menu"){
+      if(ordrin.render === "menu" || ordrin.render === "all"){
         ordrin.mustard.renderMenu();
       } else {
         getElements();
@@ -380,7 +379,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         ordrin.mustard.deliveryCheck();
       }
     }
-    if(ordrin.render === "restaurants"){
+    if(ordrin.render === "restaurants" || ordrin.render === "all"){
       if(typeof ordrin.restaurants === "undefined"){
         ordrin.mustard.downloadRestaurants(ordrin.deliveryTime, ordrin.address);
       }
@@ -400,7 +399,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       addToTray : addTrayItem,
       removeTrayItem : removeTrayItem,
       optionCheckbox : validateCheckbox,
-      updateTray : updateTray,
+      updateTray : updateFee,
       updateAddress : saveAddressForm,
       closeError : hideErrorDialog
     }
@@ -427,6 +426,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     try {
       var address = new ordrin.api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
       ordrin.mustard.setAddress(address);
+      populateAddressForm();
     } catch(e){
       console.log(e);
       if(typeof e.fields !== "undefined"){
