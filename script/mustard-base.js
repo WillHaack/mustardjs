@@ -383,6 +383,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       populateAddressForm();
       if(ordrin.address){
         ordrin.mustard.deliveryCheck();
+      } else {
+        ordrin.delivery = true;
       }
     }
     if(ordrin.render === "restaurants" || ordrin.render === "all"){
