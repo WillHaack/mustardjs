@@ -52,6 +52,8 @@ ordrin.menu = {{{data}}};
 
 Fill in `{{{data}}}` by making a request to the restaurant details function of the [Restaurant API](http://ordr.in/developers/restaurant) and replacing `{{{data}}}` with the value of the `menu` key in the repsonse to that API call.
 
+In this case, the `restaurantUrl` and `orderUrl` variables are not needed and will not have any effect, so the line setting them is not required.
+
 ## API
 
 Mustard exposes the parts of the [Ordr.in API](http://ordr.in/developers/api) that do not require user authentication. Mustard puts the API into `ordrin.api`. Every API function takes a callback function as the last argument, and finishes by calling `callback(error, data)`
