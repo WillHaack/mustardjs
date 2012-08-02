@@ -1,21 +1,21 @@
 <div id="yourTray">Your Tray</div>
 <ul class="menuList">
   {{#menu}}
-  <li class="menuCategory" data-mgid="{{id}}">
-    <div class="menu-hd">
-      <p class="header itemListName">{{name}}</p>
-    </div>
-    <ul class="itemList menu main-menu">
-      {{#children}}
-      <li class="mi" data-listener="menuItem" data-miid="{{id}}">
-	<p class="name">{{name}}</p>
-	<p>
-	  <span class="price">{{price}}</span>
-	</p>
-      </li>
-      {{/children}}
-    </ul>
-  </li>
+    <li class="menuCategory" data-mgid="{{id}}">
+      <div class="menu-hd">
+        <p class="header itemListName">{{name}}</p>
+      </div>
+      <ul class="itemList menu main-menu">
+        {{#children}}
+          <li class="mi" data-listener="menuItem" data-miid="{{id}}">
+	          <p class="name">{{name}}</p>
+	          <p>
+	            <span class="price">{{price}}</span>
+	          </p>
+          </li>
+        {{/children}}
+      </ul>
+    </li>
   {{/menu}}
 </ul>
 <div class="trayContainer">
@@ -29,12 +29,14 @@
     <input type="number" min="0.00" step="0.01" value="0.00" class="tipInput">
     <input type="button" value="Update" data-listener="updateTray">
   </div>
+  {{^noProxy}}
   <div class="fee">
     Fee: <span class="feeValue">0.00</span>
   </div>
   <div class="tax">
     Tax: <span class="taxValue">0.00</span>
   </div>
+  {{/noProxy}}
   <div class="total">
     Total: <span class="totalValue">0.00</span>
   </div>

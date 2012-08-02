@@ -245,7 +245,10 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
     ordrin.tip = tip;
     getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
-    if(!ordrin.noProxy){
+    if(ordrin.noProxy){
+      var total = subtotal + tip;
+      getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+    } else {
       ordrin.api.restaurant.getFee(ordrin.rid, toDollars(subtotal), toDollars(tip), ordrin.deliveryTime, ordrin.address, function(err, data){
         if(err){
           handleError(err);

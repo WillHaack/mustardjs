@@ -1,6 +1,6 @@
 {
   "name": "mustard",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "description": "A client side library for including an ordr.in menu in a webpage",
   "author" : "Ordr.in <tech@ordr.in>",
   "repository" : {
