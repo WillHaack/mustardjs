@@ -511,6 +511,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
             }
           }
         });
+      } else {
+        ordrin.delivery = true;
       }
     }
     

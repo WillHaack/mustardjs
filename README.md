@@ -23,7 +23,7 @@ The minimal page that will serve an menu is the following (assuming that `mustar
       ordrin.restaurantUrl = ordrin.orderUrl = location.origin+"path/to/api/proxy";
       (function(){
         var ow = document.createElement('script'); ow.type = 'text/javascript'; ow.async = true;
-        ow.src = '{{path}}/script/mustard.js';
+        ow.src = '/ordrin/script/mustard.js';
         var s = document.getElementsByTagName('script')[0];
         s.parentNode.insertBefore(ow, s);  
       })();
