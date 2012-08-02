@@ -211,10 +211,12 @@ Direct: `ordrin.trayItemTemplate`
 A tray of items. An instance of `Tray`.
 
 Direct: `ordrin.tray`
+
 Accessor: `ordrin.mustard.getTray()`
 
 #### Tip
 The tip as an integer number of cents.
 
 Direct: `ordrin.tip`
+
 Accessor: `ordrin.mustard.getTip()`
