@@ -158,7 +158,7 @@ Accessors: `ordrin.mustard.getAddress()`, `ordrin.mustard.setAddress()`
 #### Delivery date/time
 The time at which the food should be delivered. This should be either the string `ASAP`, a string of the form `MM-dd+HH:mm`, or a `Date` object in the future.
 
-Direct: `ordrin.dateTime`
+Direct: `ordrin.deliveryTime`
 
 Accessors: `ordrin.mustard.getDeliveryTime()`, `ordrin.mustard.setDeliveryTime()`
 

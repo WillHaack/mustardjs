@@ -2,14 +2,26 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
   "use strict";
-
+  
   function Mustard(){
+    this.dateSelected = function(){
+      if(document.forms["ordrinDateTime"].date.value === "ASAP"){
+        hideElement(getElementsByClassName(elements.menu, "timeForm")[0]);
+      } else {
+        unhideElement(getElementsByClassName(elements.menu, "timeForm")[0]);
+      }
+    }
+    
     this.getTray = function(){
       return ordrin.tray;
     }
 
+    var addressTemplate="{{addr}}<br>{{#addr2}}{{this}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
+
     this.setAddress = function(address){
       ordrin.address = address;
+      var addressHtml = ordrin.Mustache.render(addressTemplate, address);
+      getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
       this.deliveryCheck();
     }
 
@@ -43,8 +55,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       return ordrin.address;
     }
 
-    this.setDeliveryTime = function(time){
-      ordrin.deliveryTime = time;
+    this.setDeliveryTime = function(dateTime){
+      ordrin.deliveryTime = dateTime;
+      getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = dateTime;
     }
 
     this.getDeliveryTime = function(){
@@ -283,6 +296,22 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
   }
 
+  function hideElement(element){
+    element.className += " hidden";
+  }
+
+  function unhideElement(element){
+    element.className = element.className.replace(/\s?\bhidden\b\s?/g, ' ').replace(/  /, ' ');
+  }
+
+  function toggleHideElement(element){
+    if(/\bhidden\b/.test(element.className)){
+      unhideElement(element);
+    } else {
+      hideElement(element);
+    }
+  }
+
   function showErrorDialog(msg){
     // show background
     elements.errorBg.className = elements.errorBg.className.replace("hidden", "");
@@ -368,6 +397,41 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
   }
 
+  function padLeft(number, size, c){
+    if(typeof c === "undefined"){
+      c = "0";
+    }
+    var str = ''+number;
+    var len = str.length
+    for(var i=0; i<size-len; i++){
+      str = c+str;
+    }
+    return str;
+  }
+
+  function initializeDateForm(){
+    var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    var months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    var form = document.forms["ordrinDateTime"];
+    var date = new Date();
+    var option = document.createElement("option");
+    option.setAttribute("value", padLeft(date.getMonth()+1, 2)+'-'+padLeft(date.getDate(), 2));
+    option.innerHTML = "Today, "+days[date.getDay()];
+    form.date.appendChild(option);
+    
+    option = document.createElement("option");
+    date.setDate(date.getDate()+1);
+    option.setAttribute("value", padLeft(date.getMonth()+1, 2)+'-'+padLeft(date.getDate(), 2));
+    option.innerHTML = "Tomorrow, "+days[date.getDay()];
+    form.date.appendChild(option);
+    
+    option = document.createElement("option");
+    date.setDate(date.getDate()+1);
+    option.setAttribute("value", padLeft(date.getMonth()+1, 2)+'-'+padLeft(date.getDate(), 2));
+    option.innerHTML = months[date.getMonth()]+" "+date.getDate()+', '+days[date.getDay()];
+    form.date.appendChild(option);
+  }
+
   function init(){
     if(typeof ordrin.deliveryTime === "undefined"){
       ordrin.deliveryTime = "ASAP";
@@ -390,6 +454,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
         ordrin.delivery = true;
       }
     }
+    initializeDateForm();
     if(ordrin.render === "restaurants" || ordrin.render === "all"){
       if(typeof ordrin.restaurants === "undefined" && !ordrin.noProxy){
         ordrin.mustard.downloadRestaurants(ordrin.deliveryTime, ordrin.address);
@@ -412,6 +477,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       optionCheckbox : validateCheckbox,
       updateTray : updateFee,
       updateAddress : saveAddressForm,
+      editAddress : showAddressForm,
+      updateDateTime : saveDateTimeForm,
+      editDeliveryTime : showDateTimeForm,
       closeError : hideErrorDialog
     }
     var node = event.srcElement;
@@ -428,6 +496,34 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
   }
 
+  function showAddressForm(){
+    toggleHideElement(getElementsByClassName(elements.menu, "addressForm")[0]);
+  }
+
+  function showDateTimeForm(){
+    toggleHideElement(getElementsByClassName(elements.menu, "dateTimeForm")[0]);
+    ordrin.mustard.dateSelected();
+  }
+
+  function saveDateTimeForm(){
+    var form = document.forms["ordrinDateTime"];
+    var date = form.date.value;
+    if(date === "ASAP"){
+      ordrin.mustard.setDeliveryTime("ASAP");
+    } else {
+      var split = form.time.value.split(":");
+      var hours = split[0]="12"?0:+split[0];
+      var minutes = +split[1];
+      if(form.ampm.value = "PM"){
+        hours += 12;
+      }
+      
+      var time = padLeft(hours,2)+":"+padLeft(minutes,2);
+      ordrin.mustard.setDeliveryTime(date+"+"+time);
+    }
+    hideElement(getElementsByClassName(elements.menu, "dateTimeForm")[0]);
+  }
+
   function saveAddressForm(){
     var form = document.forms["ordrinAddress"];
     var inputs = ['addr', 'addr2', 'city', 'state', 'zip', 'phone'];
@@ -438,8 +534,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       var address = new ordrin.api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
       ordrin.mustard.setAddress(address);
       populateAddressForm();
+      hideElement(getElementsByClassName(elements.menu, "addressForm")[0]);
     } catch(e){
-      console.log(e);
+      console.log(e.stack);
       if(typeof e.fields !== "undefined"){
         var keys = Object.keys(e.fields);
         for(var i=0; i<keys.length; i++){

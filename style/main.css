@@ -235,7 +235,7 @@
   margin-bottom: 15px;
 }
 #ordrinMenu .menuList{
-  width: 80%;
+  width: 60%;
   float: left;
 }
 #ordrinMenu p.desc.dialogDescription {
@@ -318,9 +318,7 @@ border: 1px solid rgb(117, 116, 105);
     padding: 5px;
 }
 
-#ordrinMenu #yourTray {
-    float: right;
-    width: 20%;
+#ordrinMenu .yourTray {
     font-family: "Arial Black", sans-serif;
     font-size: 1.5em;
     margin-bottom: 10px;
@@ -376,6 +374,108 @@ width: 10%;
 #ordrinMenu span.trayItemPrice {
     float: right;
     font-weight: bold;
+}
+
+#ordrinMenu label{
+    margin-left: 0px;
+}
+
+#ordrinMenu input.tipInput{
+    width: 50px;
+	  margin-bottom: 5px;
+}
+
+#ordrinMenu div.subtotal {
+	  font-size: 12px;
+	  text-transform: uppercase;
+	  margin-bottom: 5px;
+	  font-weight: bold;
+}
+
+#ordrinMenu div.tip {
+	font-size: 12px;
+	text-transform: uppercase;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+#ordrinMenu div.fee {
+	font-size: 12px;
+	text-transform: uppercase;
+	margin-bottom: 5px;
+	font-weight: bold;
+}
+
+#ordrinMenu div.tax {
+	font-size: 12px;
+	text-transform: uppercase;
+	margin-bottom: 10px;
+	font-weight: bold;
+}
+
+#ordrinMenu div.total {
+	font-weight: bold;
+	text-transform: uppercase;
+	margin-bottom: 5px;
+}
+
+#ordrinMenu div.addressForm {
+	width: 300px;
+}
+
+#ordrinMenu .trayContainer label {
+	color: #000;
+}
+
+#ordrinMenu .bold {
+	font-weight: bold;
+}
+
+#ordrinMenu .dateTimeForm label {
+	font-size: 11px;
+	border: 0px;
+	font-style: normal;
+	padding: 0px;
+	margin: 0px;
+	margin-left: 10px;
+	color: black;
+}
+
+#ordrinMenu .timeForm label {
+	font-size: 11px;
+	border: 0px;
+	font-style: normal;
+	padding: 0px;
+	margin: 0px;
+	margin-left: 10px;
+	color: black;
+}
+
+#ordrinMenu .trayContainer p {
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 12px;
+}
+
+#ordrinMenu .smButtonRed { /*The gradient only seems to be working for Firefox, not Chrome. It should essentially be the same graident as the one used for the "Add to Tray" button */
+    background: #C81E1E;
+    font-family: Arial, Helvetica, sans-serif;
+    text-transform: uppercase;
+    border-radius: 8px 8px 8px 8px;
+    padding: 2px;
+    text-align: center;
+    border: 1px solid rgb(145, 65, 55);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#DC372D', endColorstr='#A5281E');
+    background: -webkit-gradient(linear, left top, left bottom, from(#DC372D), to(#A5281E) );
+    background: -moz-linear-gradient(-90deg, #DC372D, #A5281E);
+    filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#DC372D', endColorstr='#A5281E');
+    color: #FFFFFF;
+}
+
+#ordrinMenu .link{
+    cursor: pointer;
+    color: #0000FF;
+    text-decoration: underline;
 }
 
 /* RESTAURANT PAGE */
