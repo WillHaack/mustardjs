@@ -938,8 +938,8 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
       } else {
         ordrin.delivery = true;
       }
+      initializeDateForm();
     }
-    initializeDateForm();
     if(ordrin.render === "restaurants" || ordrin.render === "all"){
       if(typeof ordrin.restaurants === "undefined" && !ordrin.noProxy){
         ordrin.mustard.downloadRestaurants(ordrin.deliveryTime, ordrin.address);
