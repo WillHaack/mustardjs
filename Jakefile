@@ -19,10 +19,11 @@ task('templateLoader.js', function(){
 });
 
 task('mustard.js', ['templateLoader.js'], function(){
+  var tomato = fs.readFileSync("./tomato/tomato.js", "utf8");
   var api = fs.readFileSync("./script/api.js", "utf8");
   var templateLoader = fs.readFileSync("./script/templateLoader.js", "utf8");
   var mustard_base = fs.readFileSync("./script/mustard-base.js", "utf8");
-  var output = (api+templateLoader+mustard_base).replace(/\r/g, "");
+  var output = (tomato+api+templateLoader+mustard_base).replace(/\r/g, "");
   fs.writeFileSync("./script/mustard.js", output, "utf8");
 });
 
@@ -30,7 +31,7 @@ task('mustard.min.js', ['mustard.js'], function(){
   var child = exec("uglifyjs --unsafe --lift-vars -o ./script/mustard.min.js  ./script/mustard.js",
                    function(error, stdout, stderr){
                      if(error !== null){
-                       console.log('error: ' + error);
+                       fail('error: ' + error);
                      }
                    });
 });
@@ -39,7 +40,7 @@ task('main.min.css', function(){
   var child = exec("cleancss -o ./style/main.min.css ./style/main.css",
                    function(error, stdout, stderr){
                      if(error !== null){
-                       console.log('error: ' + error);
+                       fail('error: ' + error);
                      }
                    });
 });

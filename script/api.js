@@ -94,6 +94,15 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       data = stringify(data);
 
       var req = getXhr();
+      req.onreadystatechange = function(){
+        if(req.readyState === 4){
+          if(req.status !== 200){
+            callback({error: req.status, msg: req.statusText}, null);
+            return;
+          }
+          callback(null, JSON.parse(req.response));
+        }
+      }
       req.open(method, host+uri, false);
 
       if (method != "GET"){
@@ -101,13 +110,6 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       }
 
       req.send(data);
-
-      if(req.status !== 200){
-        callback({error: req.status, msg: req.statusText}, null);
-        return;
-      }
-
-      callback(null, JSON.parse(req.response));
     }
 
     this.buildUriString = function(baseUri, params){
@@ -415,7 +417,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
   var TrayItem = function(itemId, quantity, options){
     this.itemId   = itemId;
-    this.quantity = quantity;
+    this.quantity = +quantity;
     this.options  = options;
 
     this.buildItemString = function(){
@@ -428,6 +430,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   var Tray = function(items){
     this.items = items;
 
+    this.getItemList = function(){return items;}
+
     this.buildTrayString = function(){
       var string = "";
       for (var i = 0; i < this.items.length; i++){
@@ -437,6 +441,32 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     };
   };
 
+  function buildItem(itemString){
+    var re = /(\d+)\/(\d+)((,\d)*)/;
+    var match = re.exec(itemString);
+    if(match){
+      var itemId = match[1];
+      var quantity = match[2];
+      var options = match[3].substring(1).split(',');
+      return new TrayItem(itemId, quantity, options);
+    }
+    return null;
+  }
+
+  function buildTray(trayString){
+    var items = [];
+    if(typeof trayString === "string" || trayString instanceof String){
+      var itemStrings = trayString.split('+');
+      for(var i=0; i<itemStrings.length; i++){
+        var item = buildItem(itemStrings[i]);
+        if(item){
+          items.push(item);
+        }
+      }
+    }
+    return new Tray(items)
+  }
+
   var init = function(){
     return {
       restaurant: new Restaurant(ordrin.restaurantUrl),
@@ -444,7 +474,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       Address: Address,
       CreditCard: CreditCard,
       TrayItem: TrayItem,
-      Tray: Tray
+      Tray: Tray,
+      buildTray: buildTray
     };
   };
 
