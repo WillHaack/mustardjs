@@ -1,3 +1,662 @@
+;!function(exports, undefined) {
+
+  var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
+    return Object.prototype.toString.call(obj) === "[object Array]";
+  };
+  var defaultMaxListeners = 10;
+
+  function init() {
+    this._events = new Object;
+  }
+
+  function configure(conf) {
+    if (conf) {
+      conf.delimiter && (this.delimiter = conf.delimiter);
+      conf.wildcard && (this.wildcard = conf.wildcard);
+      if (this.wildcard) {
+        this.listenerTree = new Object;
+      }
+    }
+  }
+
+  function EventEmitter(conf) {
+    this._events = new Object;
+    configure.call(this, conf);
+  }
+
+  //
+  // Attention, function return type now is array, always !
+  // It has zero elements if no any matches found and one or more
+  // elements (leafs) if there are matches
+  //
+  function searchListenerTree(handlers, type, tree, i) {
+    if (!tree) {
+      return [];
+    }
+    var listeners=[], leaf, len, branch, xTree, xxTree, isolatedBranch, endReached,
+        typeLength = type.length, currentType = type[i], nextType = type[i+1];
+    if (i === typeLength && tree._listeners) {
+      //
+      // If at the end of the event(s) list and the tree has listeners
+      // invoke those listeners.
+      //
+      if (typeof tree._listeners === 'function') {
+        handlers && handlers.push(tree._listeners);
+        return [tree];
+      } else {
+        for (leaf = 0, len = tree._listeners.length; leaf < len; leaf++) {
+          handlers && handlers.push(tree._listeners[leaf]);
+        }
+        return [tree];
+      }
+    }
+
+    if ((currentType === '*' || currentType === '**') || tree[currentType]) {
+      //
+      // If the event emitted is '*' at this part
+      // or there is a concrete match at this patch
+      //
+      if (currentType === '*') {
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+1));
+          }
+        }
+        return listeners;
+      } else if(currentType === '**') {
+        endReached = (i+1 === typeLength || (i+2 === typeLength && nextType === '*'));
+        if(endReached && tree._listeners) {
+          // The next element has a _listeners, add it to the handlers.
+          listeners = listeners.concat(searchListenerTree(handlers, type, tree, typeLength));
+        }
+
+        for (branch in tree) {
+          if (branch !== '_listeners' && tree.hasOwnProperty(branch)) {
+            if(branch === '*' || branch === '**') {
+              if(tree[branch]._listeners && !endReached) {
+                listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], typeLength));
+              }
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            } else if(branch === nextType) {
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i+2));
+            } else {
+              // No match on this one, shift into the tree but not in the type array.
+              listeners = listeners.concat(searchListenerTree(handlers, type, tree[branch], i));
+            }
+          }
+        }
+        return listeners;
+      }
+
+      listeners = listeners.concat(searchListenerTree(handlers, type, tree[currentType], i+1));
+    }
+
+    xTree = tree['*'];
+    if (xTree) {
+      //
+      // If the listener tree will allow any match for this part,
+      // then recursively explore all branches of the tree
+      //
+      searchListenerTree(handlers, type, xTree, i+1);
+    }
+    
+    xxTree = tree['**'];
+    if(xxTree) {
+      if(i < typeLength) {
+        if(xxTree._listeners) {
+          // If we have a listener on a '**', it will catch all, so add its handler.
+          searchListenerTree(handlers, type, xxTree, typeLength);
+        }
+        
+        // Build arrays of matching next branches and others.
+        for(branch in xxTree) {
+          if(branch !== '_listeners' && xxTree.hasOwnProperty(branch)) {
+            if(branch === nextType) {
+              // We know the next element will match, so jump twice.
+              searchListenerTree(handlers, type, xxTree[branch], i+2);
+            } else if(branch === currentType) {
+              // Current node matches, move into the tree.
+              searchListenerTree(handlers, type, xxTree[branch], i+1);
+            } else {
+              isolatedBranch = {};
+              isolatedBranch[branch] = xxTree[branch];
+              searchListenerTree(handlers, type, { '**': isolatedBranch }, i+1);
+            }
+          }
+        }
+      } else if(xxTree._listeners) {
+        // We have reached the end and still on a '**'
+        searchListenerTree(handlers, type, xxTree, typeLength);
+      } else if(xxTree['*'] && xxTree['*']._listeners) {
+        searchListenerTree(handlers, type, xxTree['*'], typeLength);
+      }
+    }
+
+    return listeners;
+  }
+
+  function growListenerTree(type, listener) {
+
+    type = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+    
+    //
+    // Looks for two consecutive '**', if so, don't add the event at all.
+    //
+    for(var i = 0, len = type.length; i+1 < len; i++) {
+      if(type[i] === '**' && type[i+1] === '**') {
+        return;
+      }
+    }
+
+    var tree = this.listenerTree;
+    var name = type.shift();
+
+    while (name) {
+
+      if (!tree[name]) {
+        tree[name] = new Object;
+      }
+
+      tree = tree[name];
+
+      if (type.length === 0) {
+
+        if (!tree._listeners) {
+          tree._listeners = listener;
+        }
+        else if(typeof tree._listeners === 'function') {
+          tree._listeners = [tree._listeners, listener];
+        }
+        else if (isArray(tree._listeners)) {
+
+          tree._listeners.push(listener);
+
+          if (!tree._listeners.warned) {
+
+            var m = defaultMaxListeners;
+            
+            if (typeof this._events.maxListeners !== 'undefined') {
+              m = this._events.maxListeners;
+            }
+
+            if (m > 0 && tree._listeners.length > m) {
+
+              tree._listeners.warned = true;
+              console.error('(node) warning: possible EventEmitter memory ' +
+                            'leak detected. %d listeners added. ' +
+                            'Use emitter.setMaxListeners() to increase limit.',
+                            tree._listeners.length);
+              console.trace();
+            }
+          }
+        }
+        return true;
+      }
+      name = type.shift();
+    }
+    return true;
+  };
+
+  // By default EventEmitters will print a warning if more than
+  // 10 listeners are added to it. This is a useful default which
+  // helps finding memory leaks.
+  //
+  // Obviously not all Emitters should be limited to 10. This function allows
+  // that to be increased. Set to zero for unlimited.
+
+  EventEmitter.prototype.delimiter = '.';
+
+  EventEmitter.prototype.setMaxListeners = function(n) {
+    this._events || init.call(this);
+    this._events.maxListeners = n;
+  };
+
+  EventEmitter.prototype.event = '';
+
+  EventEmitter.prototype.once = function(event, fn) {
+    this.many(event, 1, fn);
+    return this;
+  };
+
+  EventEmitter.prototype.many = function(event, ttl, fn) {
+    var self = this;
+
+    if (typeof fn !== 'function') {
+      throw new Error('many only accepts instances of Function');
+    }
+
+    function listener() {
+      if (--ttl === 0) {
+        self.off(event, listener);
+      }
+      fn.apply(this, arguments);
+    };
+
+    listener._origin = fn;
+
+    this.on(event, listener);
+
+    return self;
+  };
+
+  EventEmitter.prototype.emit = function() {
+    this._events || init.call(this);
+
+    var type = arguments[0];
+
+    if (type === 'newListener') {
+      if (!this._events.newListener) { return false; }
+    }
+
+    // Loop through the *_all* functions and invoke them.
+    if (this._all) {
+      var l = arguments.length;
+      var args = new Array(l - 1);
+      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+      for (i = 0, l = this._all.length; i < l; i++) {
+        this.event = type;
+        this._all[i].apply(this, args);
+      }
+    }
+
+    // If there is no 'error' event listener then throw.
+    if (type === 'error') {
+      
+      if (!this._all && 
+        !this._events.error && 
+        !(this.wildcard && this.listenerTree.error)) {
+
+        if (arguments[1] instanceof Error) {
+          throw arguments[1]; // Unhandled 'error' event
+        } else {
+          throw new Error("Uncaught, unspecified 'error' event.");
+        }
+        return false;
+      }
+    }
+
+    var handler;
+
+    if(this.wildcard) {
+      handler = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handler, ns, this.listenerTree, 0);
+    }
+    else {
+      handler = this._events[type];
+    }
+
+    if (typeof handler === 'function') {
+      this.event = type;
+      if (arguments.length === 1) {
+        handler.call(this);
+      }
+      else if (arguments.length > 1)
+        switch (arguments.length) {
+          case 2:
+            handler.call(this, arguments[1]);
+            break;
+          case 3:
+            handler.call(this, arguments[1], arguments[2]);
+            break;
+          // slower
+          default:
+            var l = arguments.length;
+            var args = new Array(l - 1);
+            for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+            handler.apply(this, args);
+        }
+      return true;
+    }
+    else if (handler) {
+      var l = arguments.length;
+      var args = new Array(l - 1);
+      for (var i = 1; i < l; i++) args[i - 1] = arguments[i];
+
+      var listeners = handler.slice();
+      for (var i = 0, l = listeners.length; i < l; i++) {
+        this.event = type;
+        listeners[i].apply(this, args);
+      }
+      return (listeners.length > 0) || this._all;
+    }
+    else {
+      return this._all;
+    }
+
+  };
+
+  EventEmitter.prototype.on = function(type, listener) {
+    
+    if (typeof type === 'function') {
+      this.onAny(type);
+      return this;
+    }
+
+    if (typeof listener !== 'function') {
+      throw new Error('on only accepts instances of Function');
+    }
+    this._events || init.call(this);
+
+    // To avoid recursion in the case that type == "newListeners"! Before
+    // adding it to the listeners, first emit "newListeners".
+    this.emit('newListener', type, listener);
+
+    if(this.wildcard) {
+      growListenerTree.call(this, type, listener);
+      return this;
+    }
+
+    if (!this._events[type]) {
+      // Optimize the case of one listener. Don't need the extra array object.
+      this._events[type] = listener;
+    }
+    else if(typeof this._events[type] === 'function') {
+      // Adding the second element, need to change to array.
+      this._events[type] = [this._events[type], listener];
+    }
+    else if (isArray(this._events[type])) {
+      // If we've already got an array, just append.
+      this._events[type].push(listener);
+
+      // Check for listener leak
+      if (!this._events[type].warned) {
+
+        var m = defaultMaxListeners;
+        
+        if (typeof this._events.maxListeners !== 'undefined') {
+          m = this._events.maxListeners;
+        }
+
+        if (m > 0 && this._events[type].length > m) {
+
+          this._events[type].warned = true;
+          console.error('(node) warning: possible EventEmitter memory ' +
+                        'leak detected. %d listeners added. ' +
+                        'Use emitter.setMaxListeners() to increase limit.',
+                        this._events[type].length);
+          console.trace();
+        }
+      }
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.onAny = function(fn) {
+
+    if(!this._all) {
+      this._all = [];
+    }
+
+    if (typeof fn !== 'function') {
+      throw new Error('onAny only accepts instances of Function');
+    }
+
+    // Add the function to the event listener collection.
+    this._all.push(fn);
+    return this;
+  };
+
+  EventEmitter.prototype.addListener = EventEmitter.prototype.on;
+
+  EventEmitter.prototype.off = function(type, listener) {
+    if (typeof listener !== 'function') {
+      throw new Error('removeListener only takes instances of Function');
+    }
+
+    var handlers,leafs=[];
+
+    if(this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+    }
+    else {
+      // does not use listeners(), so no side effect of creating _events[type]
+      if (!this._events[type]) return this;
+      handlers = this._events[type];
+      leafs.push({_listeners:handlers});
+    }
+
+    for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+      var leaf = leafs[iLeaf];
+      handlers = leaf._listeners;
+      if (isArray(handlers)) {
+
+        var position = -1;
+
+        for (var i = 0, length = handlers.length; i < length; i++) {
+          if (handlers[i] === listener ||
+            (handlers[i].listener && handlers[i].listener === listener) ||
+            (handlers[i]._origin && handlers[i]._origin === listener)) {
+            position = i;
+            break;
+          }
+        }
+
+        if (position < 0) {
+          return this;
+        }
+
+        if(this.wildcard) {
+          leaf._listeners.splice(position, 1)
+        }
+        else {
+          this._events[type].splice(position, 1);
+        }
+
+        if (handlers.length === 0) {
+          if(this.wildcard) {
+            delete leaf._listeners;
+          }
+          else {
+            delete this._events[type];
+          }
+        }
+      }
+      else if (handlers === listener ||
+        (handlers.listener && handlers.listener === listener) ||
+        (handlers._origin && handlers._origin === listener)) {
+        if(this.wildcard) {
+          delete leaf._listeners;
+        }
+        else {
+          delete this._events[type];
+        }
+      }
+    }
+
+    return this;
+  };
+
+  EventEmitter.prototype.offAny = function(fn) {
+    var i = 0, l = 0, fns;
+    if (fn && this._all && this._all.length > 0) {
+      fns = this._all;
+      for(i = 0, l = fns.length; i < l; i++) {
+        if(fn === fns[i]) {
+          fns.splice(i, 1);
+          return this;
+        }
+      }
+    } else {
+      this._all = [];
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.removeListener = EventEmitter.prototype.off;
+
+  EventEmitter.prototype.removeAllListeners = function(type) {
+    if (arguments.length === 0) {
+      !this._events || init.call(this);
+      return this;
+    }
+
+    if(this.wildcard) {
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      var leafs = searchListenerTree.call(this, null, ns, this.listenerTree, 0);
+
+      for (var iLeaf=0; iLeaf<leafs.length; iLeaf++) {
+        var leaf = leafs[iLeaf];
+        leaf._listeners = null;
+      }
+    }
+    else {
+      if (!this._events[type]) return this;
+      this._events[type] = null;
+    }
+    return this;
+  };
+
+  EventEmitter.prototype.listeners = function(type) {
+    if(this.wildcard) {
+      var handlers = [];
+      var ns = typeof type === 'string' ? type.split(this.delimiter) : type.slice();
+      searchListenerTree.call(this, handlers, ns, this.listenerTree, 0);
+      return handlers;
+    }
+
+    this._events || init.call(this);
+
+    if (!this._events[type]) this._events[type] = [];
+    if (!isArray(this._events[type])) {
+      this._events[type] = [this._events[type]];
+    }
+    return this._events[type];
+  };
+
+  EventEmitter.prototype.listenersAny = function() {
+
+    if(this._all) {
+      return this._all;
+    }
+    else {
+      return [];
+    }
+
+  };
+
+  if (typeof define === 'function' && define.amd) {
+    define(function() {
+      return EventEmitter;
+    });
+  } else {
+    exports.EventEmitter2 = EventEmitter; 
+  }
+
+}(typeof process !== 'undefined' && typeof process.title !== 'undefined' && typeof exports !== 'undefined' ? exports : window);
+var ordrin = typeof ordrin === "object" ? ordrin : {};
+if(!ordrin.hasOwnProperty("Tomato")){
+  ordrin.Tomato = function Tomato(){
+    var store = {};
+    var namespace = {};
+
+    var constructors = {Array:true, String:true, Number:true, Boolean:true, Object:true}
+
+    function isCustomObject(obj){
+      if(typeof obj === "object" && obj !== null){
+        if(obj.constructor.name in constructors){
+          return false;
+        }
+        return true;
+      }
+      return false;
+    }
+
+    function extend(obj, other){
+      var result = obj;
+      for(var prop in other){
+        if(other.hasOwnProperty(prop)){
+          result[prop] = other[prop];
+        }
+      }
+      return result;
+    }
+
+    function shallowCopy(obj){
+      var result = {};
+      for(var prop in obj){
+        if(obj.hasOwnProperty(prop)){
+          result[prop] = obj[prop];
+        }
+      }
+      return result;
+    }
+    
+    function replacer(key, value){
+      if(isCustomObject(value)){
+        if(value.serialize instanceof Function){
+          return value.serialize();
+        } else {
+          var copy = shallowCopy(value);
+          copy.constructor = value.constructor.tomatoId;
+          return copy;
+        }
+      }
+      return value;
+    }
+
+    function reviver(key, value){
+      if(typeof value === "object" && typeof value.constructor === "string"){
+        var constructor = namespace[value.constructor];
+        delete value.constructor;
+        var result = new constructor();
+        if(result.deserialize instanceof Function){
+          result.deserialize(value);
+          return result;
+        } else {
+          return extend(result, value);
+        }
+      } else {
+        return value;
+      }
+    }
+
+    this.register = function register(constructor){
+      if(namespace[constructor.tomatoId] !== constructor){
+        var id = arguments.callee.caller.toString() + '.' + constructor.name;
+        if(namespace.hasOwnProperty(id)){
+          throw new Error("Cannot register "+constructor.name+" because you have already registered a constructor with that name");
+        } else {
+          namespace[id] = constructor;
+          constructor.tomatoId = id;
+        }
+      }
+    }
+
+    this.get = function(key){
+      if(this.hasKey(key)){
+        return JSON.parse(store[key].value, reviver);
+      } else {
+        return undefined;
+      }
+    }
+
+    this.hasKey = function(key){
+      return store.hasOwnProperty(key);
+    }
+
+    this.set = function(key, value){
+      var val = {}
+      val.value = JSON.stringify(value, replacer);
+      store[key] = val;
+      return value;
+    }
+
+    this.remove = function(key){
+      delete store[key];
+    }
+
+    this.keys = function(){
+      var keys = [];
+      for(key in store){
+        if(store.hasOwnProperty(key)){
+          return keys;
+        }
+      }
+    }
+  }
+}
 var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
 (function(){
@@ -79,108 +738,45 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       return {date:date, time:time, error:false};
     }
   }
+  
+  /*
+   * Base function to make a request to the ordr.in api
+   * host is the base uri, somehting like r-test.ordr.in
+   * uri is a full uri string, so everthing after ordr.in
+   * method is either GET or POST
+   * data is any additional data to be included in the request body or query string
+   * headers are additional headers beyond the X-NAAMA-Authentication
+   */
+  var makeApiRequest = function makeApiRequest(host, uri, method, data, callback){
+    data = stringify(data);
 
-  var Tools = function(){
-
-    /*
-     * Base function to make a request to the ordr.in api
-     * host is the base uri, somehting like r-test.ordr.in
-     * uri is a full uri string, so everthing after ordr.in
-     * method is either GET or POST
-     * data is any additional data to be included in the request body or query string
-     * headers are additional headers beyond the X-NAAMA-Authentication
-     */
-    this.makeApiRequest = function(host, uri, method, data, callback){
-      data = stringify(data);
-
-      var req = getXhr();
-      req.open(method, host+uri, false);
-
-      if (method != "GET"){
-        req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
+    var req = getXhr();
+    req.onreadystatechange = function(){
+      if(req.readyState === 4){
+        if(req.status !== 200){
+          callback({error: req.status, msg: req.statusText}, null);
+          return;
+        }
+        callback(null, JSON.parse(req.response));
       }
+    }
+    req.open(method, host+uri, false);
 
-      req.send(data);
-
-      if(req.status !== 200){
-        callback({error: req.status, msg: req.statusText}, null);
-        return;
-      }
-
-      callback(null, JSON.parse(req.response));
+    if (method != "GET"){
+      req.setRequestHeader("Content-Type", 'application/x-www-form-urlencoded');
     }
 
-    this.buildUriString = function(baseUri, params){
-      for (var i = 0; i < params.length; i++){
-        baseUri += "/" + encodeURIComponent(params[i]);
-      }
-      return baseUri;
+    req.send(data);
+  }
+
+  var buildUriString = function buildUriString(baseUri, params){
+    for (var i = 0; i < params.length; i++){
+      baseUri += "/" + encodeURIComponent(params[i]);
     }
-  };
+    return baseUri;
+  }
 
-  var Restaurant = function(restaurantUrl){
-    var tools    = new Tools();
-
-
-    this.getDeliveryList = function(dateTime, address, callback){
-      dateTime = this.parseDateTime(dateTime);
-
-      if(dateTime === null){
-        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
-      }
-
-      var params = [
-        dateTime,
-        address.zip,
-        address.city,
-        address.addr
-      ];
-
-      this.makeRestaurantRequest("/dl", params, {}, "GET", callback);
-    }
-
-    this.getDeliveryCheck = function(restaurantId, dateTime, address, callback){
-      dateTime = this.parseDateTime(dateTime);
-
-      if(dateTime === null){
-        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
-      }
-
-      var params = [
-        restaurantId,
-        dateTime,
-        address.zip,
-        address.city,
-        address.addr
-      ]
-
-      this.makeRestaurantRequest("/dc", params, {}, "GET", callback);
-    }
-
-    this.getFee = function(restaurantId, subtotal, tip, dateTime, address, callback){
-      dateTime = this.parseDateTime(dateTime);
-
-      if(dateTime === null){
-        callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
-      }
-
-      var params = [
-        restaurantId,
-        subtotal,
-        tip,
-        dateTime,
-        address.zip,
-        address.city,
-        address.addr
-      ]
-
-      this.makeRestaurantRequest("/fee", params, {}, "GET", callback);
-    }
-
-    this.getDetails = function(restaurantId, callback){
-      this.makeRestaurantRequest("/rd", [restaurantId], {}, "GET", callback);
-    }
-
+  var Restaurant = function Restaurant(restaurantUrl){
     /*
      * function to make all restaurant api requests
      * uri is the base uri so something like /dl, include the /
@@ -188,50 +784,105 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
      * data is the data that goes either after the ? in a get request, or in the post body
      * method is either GET or POST (case-sensitive)
      */
-
-    this.makeRestaurantRequest = function(uri, params, data, method, callback){
-      var uriString = tools.buildUriString(uri, params);
+    this.makeRestaurantRequest = function makeRestaurantRequest(uri, params, data, method, callback){
+      var uriString = buildUriString(uri, params);
       
-      tools.makeApiRequest(restaurantUrl, uriString, method, data, callback);
+      makeApiRequest(restaurantUrl, uriString, method, data, callback);
+    }
+  }
+  Restaurant.prototype.getDeliveryList = function getDeliveryList(dateTime, address, callback){
+    dateTime = this.parseDateTime(dateTime);
+
+    if(dateTime === null){
+      callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
     }
 
-    this.parseDateTime = function(dateTime, callback){
-      var delivery = parseDateTime(dateTime);
-      if(delivery.error){
-        return null;
+    var params = [
+      dateTime,
+      address.zip,
+      address.city,
+      address.addr
+    ];
+
+    this.makeRestaurantRequest("/dl", params, {}, "GET", callback);
+  }
+
+  Restaurant.prototype.getDeliveryCheck = function getDeliveryCheck(restaurantId, dateTime, address, callback){
+    dateTime = this.parseDateTime(dateTime);
+
+    if(dateTime === null){
+      callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+    }
+
+    var params = [
+      restaurantId,
+      dateTime,
+      address.zip,
+      address.city,
+      address.addr
+    ]
+
+    this.makeRestaurantRequest("/dc", params, {}, "GET", callback);
+  }
+
+  Restaurant.prototype.getFee = function getFee(restaurantId, subtotal, tip, dateTime, address, callback){
+    dateTime = this.parseDateTime(dateTime);
+
+    if(dateTime === null){
+      callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+    }
+
+    var params = [
+      restaurantId,
+      subtotal,
+      tip,
+      dateTime,
+      address.zip,
+      address.city,
+      address.addr
+    ]
+
+    this.makeRestaurantRequest("/fee", params, {}, "GET", callback);
+  }
+
+  Restaurant.prototype.getDetails = function getDetails(restaurantId, callback){
+    this.makeRestaurantRequest("/rd", [restaurantId], {}, "GET", callback);
+  }
+  
+  Restaurant.prototype.parseDateTime = function parseDateTime(dateTime, callback){
+    var delivery = parseDateTime(dateTime);
+    if(delivery.error){
+      return null;
+    } else {
+      if(delivery.date === "ASAP"){
+        return "ASAP";
       } else {
-        if(delivery.date === "ASAP"){
-          return "ASAP";
-        } else {
-          return delivery.date+'+'+delivery.time;
-        }
+        return delivery.date+'+'+delivery.time;
       }
     }
-  };
+  }
 
   // one validation error for a specific field. Used in ValidationError class
-  var FieldError = function(field, msg){
+  var FieldError = function FieldError(field, msg){
     this.field = field;
     this.msg   = msg;
   }
 
   // extends the Error object, and is thrown whenever an Object fails validation. Can contain multiple field errors.
-  var ValidationError = function(name, msg, errors){
+  var ValidationError = function ValidationError(name, msg, errors){
     Error.apply(this, arguments);
     this.fields = {};
+  }
 
-    // takes an array of FieldErrors and adds them to the field object
-    this.addFields = function(fieldErrors){
-      for (var i = 0; i < fieldErrors.length; i++){
-        this.fields[fieldErrors[i].field] = fieldErrors[i].msg;
-      }
+  // takes an array of FieldErrors and adds them to the field object
+  ValidateError.prototype.addFields = function addFields(fieldErrors){
+    for (var i = 0; i < fieldErrors.length; i++){
+      this.fields[fieldErrors[i].field] = fieldErrors[i].msg;
     }
   }
 
   var Order = function(orderUrl){
-    var tools    = new Tools();
-
-    this.placeOrder = function(restaurantId, tray, tip, deliveryTime, firstName, lastName, address, creditCard, email, callback){
+    this.placeOrder = function placeOrder(restaurantId, tray, tip, deliveryTime, firstName, lastName, address, creditCard, email, callback){
       var params = [
         restaurantId
       ];
@@ -267,12 +918,12 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         type: "res"
       };
 
-      var uriString = tools.buildUriString("/o", params);
-      tools.makeApiRequest(orderUrl, uriString, "POST",  data, callback);
+      var uriString = buildUriString("/o", params);
+      makeApiRequest(orderUrl, uriString, "POST",  data, callback);
     }
   }
 
-  var Address = function (addr, city, state, zip, phone, addr2){
+  var Address = function Address(addr, city, state, zip, phone, addr2){
     this.addr  = addr;
     this.city  = city;
     this.state = state;
@@ -281,7 +932,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.addr2 = addr2;
 
 
-    this.validate = function(){
+    var validate = function validate(){
       var fieldErrors = [];
       // validate state
       if (/^[A-Z]{2}$/.test(this.state) == false){
@@ -292,7 +943,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         fieldErrors.push(new FieldError("zip", "Invalid Zip code. Should be 5 numbers"));
       }
       // validate phone number
-      this.formatPhoneNumber();
+      formatPhoneNumber();
       if (this.phone.length != 12){
         fieldErrors.push(new FieldError("phone", "Invalid Phone number. Should be 10 digits"));
       }
@@ -303,13 +954,13 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       }
     }
 
-    this.formatPhoneNumber = function(){
+    var formatPhoneNumber = function formatPhoneNumber(){
       this.phone = this.phone.substring(0, 3) + "-" + this.phone.substring(3, 6) + "-" + this.phone.substring(6);
     }
-    this.validate();
+    validate();
   }
 
-  var CreditCard = function(name, expiryMonth, expiryYear, billAddress, number, cvc){
+  var CreditCard = function CreditCard(name, expiryMonth, expiryYear, billAddress, number, cvc){
     this.name        = name;
     this.expiryMonth = formatExpirationMonth(expiryMonth);
     this.expiryYear  = expiryYear;
@@ -317,14 +968,14 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     this.number      = String(number);
     this.cvc         = cvc;
 
-    this.validate = function(){
+    validate = function validate(){
       var fieldErrors = [];
       // validate card number
-      if (!this.checkLuhn()){
+      if (!checkLuhn()){
         fieldErrors.push(new FieldError("number", "Invalid Credit Card Number"));
       }
       // determine the type of card for cvc check
-      this.type        = this.creditCardType();
+      this.type        = creditCardType();
       // validate cvc
       var cvcExpression = /^\d{3}$/;
       if (this.type == "amex"){
@@ -333,11 +984,6 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       if (cvcExpression.test(this.cvc) == false){
         fieldErrors.push(new FieldError("cvc", "Invalid cvc"));
       }
-
-      // // validate address
-      // if (!(this.billAddress instanceof Address)){
-      //   fieldErrors.push(new FieldError("address", "Address must be an instance of the Address class"));
-      // }
 
       // validate expiration year
       if (/^\d{4}$/.test(this.expiryYear) == false){
@@ -361,7 +1007,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     // credit card validation checksum. From http://typicalprogrammer.com/?p=4
-    this.checkLuhn = function(){
+    var checkLuhn = function checkLuhn(){
       // digits 0-9 doubled with nines cast out
       var doubled = [0, 2, 4, 6, 8, 1, 3, 5, 7, 9];
 
@@ -384,7 +1030,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     // credit card tpype check. From http://typicalprogrammer.com/?p=4
-    this.creditCardType = function(){
+    var creditCardType = function creditCardType(){
       // regular expressions to match common card types
       // delete or comment out cards not athis.numberepted
       // see: www.merriampark.com/anatomythis.number.htm
@@ -406,36 +1052,64 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       return 'unknown';
     }
 
-    this.formatExpirationDate = function(){
+    this.formatExpirationDate = function formatExpirationDate(){
       return this.expiryMonth + "/" + this.expiryYear;
     }
 
-    this.validate();
+    validate();
   }
 
   var TrayItem = function(itemId, quantity, options){
     this.itemId   = itemId;
-    this.quantity = quantity;
+    this.quantity = +quantity;
     this.options  = options;
-
-    this.buildItemString = function(){
-      var string = this.itemId + "/" + this.quantity;
-      string += "," + this.options.join(',');
-      return string;
-    }
+  }
+  
+  TrayItem.prototype.buildItemString = function buildItemString(){
+    var string = this.itemId + "/" + this.quantity;
+    string += "," + this.options.join(',');
+    return string;
   }
 
-  var Tray = function(items){
+  var Tray = function Tray(items){
     this.items = items;
-
-    this.buildTrayString = function(){
-      var string = "";
-      for (var i = 0; i < this.items.length; i++){
-        string += "+" + this.items[i].buildItemString();
-      }
-      return string.substring(1); // remove that first plus
-    };
   };
+
+  Tray.prototype.getItemList = function(){return items;}
+
+  Tray.prototype.buildTrayString = function(){
+    var string = "";
+    for (var i = 0; i < this.items.length; i++){
+      string += "+" + this.items[i].buildItemString();
+    }
+    return string.substring(1); // remove that first plus
+  };
+
+  function buildItem(itemString){
+    var re = /(\d+)\/(\d+)((,\d)*)/;
+    var match = re.exec(itemString);
+    if(match){
+      var itemId = match[1];
+      var quantity = match[2];
+      var options = match[3].substring(1).split(',');
+      return new TrayItem(itemId, quantity, options);
+    }
+    return null;
+  }
+
+  function buildTray(trayString){
+    var items = [];
+    if(typeof trayString === "string" || trayString instanceof String){
+      var itemStrings = trayString.split('+');
+      for(var i=0; i<itemStrings.length; i++){
+        var item = buildItem(itemStrings[i]);
+        if(item){
+          items.push(item);
+        }
+      }
+    }
+    return new Tray(items)
+  }
 
   var init = function(){
     return {
@@ -444,7 +1118,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       Address: Address,
       CreditCard: CreditCard,
       TrayItem: TrayItem,
-      Tray: Tray
+      Tray: Tray,
+      buildTray: buildTray
     };
   };
 

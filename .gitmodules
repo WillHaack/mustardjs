@@ -1,3 +1,9 @@
 [submodule "tomato"]
 	path = tomato
-	url = https://github.com/ordrin/tomato.git
+	url = git://github.com/ordrin/tomato.git
+[submodule "eventEmitter"]
+	path = eventEmitter
+	url = git://github.com/hij1nx/EventEmitter2.git
+[submodule "api"]
+	path = api
+	url = git://github.com/ordrin/api-js.git

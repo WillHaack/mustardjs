@@ -18,12 +18,41 @@ task('templateLoader.js', function(){
   fs.writeFileSync("./script/templateLoader.js", output, "utf8");
 });
 
+task('update-sub', function(submodule){
+  function raiseError(error, stdout, stderr){
+    console.log('stdout: ' + stdout);
+    console.log('stderr: ' + stderr);
+    if(error !== null){
+      fail('error: ' + error);
+    }
+  }
+  if(submodule){
+    exec("git checkout master && git pull origin master", {cwd:"./"+submodule}, raiseError);
+  } else {
+    exec("git submodule foreach git checkout master", raiseError);
+    exec("git submodule foreach git pull origin master", raiseError);
+  }
+});
+
+task('revert-sub', function(submodule){
+  submodule = submodule || "";
+  exec("git submodule update "+submodule,
+      function(error, stdout, stderr){
+        if(error !== null){
+          console.log('stdout: ' + stdout);
+          console.log('stderr: ' + stderr);
+          fail('error: ' + error);
+        }
+      });
+});
+
 task('mustard.js', ['templateLoader.js'], function(){
+  var eventEmitter = fs.readFileSync("./eventEmitter/lib/eventemitter2.js");
   var tomato = fs.readFileSync("./tomato/tomato.js", "utf8");
-  var api = fs.readFileSync("./script/api.js", "utf8");
+  var api = fs.readFileSync("./api/api.js", "utf8");
   var templateLoader = fs.readFileSync("./script/templateLoader.js", "utf8");
   var mustard_base = fs.readFileSync("./script/mustard-base.js", "utf8");
-  var output = (tomato+api+templateLoader+mustard_base).replace(/\r/g, "");
+  var output = (eventEmitter+tomato+api+templateLoader+mustard_base).replace(/\r/g, "");
   fs.writeFileSync("./script/mustard.js", output, "utf8");
 });
 
