@@ -1,22 +1,19 @@
 var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
-(function(){
+if(!ordrin.hasOwnProperty("tomato")){
+  ordrin.tomato = new ordrin.Tomato();
+}
+
+if(!ordrin.hasOwnProperty("emitter")){
+  ordrin.emitter = new EventEmitter2({wildcard:true});
+  if(typeof ordrin.emitterLoaded === "function"){
+    ordrin.emitterLoaded(ordrin.emitter);
+    delete ordrin.emitterLoaded;
+  }
+}
+
+(function(tomato, emitter){
   "use strict";
-
-  if(!ordrin.hasOwnProperty("tomato")){
-    ordrin.tomato = new ordrin.Tomato();
-  }
-
-  if(!ordrin.hasOwnProperty("emitter")){
-    ordrin.emitter = new EventEmitter2({wildcard:true});
-    if(typeof ordrin.emitterLoaded === "function"){
-      ordrin.emitterLoaded(ordrin.emitter);
-    }
-  }
-
-  var tomato = ordrin.tomato;
-
-  var emitter = ordrin.emitter;
 
   var page = tomato.get("page");
 
@@ -781,4 +778,4 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   };
   
   init();
-})();
+})(ordrin.tomato, ordrin.emitter);
