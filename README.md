@@ -18,8 +18,10 @@ The minimal page that will serve an menu is the following (assuming that `mustar
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <script>
       var ordrin = typeof ordrin==="undefined"?{}:ordrin;
-      ordrin.rid = 141; // the restaurant's ordr.in ID
-      ordrin.render = "menu";
+      var ordrin = typeof ordrin==="undefined"?{}:ordrin;
+      ordrin.init.rid = 141; // the restaurant's ordr.in ID
+      ordrin.init.page = "menu";
+      ordrin.init.render = true;
       ordrin.restaurantUrl = ordrin.orderUrl = location.origin+"path/to/api/proxy";
       (function(){
         var ow = document.createElement('script'); ow.type = 'text/javascript'; ow.async = true;
@@ -46,204 +48,115 @@ A few things to note about the page:
 If you want to make this quick start page but don't have a server that proxies the Ordr.in API, you can still render the page by adding only a couple of lines of code to the script tag in the quick start page. After the line that sets the `ordrin` variable, the following two lines should be added:
 
 ```js
-ordrin.noProxy = true;
-ordrin.menu = {{{data}}};
+ordrin.init.noProxy = true;
+ordrin.init.menu = {{{data}}};
 ```
 
 Fill in `{{{data}}}` by making a request to the restaurant details function of the [Restaurant API](http://ordr.in/developers/restaurant) and replacing `{{{data}}}` with the value of the `menu` key in the repsonse to that API call.
 
 In this case, the `restaurantUrl` and `orderUrl` variables are not needed and will not have any effect, so the line setting them is not required.
 
-## API
+### Resources
 
-Mustard exposes the parts of the [Ordr.in API](http://ordr.in/developers/api) that do not require user authentication. Mustard puts the API into `ordrin.api`. Every API function takes a callback function as the last argument, and finishes by calling `callback(error, data)`
-
-### Data Classes
-```js
-Address(addr, city, state, zip, phone, addr2)
-CreditCard(name, expiryMonth, expiryYear, billAddress, number, cvc)
-TrayItem(itemId, quantity, options)
-Tray(items)
-```
-
-### Restaurant API
-This API is for retreiving information about restaurants. The documentation for the underlying API calls can be found at the [Ordr.in Restaurant API documentation](http://ordr.in/developers/restaurant). All of these functions are in the `restaurant` object (`ordrin.api.restaurant`).
-```js
-// Get the list of restaurants that will deliver to that address
-getDeliveryList(dateTime, address, callback)
- 
-// Check whether the restaurant will deliver to that address at that
-// time
-getDeliveryCheck(restaurantId, dateTime, address, callback)
- 
-// Get the fee and tax for an order with the given price, as well as
-// delivery check information
-getFee(restaurantId, subtotal, tip, dateTime, address, callback)
- 
-// Get all information about the restaurant, including their menu
-getDetails(restaurantId, callback)
-```
-
-### Order API
-This API is for placing orders. The documentation for the underlying API calls can be found at the [Ordr.in Order API documentation](http://ordr.in/developers/order). This function is in the `order` object (`ordrin.api.order`).
-```js
-// Place an order
-placeOrder(restaurantId, tray, tip, deliveryTime, firstName, lastName, address, creditCard, email, callback)
-```
-
-## Interface
-
-The following classes are used for externally visible data:
-
-### Option
-Represents an option on an item in the tray
-#### Fields:
-
-1. `id`: The menu id of the option
-2. `name`: The name of the option
-3. `price`: The price of the option in cents
-4. `totalPrice`: the price of the option multiplied by the item quantity in dollars
-
----
-
-### TrayItem
-Represents an item in the tray
-#### Fields:
-
-1. `trayItemId`: The tray id of the item (used for uniquely identifying items in the tray
-2. `itemId`: The menu id of the item
-3. `itemName`: The name of the item
-4. `quantity`: The selected quantity for the item in the tray
-5. `options`: The selected options for the item in the tray
-6. `price`: The base price of the item in cents
-7. `quantityPrice`: the price of the item (excluding options) in dollars
-
-#### Methods:
-
-1. `buildItemString()`: Returns the part of the ordr.in API query string corresponding to this item
-2. `renderTrayHtml()`: Returns the DOM node corresponding to this item in the tray
-3. `hasOptionSelected(optionId)`: Returns true if this item has an option selected with this `optionId` and false otherwise
-4. `getTotalPrice()`: Returns the total price of this tray item, taking into account selected options and quantity
-
----
-
-### Tray
-Represents a tray of food to be ordered.
-#### Fields:
-
-1. `items`: A hash mapping tray item ids to items in the tray
-
-#### Methods:
-
-1. `addItem(item)`: Adds `item` to the tray
-2. `removeItem(id)`: Removes the item with the tray id `id` from the tray
-3. `buildTrayString()`: Returns the part of the ordr.in API query string corresponding to the tray
-4. `getSubtotal()`: Returns the total price of all items in the tray
-
----
+Mustard includes the [JavaScript Ordr.in API wrapper](https://github.com/ordrin/api-js), [tomato](https://github.com/ordrin/tomato) (our persistence library), [Mustache](https://github.com/janl/mustache.js) (in `ordrin.Mustache`) and [EventEmitter2](https://github.com/hij1nx/EventEmitter2).
 
 ### The Pages
 
 Mustard can render two pages: a list of restaurants and a menu.
 
-Both pages currently use the following values, many of which can be accessed either directly or through accessors:
+Both pages currently use the following values. Many can be initialized in `ordrin.init`, and some can be accessed through `ordrin.mustard`
 
 #### Delivery address
 The address that food should be delivered to. This should be an instance of `ordrin.api.Address`
 
-Direct: `ordrin.address`
+Direct: `ordrin.init.address`
 
 Accessors: `ordrin.mustard.getAddress()`, `ordrin.mustard.setAddress()` 
 
 #### Delivery date/time
 The time at which the food should be delivered. This should be either the string `ASAP`, a string of the form `MM-dd+HH:mm`, or a `Date` object in the future.
 
-Direct: `ordrin.deliveryTime`
+Init: `ordrin.init.deliveryTime`
 
 Accessors: `ordrin.mustard.getDeliveryTime()`, `ordrin.mustard.setDeliveryTime()`
 
+#### Page
+Tells Mustard what to do with when the page loads. The value should be `"menu"` to process the menu or `"restaurants"` to process the restaurant list.
+
+Init: `ordrin.init.page`
+
 #### Render
-Tells Mustard what to render when the page loads. The value should be `"menu"` to render the menu, `"restaurants"` to render the restaurants, `"all"` to render both, or anything else to render nothing. Setting this after Mustard loads has no effect.
+Tells Mustard whether it should create the HTML and put it in the page, or use what is already there.
 
-Direct: `ordrin.render`
-
-#### Restaurant API URL
-The base URL for requests to the restaurant API. Setting this after Mustard loads has no effect. 
-
-Direct: `ordrin.resaurantUrl`
-
-#### Order API URL
-The base URL for requests to the order API. Setting this after Mustard loads has no effect.
-
-Direct: `ordrin.orderUrl`
+Init: `ordrin.init.render`
 
 #### No Proxy
 Mustard will not make any API requests if this value is truthy.
 
-Direct: `ordrin.noProxy`
+Init: `ordrin.init.noProxy`
 
 ### Restaurant List
 
-Mustard will render a restaurant list into  a `<div>` with the id `ordrinRestaurants` when it loads if `ordrin.render` is set to `"restaurants"`. After Mustard has loaded, the restaurant list can be rendered into that `<div>` again by calling `ordrin.mustard.renderRestaurants()`.
+Mustard will render a restaurant list into  a `<div>` with the id `ordrinRestaurants` when it loads if `page` is set to `restaurants`. After Mustard has loaded, a new restaurant list can be rendered into the same `<div>` by calling `ordrin.mustard.setAddress()` or `ordrin.mustard.setDeliveryTime()`
 
 This page also uses the following values:
 
 #### Restaurant List
 The list of restuarant objects in the same form as the return value of the delivery list request in the [Restaurant API](http://ordr.in/developers/restaurant). If this is not provided before Mustard loads, Mustard will attempt to download it from the API using the `address` and `dateTime`.
 
-Direct: `ordrin.restaurantList`
-
 #### Restaurant List Template
 A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering the list of restaurants. The default is at `templates/restaurants.html.mustache`
 
-Direct: `ordrin.restaurantsTemplate`
+Init: `ordrin.init.restaurantsTemplate`
 
 #### Menu URI root
-Direct: `menu_uri`
+Init: `ordrin.init.menu_uri`
 
 ### Menu
 
-Mustard will render a menu into a `<div>` with the id `ordrinMenu` when if loads if `ordrin.render` is set to `"restaurants"`. After Mustard has loaded, the restaurant list can be rendered into that `<div>` again by calling `ordrin.mustard.renderMenu()`.
+Mustard will render a menu into a `<div>` with the id `ordrinMenu` when if loads if `page` is set to `"menu"`. After Mustard has loaded, a new menu can be loaded into he same `<div>` by calling `ordrin.mustard.setRestaurant()`
 
 This page also uses the following values:
 
 #### Restaurant ID
 Ordr.in's ID number for the restaurant
 
-Direct: `ordrin.rid`
+Init: `ordrin.init.rid`
 
-Accessors: `ordrin.mustard.getRid()`, `ordrin.mustard.setRid()`
+Accessors: `ordrin.mustard.getRid()`
 
 #### Menu
 A menu in the same structure as the value of the `menu` key in the return value of the [Restaurant API](http://ordr.in/developers/restaurant) details function. If this is not provided before Mustard loads, Mustard will attempt to download it from the API using the restaurant ID.
 
-Direct: `ordrin.menu`
+Direct: `ordrin.init.menu`
+
+Accessors: `ordrin.mustard.getMenu()`
 
 #### Menu Template
 A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering the menu. The default is at `templates/menu.html.mustache`.
 
-Direct: `ordrin.menuTemplate`
+Init: `ordrin.init.menuTemplate`
 
 #### Dialog Template
 A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering the dialog box for selecting item options and quantity. The default is at `templates/dialog.html.mustache`.
 
-Direct: `ordrin.dialogTemplate`
+Init: `ordrin.init.dialogTemplate`
 
 #### Tray Item Template
 A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering an itemin the tray. The default is at `templates/trayItem.html.mustache`.
 
-Direct: `ordrin.trayItemTemplate`
+Init: `ordrin.init.trayItemTemplate`
 
 #### Tray
 A tray of items. An instance of `Tray`.
 
-Direct: `ordrin.tray`
+Init: `ordrin.init.tray`
 
-Accessor: `ordrin.mustard.getTray()`
+Accessor: `ordrin.mustard.getTray()`, `ordrin.mustard.setTray()`
 
 #### Tip
 The tip as an integer number of cents.
 
-Direct: `ordrin.tip`
+Direct: `ordrin.init.tip`
 
 Accessor: `ordrin.mustard.getTip()`

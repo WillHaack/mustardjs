@@ -1248,20 +1248,37 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 var  ordrin = (ordrin instanceof Object) ? ordrin : {};
 
 (function(){
-  if(!ordrin.hasOwnProperty("template")){
-    ordrin.menuTemplate = "<ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><div class=\"yourTray\">Your Tray</div><div class=\"addressContainer\"><b>Delivery Address:</b><div class=\"address\">{{#address}}{{addr}}<br>{{#addr2}}{{this}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><div class=\"link\" data-listener=\"editAddress\">Edit</div>{{/address}}{{^address}}<div class=\"link\" data-listener=\"editAddress\">Please enter your address</div>{{/address}}</div><div class=\"addressForm hidden\"><form name=\"ordrinAddress\"><label>Street Address 1: <input type=\"text\" name=\"addr\" placeholder=\"Street Address 1\"></label><span class=\"addrError\"></span></br><label>Street Address 2: <input type=\"text\" name=\"addr2\" placeholder=\"Street Address 2\"></label><span class=\"addr2Error\"></span></br><label>City: <input type=\"text\" name=\"city\" placeholder=\"City\"></label><span class=\"cityError\"></span></br><label>State: <input type=\"text\" name=\"state\" placeholder=\"State\"></label><span class=\"stateError\"></span></br><label>Zip Code: <input type=\"text\" name=\"zip\" placeholder=\"Zip Code\"></label><span class=\"zipError\"></span></br><label>Phone Number: <input type=\"tel\" name=\"phone\" placeholder=\"Phone Number\"></label><span class=\"phoneError\"></span></br><input type=\"button\" class=\"buttonRed\" value=\"Update\" data-listener=\"updateAddress\"></form></div></div><div class=\"dateTimeContainer\"><b>Delivery Date/Time:</b><div class=\"dateTime\">{{deliveryTime}}</div><div class=\"link\" data-listener=\"editDeliveryTime\">Edit</div><div class=\"dateTimeForm hidden\"><form name=\"ordrinDateTime\"><label>Date<select name=\"date\" onchange=\"ordrin.mustard.dateSelected()\"><option value=\"ASAP\" selected=\"selected\">ASAP</option></select></label><div class=\"timeForm hidden\"><label>Time<select name=\"time\"><option value=\"12:00\" selected=\"selected\">12:00</option><option value=\"12:15\">12:15</option><option value=\"12:30\">12:30</option><option value=\"12:45\">12:45</option><option value=\"01:00\">01:00</option> <option value=\"01:15\">01:15</option> <option value=\"01:30\">01:30</option><option value=\"01:45\">01:45</option><option value=\"02:00\">02:00</option><option value=\"02:15\">02:15</option><option value=\"02:30\">02:30</option><option value=\"02:45\">02:45</option><option value=\"03:00\">03:00</option><option value=\"03:15\">03:15</option><option value=\"03:30\">03:30</option><option value=\"03:45\">03:45</option><option value=\"04:00\">04:00</option><option value=\"04:15\">04:15</option><option value=\"04:30\">04:30</option><option value=\"04:45\">04:45</option><option value=\"05:00\">05:00</option><option value=\"05:15\">05:15</option><option value=\"05:30\">05:30</option><option value=\"05:45\">05:45</option><option value=\"06:00\">06:00</option><option value=\"06:15\">06:15</option><option value=\"06:30\">06:30</option><option value=\"06:45\">06:45</option><option value=\"07:00\">07:00</option><option value=\"07:15\">07:15</option><option value=\"07:30\">07:30</option><option value=\"07:45\">07:45</option><option value=\"08:00\">08:00</option><option value=\"08:15\">08:15</option><option value=\"08:30\">08:30</option><option value=\"08:45\">08:45</option><option value=\"09:00\">09:00</option><option value=\"09:15\">09:15</option><option value=\"09:30\">09:30</option><option value=\"10:00\">10:00</option><option value=\"10:15\">10:15</option><option value=\"10:30\">10:30</option><option value=\"10:45\">10:45</option><option value=\"11:00\">11:00</option><option value=\"11:15\">11:15</option><option value=\"11:30\">11:30</option><option value=\"11:45\">11:45</option></select></label><select name=\"ampm\"><option value=\"PM\" selected>PM</option><option value=\"AM\">AM</option></select></div><input type=\"button\" class=\"smButtonRed\" value=\"Update\" data-listener=\"updateDateTime\"></form></div></div><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\">0.00</span></div><div class=\"tip\">Tip: <span class=\"tipValue\">0.00</span><input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div>{{^noProxy}}<div class=\"fee\">Fee: <span class=\"feeValue\">0.00</span></div><div class=\"tax\">Tax: <span class=\"taxValue\">0.00</span></div>{{/noProxy}}<div class=\"total\">Total: <span class=\"totalValue\">0.00</span></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div><div class=\"errorDialog popup-container hidden\"><div class=\"dialog popup-box-container\"><div class=\"close-popup-box\"><img class=\"closeDialog\" data-listener=\"closeError\" src=\"https://fb.ordr.in/images/popup-close.png\" /></div><span class=\"errorMsg\"></span></div></div><div class=\"errorBg fade-to-gray hidden\"></div>";
-  }
+  menuTemplate = "<ul class=\"menuList\">{{#menu}}<li class=\"menuCategory\" data-mgid=\"{{id}}\"><div class=\"menu-hd\"><p class=\"header itemListName\">{{name}}</p></div><ul class=\"itemList menu main-menu\">{{#children}}<li class=\"mi\" data-listener=\"menuItem\" data-miid=\"{{id}}\"><p class=\"name\">{{name}}</p><p><span class=\"price\">{{price}}</span></p></li>{{/children}}</ul></li>{{/menu}}</ul><div class=\"trayContainer\"><div class=\"yourTray\">Your Tray</div><div class=\"addressContainer\"><b>Delivery Address:</b><div class=\"address\">{{#address}}{{addr}}<br>{{#addr2}}{{this}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><div class=\"link\" data-listener=\"editAddress\">Edit</div>{{/address}}{{^address}}<div class=\"link\" data-listener=\"editAddress\">Please enter your address</div>{{/address}}</div><div class=\"addressForm hidden\"><form name=\"ordrinAddress\"><label>Street Address 1: <input type=\"text\" name=\"addr\" placeholder=\"Street Address 1\"></label><span class=\"addrError\"></span></br><label>Street Address 2: <input type=\"text\" name=\"addr2\" placeholder=\"Street Address 2\"></label><span class=\"addr2Error\"></span></br><label>City: <input type=\"text\" name=\"city\" placeholder=\"City\"></label><span class=\"cityError\"></span></br><label>State: <input type=\"text\" name=\"state\" placeholder=\"State\"></label><span class=\"stateError\"></span></br><label>Zip Code: <input type=\"text\" name=\"zip\" placeholder=\"Zip Code\"></label><span class=\"zipError\"></span></br><label>Phone Number: <input type=\"tel\" name=\"phone\" placeholder=\"Phone Number\"></label><span class=\"phoneError\"></span></br><input type=\"button\" class=\"buttonRed\" value=\"Update\" data-listener=\"updateAddress\"></form></div></div><div class=\"dateTimeContainer\"><b>Delivery Date/Time:</b><div class=\"dateTime\">{{deliveryTime}}</div><div class=\"link\" data-listener=\"editDeliveryTime\">Edit</div><div class=\"dateTimeForm hidden\"><form name=\"ordrinDateTime\"><label>Date<select name=\"date\" class=\"ordrinDateSelect\"><option value=\"ASAP\" selected=\"selected\">ASAP</option></select></label><div class=\"timeForm hidden\"><label>Time<select name=\"time\"><option value=\"12:00\" selected=\"selected\">12:00</option><option value=\"12:15\">12:15</option><option value=\"12:30\">12:30</option><option value=\"12:45\">12:45</option><option value=\"01:00\">01:00</option> <option value=\"01:15\">01:15</option> <option value=\"01:30\">01:30</option><option value=\"01:45\">01:45</option><option value=\"02:00\">02:00</option><option value=\"02:15\">02:15</option><option value=\"02:30\">02:30</option><option value=\"02:45\">02:45</option><option value=\"03:00\">03:00</option><option value=\"03:15\">03:15</option><option value=\"03:30\">03:30</option><option value=\"03:45\">03:45</option><option value=\"04:00\">04:00</option><option value=\"04:15\">04:15</option><option value=\"04:30\">04:30</option><option value=\"04:45\">04:45</option><option value=\"05:00\">05:00</option><option value=\"05:15\">05:15</option><option value=\"05:30\">05:30</option><option value=\"05:45\">05:45</option><option value=\"06:00\">06:00</option><option value=\"06:15\">06:15</option><option value=\"06:30\">06:30</option><option value=\"06:45\">06:45</option><option value=\"07:00\">07:00</option><option value=\"07:15\">07:15</option><option value=\"07:30\">07:30</option><option value=\"07:45\">07:45</option><option value=\"08:00\">08:00</option><option value=\"08:15\">08:15</option><option value=\"08:30\">08:30</option><option value=\"08:45\">08:45</option><option value=\"09:00\">09:00</option><option value=\"09:15\">09:15</option><option value=\"09:30\">09:30</option><option value=\"10:00\">10:00</option><option value=\"10:15\">10:15</option><option value=\"10:30\">10:30</option><option value=\"10:45\">10:45</option><option value=\"11:00\">11:00</option><option value=\"11:15\">11:15</option><option value=\"11:30\">11:30</option><option value=\"11:45\">11:45</option></select></label><select name=\"ampm\"><option value=\"PM\" selected>PM</option><option value=\"AM\">AM</option></select></div><input type=\"button\" class=\"smButtonRed\" value=\"Update\" data-listener=\"updateDateTime\"></form></div></div><ul class=\"tray\"></ul><div class=\"subtotal\">Subtotal: <span class=\"subtotalValue\">0.00</span></div><div class=\"tip\">Tip: <span class=\"tipValue\">0.00</span><input type=\"number\" min=\"0.00\" step=\"0.01\" value=\"0.00\" class=\"tipInput\"><input type=\"button\" value=\"Update\" data-listener=\"updateTray\"></div>{{^noProxy}}<div class=\"fee\">Fee: <span class=\"feeValue\">0.00</span></div><div class=\"tax\">Tax: <span class=\"taxValue\">0.00</span></div>{{/noProxy}}<div class=\"total\">Total: <span class=\"totalValue\">0.00</span></div></div><!-- Menu Item Dialog --><div class=\"optionsDialog popup-container hidden\"></div><div class=\"dialogBg fade-to-gray hidden\"></div><div class=\"errorDialog popup-container hidden\"><div class=\"dialog popup-box-container\"><div class=\"close-popup-box\"><img class=\"closeDialog\" data-listener=\"closeError\" src=\"https://fb.ordr.in/images/popup-close.png\" /></div><span class=\"errorMsg\"></span></div></div><div class=\"errorBg fade-to-gray hidden\"></div>";
+  dialogTemplate = "<div class=\"popup-box-container dialog\"><div class=\"close-popup-box\"><img class=\"closeDialog\" data-listener=\"closeDialog\" src=\"https://fb.ordr.in/images/popup-close.png\" /></div><div class=\"mItem-add-to-tray popup-content\"><div class=\"menu-hd\"><div class=\"boxright\"><h1 class=\"big-col itemTitle\">{{name}}</h1><p class=\"slim-col itemPrice\">{{price}}</p></div><div class=\"clear\"></div></div><p class=\"desc dialogDescription\">{{descrip}}</p></div><div class=\"optionContainer\"><ul class=\"optionCategoryList\">{{#children}}<li data-mogid=\"{{id}}\" class=\"optionCategory\"><span class=\"header\">{{name}}</span><span class=\"error\"></span><ul class=\"optionList\">{{#children}}<li class=\"option\" data-moid=\"{{id}}\"><input type=\"checkbox\" class=\"optionCheckbox\" data-listener=\"optionCheckbox\" /><span class=\"optionName\">{{name}}</span><span class=\"optionPrice\">{{price}}</span></li>{{/children}}</ul><div class=\"clear\"></div></li>{{/children}}</ul>      </div><label for=\"itemQuantity\">Quantity: </label><input type=\"number\" class=\"itemQuantity\" value=\"1\" min=\"1\" /><br /><input type=\"submit\" class=\"buttonRed\" data-listener=\"addToTray\" value=\"Add to Tray\" /></div>";
+  trayItemTemplate = "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{id}}\" data-tray-id=\"{{trayItemId}}\"><div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">X</div><span class=\"trayItemName\">{{name}}</span><span class=\"trayItemPrice\">{{quantityPrice}}</span><span class=\"trayItemQuantity\">({{quantity}})</span><ul>{{#options}}<li class=\"trayOption\"><span class=\"trayOptionName\">{{name}}</span><span class=\"trayOptionPrice\">{{totalPrice}}</span></li>{{/options}}</ul></li>";
+  restaurantsTemplate = "<article class=\"restaurant-container\"><div><ul class=\"restaurants\">{{#restaurants}}<li><div class=\"rest-info big-col\"><section class=\"detail-col\"><a href=\"{{#params}}{{menu_uri}}{{/params}}/{{id}}{{#params}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}{{/params}}\"><h1 class=\"restaurant\">{{na}}</h1></a><p class=\"address\">{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}{{.}},{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></div></li>{{/restaurants}}</ul></div></article>";
 
-  if(!ordrin.hasOwnProperty("dialogTemplate")){
-    ordrin.dialogTemplate = "<div class=\"popup-box-container dialog\"><div class=\"close-popup-box\"><img class=\"closeDialog\" data-listener=\"closeDialog\" src=\"https://fb.ordr.in/images/popup-close.png\" /></div><div class=\"mItem-add-to-tray popup-content\"><div class=\"menu-hd\"><div class=\"boxright\"><h1 class=\"big-col itemTitle\">{{name}}</h1><p class=\"slim-col itemPrice\">{{price}}</p></div><div class=\"clear\"></div></div><p class=\"desc dialogDescription\">{{descrip}}</p></div><div class=\"optionContainer\"><ul class=\"optionCategoryList\">{{#children}}<li data-mogid=\"{{id}}\" class=\"optionCategory\"><span class=\"header\">{{name}}</span><span class=\"error\"></span><ul class=\"optionList\">{{#children}}<li class=\"option\" data-moid=\"{{id}}\"><input type=\"checkbox\" class=\"optionCheckbox\" data-listener=\"optionCheckbox\" /><span class=\"optionName\">{{name}}</span><span class=\"optionPrice\">{{price}}</span></li>{{/children}}</ul><div class=\"clear\"></div></li>{{/children}}</ul>      </div><label for=\"itemQuantity\">Quantity: </label><input type=\"number\" class=\"itemQuantity\" value=\"1\" min=\"1\" /><br /><input type=\"submit\" class=\"buttonRed\" data-listener=\"addToTray\" value=\"Add to Tray\" /></div>";
-  }
-
-  if(!ordrin.hasOwnProperty("trayItemTemlate")){
-    ordrin.trayItemTemplate = "<li class=\"trayItem\" data-listener=\"editTrayItem\" data-miid=\"{{id}}\" data-tray-id=\"{{trayItemId}}\"><div class=\"trayItemRemove\" data-listener=\"removeTrayItem\">X</div><span class=\"trayItemName\">{{name}}</span><span class=\"trayItemPrice\">{{quantityPrice}}</span><span class=\"trayItemQuantity\">({{quantity}})</span><ul>{{#options}}<li class=\"trayOption\"><span class=\"trayOptionName\">{{name}}</span><span class=\"trayOptionPrice\">{{totalPrice}}</span></li>{{/options}}</ul></li>";
-  }
-
-  if(!ordrin.hasOwnProperty("restaurantsTemplate")){
-    ordrin.restaurantsTemplate = "<article class=\"restaurant-container\"><div><ul class=\"restaurants\">{{#restaurants}}<li><div class=\"rest-info big-col\"><section class=\"detail-col\"><a href=\"{{#params}}{{menu_uri}}{{/params}}/{{id}}{{#params}}?time={{dateTime}}&addr={{addr}}&city={{city}}&state={{state}}&zip={{zip}}&phone={{phone}}&addr2={{addr2}}{{/params}}\"><h1 class=\"restaurant\">{{na}}</h1></a><p class=\"address\">{{ad}}</p><p>Expected delivery time: {{del}} minutes</p><p>Minimum order amount: ${{mino}}</p><ul>{{#cu}}{{.}},{{/cu}}</ul><p>This restaurant will{{^is_delivering}} <b>not</b>{{/is_delivering}} deliver to this address at this time</p></section></div></li>{{/restaurants}}</ul></div></article>";
+  if(ordrin.hasOwnProperty("tomato")){
+    if(!ordrin.tomato.hasKey("menuTemplate")){
+      ordrin.tomato.set("menuTemplate", menuTemplate);
+    }
+    if(!ordrin.tomato.hasKey("dialogTemplate")){
+      ordrin.tomato.set("dialogTemplate", dialogTemplate);
+    }
+    if(!ordrin.tomato.hasKey("trayItemTemplate")){
+      ordrin.tomato.set("trayItemTemplate", trayItemTemplate);
+    }
+    if(!ordrin.tomato.hasKey("restaurantsTemplate")){
+      ordrin.tomato.set("restaurantsTemplate", restaurantsTemplate);
+    }
+  } else {
+    if(!ordrin.init.hasOwnProperty("menuTemplate")){
+      ordrin.init.menuTemplate = menuTemplate;
+    }
+    if(!ordrin.init.hasOwnProperty("dialogTemplate")){
+      ordrin.init.dialogTemplate = dialogTemplate;
+    }
+    if(!ordrin.init.hasOwnProperty("trayItemTemplate")){
+      ordrin.init.trayItemTemplate = trayItemTemplate;
+    }
+    if(!ordrin.init.hasOwnProperty("restaurantsTemplate")){
+      ordrin.init.restaurantsTemplate = restaurantsTemplate;
+    }
   }
 
   var Mustache="undefined"!==typeof module&&module.exports||{};
@@ -1291,7 +1308,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 }
 
-(function(tomato, emitter){
+(function(tomato, emitter, api, Mustache){
   "use strict";
 
   var page = tomato.get("page");
@@ -1312,14 +1329,14 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   var allItems;
 
-  var Option = ordrin.api.Option;
-  var TrayItem = ordrin.api.TrayItem;
-  var Tray = ordrin.api.Tray;
-  var Address = ordrin.api.Address;
+  var Option = api.Option;
+  var TrayItem = api.TrayItem;
+  var Tray = api.Tray;
+  var Address = api.Address;
 
   function deliveryCheck(){
     if(!noProxy){
-      ordrin.api.restaurant.getDeliveryCheck(getRid(), getDeliveryTime(), getAddress(), function(err, data){
+      api.restaurant.getDeliveryCheck(getRid(), getDeliveryTime(), getAddress(), function(err, data){
         if(err){
           handleError(err);
         } else {
@@ -1374,7 +1391,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     tomato.set("address", address);
     switch(page){
       case "menu":
-        var addressHtml = ordrin.Mustache.render(addressTemplate, address);
+        var addressHtml = Mustache.render(addressTemplate, address);
         getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
         deliveryCheck();
         break;
@@ -1413,13 +1430,17 @@ if(!ordrin.hasOwnProperty("emitter")){
     tomato.set("tray", tray);
   }
 
+  function getTip(){
+    return tomato.get("tip");
+  }
+
   function renderMenu(menuData){
     var data = {menu:menuData, deliveryTime:getDeliveryTime()};
     data.confirmUrl = tomato.get("confirmUrl");
     if(tomato.hasKey("address")){
       data.address = getAddress();
     }
-    var menuHtml = ordrin.Mustache.render(ordrin.menuTemplate, data);
+    var menuHtml = Mustache.render(tomato.get("menuTemplate"), data);
     document.getElementById("ordrinMenu").innerHTML = menuHtml;
     getElements();
     populateAddressForm();
@@ -1428,6 +1449,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       setTray(new Tray());
     }
     listen("click", document.body, clicked);
+    listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
   }
 
   function renderRestaurants(restaurants){
@@ -1443,13 +1465,13 @@ if(!ordrin.hasOwnProperty("emitter")){
       restaurants[i].params = params;
     }
     var data = {restaurants:restaurants};
-    var restaurantsHtml = ordrin.Mustache.render(ordrin.restaurantsTemplate, data);
+    var restaurantsHtml = Mustache.render(tomato.get("restaurantsTemplate"), data);
     document.getElementById("ordrinRestaurants").innerHTML = restaurantsHtml;
   }
 
   function downloadRestaurants(){
     if(!noProxy){
-      ordrin.api.restaurant.getDeliveryList(getDeliveryTime(), getAddress(), function(err, data){
+      api.restaurant.getDeliveryList(getDeliveryTime(), getAddress(), function(err, data){
         for(var i=0; i<data.length; i++){
           data[i].is_delivering = !!(data[i].is_delivering);
         }
@@ -1465,7 +1487,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       renderMenu(newMenu);
     } else {
       if(!noProxy){
-        ordrin.api.getDetails(rid, function(err, data){
+        api.getDetails(rid, function(err, data){
           setMenu(data.menu);
           renderMenu(data.menu);
         });
@@ -1480,7 +1502,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       if(menuExists()){
         setMenu(getMenu());
       } else {
-        ordrin.api.getDetails(getRid(), function(err, data){
+        api.getDetails(getRid(), function(err, data){
           setMenu(data.menu);
         });
       }
@@ -1491,6 +1513,7 @@ if(!ordrin.hasOwnProperty("emitter")){
         setTray(new Tray());
       }
       listen("click", document.body, clicked);
+      listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
     }
   }
 
@@ -1504,17 +1527,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
   }
 
-  ordrin.mustard = {
-    getRid : getRid,
-    getMenu : getMenu,
-    getAddress : getAddress,
-    setAddress : setAddress,
-    getDeliveryTime : getDeliveryTime,
-    setDeliveryTime : setDeliveryTime,
-    getTray : getTray,
-    setTray : setTray,
-    setRestaurant : setRestaurant
-  };
+
 
   function addTrayItem(item){
     tray.addItem(item);
@@ -1528,7 +1541,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     emitter.emit("tray.remove", removed);
   }
 
-  ordrin.dateSelected = function dateSelected(){
+  function dateSelected(){
     if(document.forms["ordrinDateTime"].date.value === "ASAP"){
       hideElement(getElementsByClassName(elements.menu, "timeForm")[0]);
     } else {
@@ -1577,7 +1590,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       var total = subtotal + tip;
       getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
     } else {
-      ordrin.api.restaurant.getFee(getRid(), toDollars(subtotal), toDollars(tip), getDeliveryTime(), getAddress(), function(err, data){
+      api.restaurant.getFee(getRid(), toDollars(subtotal), toDollars(tip), getDeliveryTime(), getAddress(), function(err, data){
         if(err){
           handleError(err);
         } else {
@@ -1790,7 +1803,7 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function showDateTimeForm(){
     toggleHideElement(getElementsByClassName(elements.menu, "dateTimeForm")[0]);
-    ordrin.dateSelected();
+    dateSelected();
   }
 
   function saveDateTimeForm(){
@@ -1819,7 +1832,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       getElementsByClassName(elements.menu, inputs[i]+"Error")[0].innerHTML = '';
     }
     try {
-      var address = new ordrin.api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
+      var address = new api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
       setAddress(address);
       populateAddressForm();
       hideElement(getElementsByClassName(elements.menu, "addressForm")[0]);
@@ -1885,7 +1898,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function buildDialogBox(id){
-    elements.dialog.innerHTML = ordrin.Mustache.render(ordrin.dialogTemplate, allItems[id]);
+    elements.dialog.innerHTML = Mustache.render(tomato.get("dialogTemplate"), allItems[id]);
     elements.dialog.setAttribute("data-miid", id);
   }
   
@@ -1986,7 +1999,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     var trayItem = createItemFromDialog();
     addTrayItem(trayItem);
     hideDialogBox();
-    if(!ordrin.delivery){
+    if(!delivery){
       handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
     }
   }
@@ -2011,7 +2024,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function renderItemHtml(item){
-    var html = ordrin.Mustache.render(ordrin.trayItemTemplate, item);
+    var html = Mustache.render(tomato.get("trayItemTemplate"), item);
     var div = document.createElement("div");
     div.innerHTML = html;
     return div.firstChild;
@@ -2044,12 +2057,24 @@ if(!ordrin.hasOwnProperty("emitter")){
       setDeliveryTime("ASAP");
     }
     switch(page){
-    case "menu": initMenuPage(); break;
-    case "restaurants": initRestaurantsPage(); break;
+      case "menu": initMenuPage(); break;
+      case "restaurants": initRestaurantsPage(); break;
     }
     if(!emitter.listeners("mustard.error").length){
       emitter.on("mustard.error", handleError);
     }
+    ordrin.mustard = {
+      getRid : getRid,
+      getMenu : getMenu,
+      getAddress : getAddress,
+      setAddress : setAddress,
+      getDeliveryTime : getDeliveryTime,
+      setDeliveryTime : setDeliveryTime,
+      getTray : getTray,
+      setTray : setTray,
+      getTip : getTip,
+      setRestaurant : setRestaurant
+    };
     emitter.on("tray.add", addTrayItemNode);
     emitter.on("tray.remove", removeTrayItemNode);
     emitter.on("tray.*", updateFee);
@@ -2057,4 +2082,4 @@ if(!ordrin.hasOwnProperty("emitter")){
   };
   
   init();
-})(ordrin.tomato, ordrin.emitter);
+})(ordrin.tomato, ordrin.emitter, ordrin.api, ordrin.Mustache);

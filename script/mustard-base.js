@@ -12,7 +12,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 }
 
-(function(tomato, emitter){
+(function(tomato, emitter, api, Mustache){
   "use strict";
 
   var page = tomato.get("page");
@@ -33,14 +33,14 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   var allItems;
 
-  var Option = ordrin.api.Option;
-  var TrayItem = ordrin.api.TrayItem;
-  var Tray = ordrin.api.Tray;
-  var Address = ordrin.api.Address;
+  var Option = api.Option;
+  var TrayItem = api.TrayItem;
+  var Tray = api.Tray;
+  var Address = api.Address;
 
   function deliveryCheck(){
     if(!noProxy){
-      ordrin.api.restaurant.getDeliveryCheck(getRid(), getDeliveryTime(), getAddress(), function(err, data){
+      api.restaurant.getDeliveryCheck(getRid(), getDeliveryTime(), getAddress(), function(err, data){
         if(err){
           handleError(err);
         } else {
@@ -95,7 +95,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     tomato.set("address", address);
     switch(page){
       case "menu":
-        var addressHtml = ordrin.Mustache.render(addressTemplate, address);
+        var addressHtml = Mustache.render(addressTemplate, address);
         getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
         deliveryCheck();
         break;
@@ -134,13 +134,17 @@ if(!ordrin.hasOwnProperty("emitter")){
     tomato.set("tray", tray);
   }
 
+  function getTip(){
+    return tomato.get("tip");
+  }
+
   function renderMenu(menuData){
     var data = {menu:menuData, deliveryTime:getDeliveryTime()};
     data.confirmUrl = tomato.get("confirmUrl");
     if(tomato.hasKey("address")){
       data.address = getAddress();
     }
-    var menuHtml = ordrin.Mustache.render(ordrin.menuTemplate, data);
+    var menuHtml = Mustache.render(tomato.get("menuTemplate"), data);
     document.getElementById("ordrinMenu").innerHTML = menuHtml;
     getElements();
     populateAddressForm();
@@ -149,6 +153,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       setTray(new Tray());
     }
     listen("click", document.body, clicked);
+    listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
   }
 
   function renderRestaurants(restaurants){
@@ -164,13 +169,13 @@ if(!ordrin.hasOwnProperty("emitter")){
       restaurants[i].params = params;
     }
     var data = {restaurants:restaurants};
-    var restaurantsHtml = ordrin.Mustache.render(ordrin.restaurantsTemplate, data);
+    var restaurantsHtml = Mustache.render(tomato.get("restaurantsTemplate"), data);
     document.getElementById("ordrinRestaurants").innerHTML = restaurantsHtml;
   }
 
   function downloadRestaurants(){
     if(!noProxy){
-      ordrin.api.restaurant.getDeliveryList(getDeliveryTime(), getAddress(), function(err, data){
+      api.restaurant.getDeliveryList(getDeliveryTime(), getAddress(), function(err, data){
         for(var i=0; i<data.length; i++){
           data[i].is_delivering = !!(data[i].is_delivering);
         }
@@ -186,7 +191,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       renderMenu(newMenu);
     } else {
       if(!noProxy){
-        ordrin.api.getDetails(rid, function(err, data){
+        api.getDetails(rid, function(err, data){
           setMenu(data.menu);
           renderMenu(data.menu);
         });
@@ -201,7 +206,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       if(menuExists()){
         setMenu(getMenu());
       } else {
-        ordrin.api.getDetails(getRid(), function(err, data){
+        api.getDetails(getRid(), function(err, data){
           setMenu(data.menu);
         });
       }
@@ -212,6 +217,7 @@ if(!ordrin.hasOwnProperty("emitter")){
         setTray(new Tray());
       }
       listen("click", document.body, clicked);
+      listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
     }
   }
 
@@ -225,17 +231,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
   }
 
-  ordrin.mustard = {
-    getRid : getRid,
-    getMenu : getMenu,
-    getAddress : getAddress,
-    setAddress : setAddress,
-    getDeliveryTime : getDeliveryTime,
-    setDeliveryTime : setDeliveryTime,
-    getTray : getTray,
-    setTray : setTray,
-    setRestaurant : setRestaurant
-  };
+
 
   function addTrayItem(item){
     tray.addItem(item);
@@ -249,7 +245,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     emitter.emit("tray.remove", removed);
   }
 
-  ordrin.dateSelected = function dateSelected(){
+  function dateSelected(){
     if(document.forms["ordrinDateTime"].date.value === "ASAP"){
       hideElement(getElementsByClassName(elements.menu, "timeForm")[0]);
     } else {
@@ -298,7 +294,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       var total = subtotal + tip;
       getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
     } else {
-      ordrin.api.restaurant.getFee(getRid(), toDollars(subtotal), toDollars(tip), getDeliveryTime(), getAddress(), function(err, data){
+      api.restaurant.getFee(getRid(), toDollars(subtotal), toDollars(tip), getDeliveryTime(), getAddress(), function(err, data){
         if(err){
           handleError(err);
         } else {
@@ -511,7 +507,7 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function showDateTimeForm(){
     toggleHideElement(getElementsByClassName(elements.menu, "dateTimeForm")[0]);
-    ordrin.dateSelected();
+    dateSelected();
   }
 
   function saveDateTimeForm(){
@@ -540,7 +536,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       getElementsByClassName(elements.menu, inputs[i]+"Error")[0].innerHTML = '';
     }
     try {
-      var address = new ordrin.api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
+      var address = new api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
       setAddress(address);
       populateAddressForm();
       hideElement(getElementsByClassName(elements.menu, "addressForm")[0]);
@@ -606,7 +602,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function buildDialogBox(id){
-    elements.dialog.innerHTML = ordrin.Mustache.render(ordrin.dialogTemplate, allItems[id]);
+    elements.dialog.innerHTML = Mustache.render(tomato.get("dialogTemplate"), allItems[id]);
     elements.dialog.setAttribute("data-miid", id);
   }
   
@@ -707,7 +703,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     var trayItem = createItemFromDialog();
     addTrayItem(trayItem);
     hideDialogBox();
-    if(!ordrin.delivery){
+    if(!delivery){
       handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
     }
   }
@@ -732,7 +728,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function renderItemHtml(item){
-    var html = ordrin.Mustache.render(ordrin.trayItemTemplate, item);
+    var html = Mustache.render(tomato.get("trayItemTemplate"), item);
     var div = document.createElement("div");
     div.innerHTML = html;
     return div.firstChild;
@@ -765,12 +761,24 @@ if(!ordrin.hasOwnProperty("emitter")){
       setDeliveryTime("ASAP");
     }
     switch(page){
-    case "menu": initMenuPage(); break;
-    case "restaurants": initRestaurantsPage(); break;
+      case "menu": initMenuPage(); break;
+      case "restaurants": initRestaurantsPage(); break;
     }
     if(!emitter.listeners("mustard.error").length){
       emitter.on("mustard.error", handleError);
     }
+    ordrin.mustard = {
+      getRid : getRid,
+      getMenu : getMenu,
+      getAddress : getAddress,
+      setAddress : setAddress,
+      getDeliveryTime : getDeliveryTime,
+      setDeliveryTime : setDeliveryTime,
+      getTray : getTray,
+      setTray : setTray,
+      getTip : getTip,
+      setRestaurant : setRestaurant
+    };
     emitter.on("tray.add", addTrayItemNode);
     emitter.on("tray.remove", removeTrayItemNode);
     emitter.on("tray.*", updateFee);
@@ -778,4 +786,4 @@ if(!ordrin.hasOwnProperty("emitter")){
   };
   
   init();
-})(ordrin.tomato, ordrin.emitter);
+})(ordrin.tomato, ordrin.emitter, ordrin.api, ordrin.Mustache);
