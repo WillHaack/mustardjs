@@ -34,16 +34,619 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
   }
 
-  var Mustache="undefined"!==typeof module&&module.exports||{};
-(function(j){function G(a){return(""+a).replace(/&(?!\w+;)|[<>"']/g,function(a){return H[a]||a})}function t(a,c,d,e){for(var e=e||"<template>",b=c.split("\n"),f=Math.max(d-3,0),g=Math.min(b.length,d+3),b=b.slice(f,g),i=0,l=b.length;i<l;++i)g=i+f+1,b[i]=(g===d?" >> ":"    ")+b[i];a.template=c;a.line=d;a.file=e;a.message=[e+":"+d,b.join("\n"),"",a.message].join("\n");return a}function u(a,c,d){if("."===a)return c[c.length-1];for(var a=a.split("."),e=a.length-1,b=a[e],f,g,i=c.length,l,j;i;){j=c.slice(0);
-g=c[--i];for(l=0;l<e;){g=g[a[l++]];if(null==g)break;j.push(g)}if(g&&"object"===typeof g&&b in g){f=g[b];break}}"function"===typeof f&&(f=f.call(j[j.length-1]));return null==f?d:f}function I(a,c,d,e){var b="",a=u(a,c);if(e){if(null==a||!1===a||q(a)&&0===a.length)b+=d()}else if(q(a))y(a,function(a){c.push(a);b+=d();c.pop()});else if("object"===typeof a)c.push(a),b+=d(),c.pop();else if("function"===typeof a)var f=c[c.length-1],b=b+(a.call(f,d(),function(a){return r(a,f)})||"");else a&&(b+=d());return b}
-function z(a,c){for(var c=c||{},d=c.tags||j.tags,e=d[0],b=d[d.length-1],f=['var buffer = "";',"\nvar line = 1;","\ntry {",'\nbuffer += "'],g=[],i=!1,l=!1,r=function(){if(i&&!l&&!c.space)for(;g.length;)f.splice(g.pop(),1);else g=[];l=i=!1},n=[],v,p,q,w=function(a){d=o(a).split(/\s+/);p=d[0];q=d[d.length-1]},x=function(a){f.push('";',v,'\nvar partial = partials["'+o(a)+'"];',"\nif (partial) {","\n  buffer += render(partial,stack[stack.length - 1],partials);","\n}",'\nbuffer += "')},u=function(b,d){var e=
-o(b);if(""===e)throw t(Error("Section name may not be empty"),a,s,c.file);n.push({name:e,inverted:d});f.push('";',v,'\nvar name = "'+e+'";',"\nvar callback = (function () {","\n  return function () {",'\n    var buffer = "";','\nbuffer += "')},y=function(a){u(a,!0)},z=function(b){var b=o(b),d=0!=n.length&&n[n.length-1].name;if(!d||b!=d)throw t(Error('Section named "'+b+'" was never opened'),a,s,c.file);b=n.pop();f.push('";',"\n    return buffer;","\n  };","\n})();");b.inverted?f.push("\nbuffer += renderSection(name,stack,callback,true);"):
-f.push("\nbuffer += renderSection(name,stack,callback);");f.push('\nbuffer += "')},A=function(a){f.push('";',v,'\nbuffer += lookup("'+o(a)+'",stack,"");','\nbuffer += "')},B=function(a){f.push('";',v,'\nbuffer += escapeHTML(lookup("'+o(a)+'",stack,""));','\nbuffer += "')},s=1,m,k,h=0,C=a.length;h<C;++h)if(a.slice(h,h+e.length)===e){h+=e.length;m=a.substr(h,1);v="\nline = "+s+";";p=e;q=b;i=!0;switch(m){case "!":h++;k=null;break;case "=":h++;b="="+b;k=w;break;case ">":h++;k=x;break;case "#":h++;k=u;
-break;case "^":h++;k=y;break;case "/":h++;k=z;break;case "{":b="}"+b;case "&":h++;l=!0;k=A;break;default:l=!0,k=B}m=a.indexOf(b,h);if(-1===m)throw t(Error('Tag "'+e+'" was not closed properly'),a,s,c.file);e=a.substring(h,m);k&&k(e);for(k=0;~(k=e.indexOf("\n",k));)s++,k++;h=m+b.length-1;e=p;b=q}else switch(m=a.substr(h,1),m){case '"':case "\\":l=!0;f.push("\\"+m);break;case "\r":break;case "\n":g.push(f.length);f.push("\\n");r();s++;break;default:D.test(m)?g.push(f.length):l=!0,f.push(m)}if(0!=n.length)throw t(Error('Section "'+
-n[n.length-1].name+'" was not closed properly'),a,s,c.file);r();f.push('";',"\nreturn buffer;","\n} catch (e) { throw {error: e, line: line}; }");b=f.join("").replace(/buffer \+= "";\n/g,"");c.debug&&("undefined"!=typeof console&&console.log?console.log(b):"function"===typeof print&&print(b));return b}function A(a,c){var d=z(a,c),e=new Function("view,partials,stack,lookup,escapeHTML,renderSection,render",d);return function(b,d){var d=d||{},g=[b];try{return e(b,d,g,u,G,I,r)}catch(i){throw t(i.error,
-a,i.line,c.file);}}}function B(a,c){c=c||{};return!1!==c.cache?(p[a]||(p[a]=A(a,c)),p[a]):A(a,c)}function r(a,c,d){return B(a)(c,d)}j.name="mustache.js";j.version="0.5.0-dev";j.tags=["{{","}}"];j.parse=z;j.compile=B;j.render=r;j.clearCache=function(){p={}};j.to_html=function(a,c,d,e){a=r(a,c,d);if("function"===typeof e)e(a);else return a};var J=Object.prototype.toString,C=Array.isArray,E=Array.prototype.forEach,F=String.prototype.trim,q;q=C?C:function(a){return"[object Array]"===J.call(a)};var y;
-y=E?function(a,c,d){return E.call(a,c,d)}:function(a,c,d){for(var e=0,b=a.length;e<b;++e)c.call(d,a[e],e,a)};var D=/^\s*$/,o;if(F)o=function(a){return null==a?"":F.call(a)};else{var w,x;D.test("\u00a0")?(w=/^\s+/,x=/\s+$/):(w=/^[\s\xA0]+/,x=/[\s\xA0]+$/);o=function(a){return a==null?"":(""+a).replace(w,"").replace(x,"")}}var H={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"},p={}})(Mustache);
+  /*!
+ * mustache.js - Logic-less {{mustache}} templates with JavaScript
+ * http://github.com/janl/mustache.js
+ */
+
+/*global define: false*/
+
+var Mustache;
+
+(function (exports) {
+  if (typeof module !== "undefined" && typeof module.exports !== "undefined") {
+    module.exports = exports; // CommonJS
+  } else if (typeof define === "function") {
+    define(exports); // AMD
+  } else {
+    Mustache = exports; // <script>
+  }
+}((function () {
+  var exports = {};
+
+  exports.name = "mustache.js";
+  exports.version = "0.5.2";
+  exports.tags = ["{{", "}}"];
+
+  exports.parse = parse;
+  exports.clearCache = clearCache;
+  exports.compile = compile;
+  exports.compilePartial = compilePartial;
+  exports.render = render;
+
+  exports.Scanner = Scanner;
+  exports.Context = Context;
+  exports.Renderer = Renderer;
+
+  // This is here for backwards compatibility with 0.4.x.
+  exports.to_html = function (template, view, partials, send) {
+    var result = render(template, view, partials);
+
+    if (typeof send === "function") {
+      send(result);
+    } else {
+      return result;
+    }
+  };
+
+  var whiteRe = /\s*/;
+  var spaceRe = /\s+/;
+  var nonSpaceRe = /\S/;
+  var eqRe = /\s*=/;
+  var curlyRe = /\s*\}/;
+  var tagRe = /#|\^|\/|>|\{|&|=|!/;
+
+  // Workaround for https://issues.apache.org/jira/browse/COUCHDB-577
+  // See https://github.com/janl/mustache.js/issues/189
+  function testRe(re, string) {
+    return RegExp.prototype.test.call(re, string);
+  }
+
+  function isWhitespace(string) {
+    return !testRe(nonSpaceRe, string);
+  }
+
+  var isArray = Array.isArray || function (obj) {
+    return Object.prototype.toString.call(obj) === "[object Array]";
+  };
+
+  // OSWASP Guidelines: escape all non alphanumeric characters in ASCII space.
+  var jsCharsRe = /[\x00-\x2F\x3A-\x40\x5B-\x60\x7B-\xFF\u2028\u2029]/gm;
+
+  function quote(text) {
+    var escaped = text.replace(jsCharsRe, function (c) {
+      return "\\u" + ('0000' + c.charCodeAt(0).toString(16)).slice(-4);
+    });
+
+    return '"' + escaped + '"';
+  }
+
+  function escapeRe(string) {
+    return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
+  }
+
+  var entityMap = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': '&quot;',
+    "'": '&#39;',
+    "/": '&#x2F;'
+  };
+
+  function escapeHtml(string) {
+    return String(string).replace(/[&<>"'\/]/g, function (s) {
+      return entityMap[s];
+    });
+  }
+
+  // Export these utility functions.
+  exports.isWhitespace = isWhitespace;
+  exports.isArray = isArray;
+  exports.quote = quote;
+  exports.escapeRe = escapeRe;
+  exports.escapeHtml = escapeHtml;
+
+  function Scanner(string) {
+    this.string = string;
+    this.tail = string;
+    this.pos = 0;
+  }
+
+  /**
+   * Returns `true` if the tail is empty (end of string).
+   */
+  Scanner.prototype.eos = function () {
+    return this.tail === "";
+  };
+
+  /**
+   * Tries to match the given regular expression at the current position.
+   * Returns the matched text if it can match, the empty string otherwise.
+   */
+  Scanner.prototype.scan = function (re) {
+    var match = this.tail.match(re);
+
+    if (match && match.index === 0) {
+      this.tail = this.tail.substring(match[0].length);
+      this.pos += match[0].length;
+      return match[0];
+    }
+
+    return "";
+  };
+
+  /**
+   * Skips all text until the given regular expression can be matched. Returns
+   * the skipped string, which is the entire tail if no match can be made.
+   */
+  Scanner.prototype.scanUntil = function (re) {
+    var match, pos = this.tail.search(re);
+
+    switch (pos) {
+    case -1:
+      match = this.tail;
+      this.pos += this.tail.length;
+      this.tail = "";
+      break;
+    case 0:
+      match = "";
+      break;
+    default:
+      match = this.tail.substring(0, pos);
+      this.tail = this.tail.substring(pos);
+      this.pos += pos;
+    }
+
+    return match;
+  };
+
+  function Context(view, parent) {
+    this.view = view;
+    this.parent = parent;
+    this.clearCache();
+  }
+
+  Context.make = function (view) {
+    return (view instanceof Context) ? view : new Context(view);
+  };
+
+  Context.prototype.clearCache = function () {
+    this._cache = {};
+  };
+
+  Context.prototype.push = function (view) {
+    return new Context(view, this);
+  };
+
+  Context.prototype.lookup = function (name) {
+    var value = this._cache[name];
+
+    if (!value) {
+      if (name === ".") {
+        value = this.view;
+      } else {
+        var context = this;
+
+        while (context) {
+          if (name.indexOf(".") > 0) {
+            var names = name.split("."), i = 0;
+
+            value = context.view;
+
+            while (value && i < names.length) {
+              value = value[names[i++]];
+            }
+          } else {
+            value = context.view[name];
+          }
+
+          if (value != null) {
+            break;
+          }
+
+          context = context.parent;
+        }
+      }
+
+      this._cache[name] = value;
+    }
+
+    if (typeof value === "function") {
+      value = value.call(this.view);
+    }
+
+    return value;
+  };
+
+  function Renderer() {
+    this.clearCache();
+  }
+
+  Renderer.prototype.clearCache = function () {
+    this._cache = {};
+    this._partialCache = {};
+  };
+
+  Renderer.prototype.compile = function (tokens, tags) {
+    if (typeof tokens === "string") {
+      tokens = parse(tokens, tags);
+    }
+
+    var fn = compileTokens(tokens),
+        self = this;
+
+    return function (view) {
+      return fn(Context.make(view), self);
+    };
+  };
+
+  Renderer.prototype.compilePartial = function (name, tokens, tags) {
+    this._partialCache[name] = this.compile(tokens, tags);
+    return this._partialCache[name];
+  };
+
+  Renderer.prototype.render = function (template, view) {
+    var fn = this._cache[template];
+
+    if (!fn) {
+      fn = this.compile(template);
+      this._cache[template] = fn;
+    }
+
+    return fn(view);
+  };
+
+  Renderer.prototype._section = function (name, context, callback) {
+    var value = context.lookup(name);
+
+    switch (typeof value) {
+    case "object":
+      if (isArray(value)) {
+        var buffer = "";
+
+        for (var i = 0, len = value.length; i < len; ++i) {
+          buffer += callback(context.push(value[i]), this);
+        }
+
+        return buffer;
+      }
+
+      return value ? callback(context.push(value), this) : "";
+    case "function":
+      // TODO: The text should be passed to the callback plain, not rendered.
+      var sectionText = callback(context, this),
+          self = this;
+
+      var scopedRender = function (template) {
+        return self.render(template, context);
+      };
+
+      return value.call(context.view, sectionText, scopedRender) || "";
+    default:
+      if (value) {
+        return callback(context, this);
+      }
+    }
+
+    return "";
+  };
+
+  Renderer.prototype._inverted = function (name, context, callback) {
+    var value = context.lookup(name);
+
+    // From the spec: inverted sections may render text once based on the
+    // inverse value of the key. That is, they will be rendered if the key
+    // doesn't exist, is false, or is an empty list.
+    if (value == null || value === false || (isArray(value) && value.length === 0)) {
+      return callback(context, this);
+    }
+
+    return "";
+  };
+
+  Renderer.prototype._partial = function (name, context) {
+    var fn = this._partialCache[name];
+
+    if (fn) {
+      return fn(context);
+    }
+
+    return "";
+  };
+
+  Renderer.prototype._name = function (name, context, escape) {
+    var value = context.lookup(name);
+
+    if (typeof value === "function") {
+      value = value.call(context.view);
+    }
+
+    var string = (value == null) ? "" : String(value);
+
+    if (escape) {
+      return escapeHtml(string);
+    }
+
+    return string;
+  };
+
+  /**
+   * Low-level function that compiles the given `tokens` into a
+   * function that accepts two arguments: a Context and a
+   * Renderer. Returns the body of the function as a string if
+   * `returnBody` is true.
+   */
+  function compileTokens(tokens, returnBody) {
+    var body = ['""'];
+    var token, method, escape;
+
+    for (var i = 0, len = tokens.length; i < len; ++i) {
+      token = tokens[i];
+
+      switch (token.type) {
+      case "#":
+      case "^":
+        method = (token.type === "#") ? "_section" : "_inverted";
+        body.push("r." + method + "(" + quote(token.value) + ", c, function (c, r) {\n" +
+          "  " + compileTokens(token.tokens, true) + "\n" +
+          "})");
+        break;
+      case "{":
+      case "&":
+      case "name":
+        escape = token.type === "name" ? "true" : "false";
+        body.push("r._name(" + quote(token.value) + ", c, " + escape + ")");
+        break;
+      case ">":
+        body.push("r._partial(" + quote(token.value) + ", c)");
+        break;
+      case "text":
+        body.push(quote(token.value));
+        break;
+      }
+    }
+
+    // Convert to a string body.
+    body = "return " + body.join(" + ") + ";";
+
+    // Good for debugging.
+    // console.log(body);
+
+    if (returnBody) {
+      return body;
+    }
+
+    // For great evil!
+    return new Function("c, r", body);
+  }
+
+  function escapeTags(tags) {
+    if (tags.length === 2) {
+      return [
+        new RegExp(escapeRe(tags[0]) + "\\s*"),
+        new RegExp("\\s*" + escapeRe(tags[1]))
+      ];
+    }
+
+    throw new Error("Invalid tags: " + tags.join(" "));
+  }
+
+  /**
+   * Forms the given linear array of `tokens` into a nested tree structure
+   * where tokens that represent a section have a "tokens" array property
+   * that contains all tokens that are in that section.
+   */
+  function nestTokens(tokens) {
+    var tree = [];
+    var collector = tree;
+    var sections = [];
+    var token, section;
+
+    for (var i = 0; i < tokens.length; ++i) {
+      token = tokens[i];
+
+      switch (token.type) {
+      case "#":
+      case "^":
+        token.tokens = [];
+        sections.push(token);
+        collector.push(token);
+        collector = token.tokens;
+        break;
+      case "/":
+        if (sections.length === 0) {
+          throw new Error("Unopened section: " + token.value);
+        }
+
+        section = sections.pop();
+
+        if (section.value !== token.value) {
+          throw new Error("Unclosed section: " + section.value);
+        }
+
+        if (sections.length > 0) {
+          collector = sections[sections.length - 1].tokens;
+        } else {
+          collector = tree;
+        }
+        break;
+      default:
+        collector.push(token);
+      }
+    }
+
+    // Make sure there were no open sections when we're done.
+    section = sections.pop();
+
+    if (section) {
+      throw new Error("Unclosed section: " + section.value);
+    }
+
+    return tree;
+  }
+
+  /**
+   * Combines the values of consecutive text tokens in the given `tokens` array
+   * to a single token.
+   */
+  function squashTokens(tokens) {
+    var lastToken;
+
+    for (var i = 0; i < tokens.length; ++i) {
+      var token = tokens[i];
+
+      if (lastToken && lastToken.type === "text" && token.type === "text") {
+        lastToken.value += token.value;
+        tokens.splice(i--, 1); // Remove this token from the array.
+      } else {
+        lastToken = token;
+      }
+    }
+  }
+
+  /**
+   * Breaks up the given `template` string into a tree of token objects. If
+   * `tags` is given here it must be an array with two string values: the
+   * opening and closing tags used in the template (e.g. ["<%", "%>"]). Of
+   * course, the default is to use mustaches (i.e. Mustache.tags).
+   */
+  function parse(template, tags) {
+    tags = tags || exports.tags;
+
+    var tagRes = escapeTags(tags);
+    var scanner = new Scanner(template);
+
+    var tokens = [],      // Buffer to hold the tokens
+        spaces = [],      // Indices of whitespace tokens on the current line
+        hasTag = false,   // Is there a {{tag}} on the current line?
+        nonSpace = false; // Is there a non-space char on the current line?
+
+    // Strips all whitespace tokens array for the current line
+    // if there was a {{#tag}} on it and otherwise only space.
+    var stripSpace = function () {
+      if (hasTag && !nonSpace) {
+        while (spaces.length) {
+          tokens.splice(spaces.pop(), 1);
+        }
+      } else {
+        spaces = [];
+      }
+
+      hasTag = false;
+      nonSpace = false;
+    };
+
+    var type, value, chr;
+
+    while (!scanner.eos()) {
+      value = scanner.scanUntil(tagRes[0]);
+
+      if (value) {
+        for (var i = 0, len = value.length; i < len; ++i) {
+          chr = value.charAt(i);
+
+          if (isWhitespace(chr)) {
+            spaces.push(tokens.length);
+          } else {
+            nonSpace = true;
+          }
+
+          tokens.push({type: "text", value: chr});
+
+          if (chr === "\n") {
+            stripSpace(); // Check for whitespace on the current line.
+          }
+        }
+      }
+
+      // Match the opening tag.
+      if (!scanner.scan(tagRes[0])) {
+        break;
+      }
+
+      hasTag = true;
+      type = scanner.scan(tagRe) || "name";
+
+      // Skip any whitespace between tag and value.
+      scanner.scan(whiteRe);
+
+      // Extract the tag value.
+      if (type === "=") {
+        value = scanner.scanUntil(eqRe);
+        scanner.scan(eqRe);
+        scanner.scanUntil(tagRes[1]);
+      } else if (type === "{") {
+        var closeRe = new RegExp("\\s*" + escapeRe("}" + tags[1]));
+        value = scanner.scanUntil(closeRe);
+        scanner.scan(curlyRe);
+        scanner.scanUntil(tagRes[1]);
+      } else {
+        value = scanner.scanUntil(tagRes[1]);
+      }
+
+      // Match the closing tag.
+      if (!scanner.scan(tagRes[1])) {
+        throw new Error("Unclosed tag at " + scanner.pos);
+      }
+
+      tokens.push({type: type, value: value});
+
+      if (type === "name" || type === "{" || type === "&") {
+        nonSpace = true;
+      }
+
+      // Set the tags for the next time around.
+      if (type === "=") {
+        tags = value.split(spaceRe);
+        tagRes = escapeTags(tags);
+      }
+    }
+
+    squashTokens(tokens);
+
+    return nestTokens(tokens);
+  }
+
+  // The high-level clearCache, compile, compilePartial, and render functions
+  // use this default renderer.
+  var _renderer = new Renderer();
+
+  /**
+   * Clears all cached templates and partials.
+   */
+  function clearCache() {
+    _renderer.clearCache();
+  }
+
+  /**
+   * High-level API for compiling the given `tokens` down to a reusable
+   * function. If `tokens` is a string it will be parsed using the given `tags`
+   * before it is compiled.
+   */
+  function compile(tokens, tags) {
+    return _renderer.compile(tokens, tags);
+  }
+
+  /**
+   * High-level API for compiling the `tokens` for the partial with the given
+   * `name` down to a reusable function. If `tokens` is a string it will be
+   * parsed using the given `tags` before it is compiled.
+   */
+  function compilePartial(name, tokens, tags) {
+    return _renderer.compilePartial(name, tokens, tags);
+  }
+
+  /**
+   * High-level API for rendering the `template` using the given `view`. The
+   * optional `partials` object may be given here for convenience, but note that
+   * it will cause all partials to be re-compiled, thus hurting performance. Of
+   * course, this only matters if you're going to render the same template more
+   * than once. If so, it is best to call `compilePartial` before calling this
+   * function and to leave the `partials` argument blank.
+   */
+  function render(template, view, partials) {
+    if (partials) {
+      for (var name in partials) {
+        compilePartial(name, partials[name]);
+      }
+    }
+
+    return _renderer.render(template, view);
+  }
+
+  return exports;
+}())));
 
   ordrin.Mustache = Mustache;
 })();

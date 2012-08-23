@@ -1,6 +1,27 @@
-var Mustache = require("./script/mustache.min.js");
 var fs = require("fs");
 var exec = require("child_process").exec;
+var Mustache;
+try{
+  Mustache = require("./mustache/mustache.js");
+} catch(e) {
+  function raiseError(error, stdout, stderr){
+    console.log('stdout: ' + stdout);
+    console.log('stderr: ' + stderr);
+    if(error !== null){
+      fail('error: ' + error);
+    }
+  }
+  console.log("Downloading submodules");
+  exec('git submodule init', raiseError);
+  exec('git submodule update', raiseError);
+  exec('git submodule update', raiseError);
+  try{
+    Mustache = require("./mustache/mustache.js");
+  } catch(e) {
+    fail("Could not load mustard; please update all submodules");
+  }
+}
+
 task('templateLoader.js', function(){
   var spaces = /\r\n\s*/g;
   var data = {};
@@ -12,7 +33,7 @@ task('templateLoader.js', function(){
   data.trayItem = trayItem.replace(spaces, "").replace(/"/g, "\\\"");
   var restaurants = fs.readFileSync("./templates/restaurants.html.mustache", "utf8");
   data.restaurants = restaurants.replace(spaces, "").replace(/"/g, "\\\"");
-  data.mustache = fs.readFileSync("./script/mustache.min.js", "utf8");
+  data.mustache = fs.readFileSync("./mustache/mustache.js", "utf8");
   var input = fs.readFileSync("./script/templateLoader.js.mustache", "utf8");
   var output = Mustache.render(input, data).replace(/\r/g, "");
   fs.writeFileSync("./script/templateLoader.js", output, "utf8");
