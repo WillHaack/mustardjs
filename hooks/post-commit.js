@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 var spawn = require("child_process").spawn;
 var version = require(__dirname+"/../../package.json").version;
 var split = version.split('.');
