@@ -60,6 +60,44 @@ In this case, the `restaurantUrl` and `orderUrl` variables are not needed and wi
 
 Mustard includes the [JavaScript Ordr.in API wrapper](https://github.com/ordrin/api-js), [tomato](https://github.com/ordrin/tomato) (our persistence library), [Mustache](https://github.com/janl/mustache.js) (in `ordrin.Mustache`) and [EventEmitter2](https://github.com/hij1nx/EventEmitter2).
 
+Once Mustard initializes its instance of EventEmitter2, it will call `ordrin.emitterLoaded` with that instance and then delete `ordrin.emitterLoaded`.
+
+### Interface
+
+This is a summary of the interface to Mustard. More detail can be found in the next section
+
+#### Initialization
+Mustard may use the following values if they are set in `ordrin.init` *before* Mustard loads:
+
+ - [`address`](#delivery-address)
+ - [`deliveryTime`](#delivery-datetime)
+ - [`page`](#page)
+ - [`render`](#render)
+ - [`noProxy`](#no-proxy-1)
+ - [`restaurantsTemplate`](#restaurant-list-template)
+ - [`menu_uri`](#menu-uri-root)
+ - [`rid`](#restaurant-id)
+ - [`menu`](#menu-1)
+ - [`menuTemplate`](#menu-template)
+ - [`dialogTemplate`](#dialog-template)
+ - [`trayItemTemplate`](#tray-item-template)
+ - [`tray`](#tray)
+ - [`tip`](#tip)
+
+#### Mustard interface
+After Mustard has loaded, it will emit an event `moduleLoaded.mustard` with a reference to `ordrin.mustard`, which will have the following functions:
+
+ - [`getRid()`](#restaurant-id)
+ - [`getMenu()`](#menu-1)
+ - [`getAddress()`](#delivery-address)
+ - [`setAddress(address)`](#delivery-address)
+ - [`getDeliveryTime()`](#delivery-datetime)
+ - [`setDeliveryTime(deliveryTime)`](#delivery-datetime)
+ - [`getTray()`](#tray)
+ - [`setTray(tray)`](#tray)
+ - [`getTip()`](#tip)
+ - [`setRestaurant(rid, [menu])`](#menu)
+
 ### The Pages
 
 Mustard can render two pages: a list of restaurants and a menu.
