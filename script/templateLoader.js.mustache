@@ -5,6 +5,7 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
   dialogTemplate = "{{{dialog}}}";
   trayItemTemplate = "{{{trayItem}}}";
   restaurantsTemplate = "{{{restaurants}}}";
+  confirmTemplate = "{{{confirm}}}";
 
   if(ordrin.hasOwnProperty("tomato")){
     if(!ordrin.tomato.hasKey("menuTemplate")){
@@ -19,6 +20,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     if(!ordrin.tomato.hasKey("restaurantsTemplate")){
       ordrin.tomato.set("restaurantsTemplate", restaurantsTemplate);
     }
+    if(!ordrin.tomato.hasKey("confirmTemplate")){
+      ordrin.tomato.set("confirmTemplate", confirmTemplate);
+    }
   } else {
     if(!ordrin.init.hasOwnProperty("menuTemplate")){
       ordrin.init.menuTemplate = menuTemplate;
@@ -31,6 +35,9 @@ var  ordrin = (ordrin instanceof Object) ? ordrin : {};
     }
     if(!ordrin.init.hasOwnProperty("restaurantsTemplate")){
       ordrin.init.restaurantsTemplate = restaurantsTemplate;
+    }
+    if(!ordrin.init.hasOwnProperty("confirmTemplate")){
+      ordrin.init.confirmTemplate = confirmTemplate;
     }
   }
 

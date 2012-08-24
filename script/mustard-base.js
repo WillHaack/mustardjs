@@ -115,7 +115,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   function setDeliveryTime(deliveryTime){
     tomato.set("deliveryTime", deliveryTime);
     switch(page){
-      case "menu": getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = dateTime; deliveryCheck(); break;
+      case "menu": getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime; deliveryCheck(); break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
     }
@@ -138,6 +138,40 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.get("tip");
   }
 
+  function setRestaurant(rid, newMenu){
+    setRid(rid);
+    if(newMenu){
+      setMenu(newMenu);
+      renderMenu(newMenu);
+    } else {
+      if(!noProxy){
+        api.getDetails(rid, function(err, data){
+          setMenu(data.menu);
+          renderMenu(data.menu);
+        });
+      }
+    }
+  }
+
+  function processNewMenuPage(){
+    getElements();
+    populateAddressForm();
+    initializeDateForm();
+    if(trayExists()){
+      var tray = getTray();
+      for(var prop in tray.items){
+        if(tray.items.hasOwnProperty(prop)){
+          addTrayItemNode(tray.items[prop]);
+        }
+      }
+    } else {
+      setTray(new Tray());
+    }
+    listen("click", document.body, clicked);
+    listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
+    updateFee();
+  }
+
   function renderMenu(menuData){
     var data = {menu:menuData, deliveryTime:getDeliveryTime()};
     data.confirmUrl = tomato.get("confirmUrl");
@@ -146,14 +180,86 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
     var menuHtml = Mustache.render(tomato.get("menuTemplate"), data);
     document.getElementById("ordrinMenu").innerHTML = menuHtml;
-    getElements();
-    populateAddressForm();
-    initializeDateForm();
-    if(!trayExists()){
-      setTray(new Tray());
+    processNewMenuPage();
+  }
+
+  function initMenuPage(){
+    if(render){
+      setRestaurant(getRid(), getMenu());
+    } else {
+      if(menuExists()){
+        setMenu(getMenu());
+      } else {
+        api.restaurant.getDetails(getRid(), function(err, data){
+          setMenu(data.menu);
+        });
+      }
+      processNewMenuPage();
     }
-    listen("click", document.body, clicked);
-    listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
+  }
+
+  function buildItemFromString(itemString){
+    var re = /(\d+)\/(\d+)((,\d+)*)/;
+    var match = re.exec(itemString);
+    if(match){
+      var id = match[1];
+      var quantity = match[2];
+      var options = [];
+      if(match[3]){
+        var opts = match[3].substring(1).split(',');
+        for(var i=0; i<opts.length; i++){
+          var optId = opts[i];
+          var optName = allItems[optId].name;
+          var optPrice = allItems[optId].price;
+          options.push(new Option(optId, optName, optPrice));
+        }
+      }
+      var name = allItems[id].name;
+      var price = allItems[id].price;
+      return new TrayItem(id, quantity, options, name, price);
+    }
+  }
+
+  function buildTrayFromString(trayString){
+    var items = {};
+    if(typeof trayString === "string" || trayString instanceof String){
+      var itemStrings = trayString.split('+');
+      for(var i=0; i<itemStrings.length; i++){
+        var item = buildItemFromString(itemStrings[i]);
+        if(item){
+          items[item.trayItemId] = item;
+        }
+      }
+    }
+    return new Tray(items);
+  }
+
+  function renderConfirm(tray){
+    var data = {deliveryTime:getDeliveryTime(), address:getAddress()};
+    data.tray = tray;
+    data.checkoutUri = tomato.get("checkoutUri");
+    data.rid = getRid();
+    var confirmHtml = Mustache.render(tomato.get("confirmTemplate"), data);
+    var confirmDiv = document.getElementById("ordrinConfirm");
+    confirmDiv.innerHTML = confirmHtml;
+    processNewMenuPage();
+  }
+
+  function initConfirmPage(){
+    if(menuExists()){
+      if(!trayExists()){
+        setTray(buildTrayFromString(tomato.get("trayString")));
+      }
+      renderConfirm(getTray());
+    } else {
+      api.restaurant.getDetails(getRid(), function(err, data){
+        setMenu(data.menu);
+        if(!trayExists()){
+          setTray(buildTrayFromString(tomato.get("trayString")));
+        }
+        renderConfirm(getTray());
+      });
+    }
   }
 
   function renderRestaurants(restaurants){
@@ -184,43 +290,6 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
   }
 
-  function setRestaurant(rid, newMenu){
-    setRid(rid);
-    if(newMenu){
-      setMenu(newMenu);
-      renderMenu(newMenu);
-    } else {
-      if(!noProxy){
-        api.getDetails(rid, function(err, data){
-          setMenu(data.menu);
-          renderMenu(data.menu);
-        });
-      }
-    }
-  }
-
-  function initMenuPage(){
-    if(render){
-      setRestaurant(getRid(), getMenu());
-    } else {
-      if(menuExists()){
-        setMenu(getMenu());
-      } else {
-        api.getDetails(getRid(), function(err, data){
-          setMenu(data.menu);
-        });
-      }
-      getElements();
-      populateAddressForm();
-      initializeDateForm();
-      if(!trayExists()){
-        setTray(new Tray());
-      }
-      listen("click", document.body, clicked);
-      listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
-    }
-  }
-
   function initRestaurantsPage(){
     if(render){
       if(tomato.hasKey("restaurants")){
@@ -235,8 +304,8 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function addTrayItem(item){
     tray.addItem(item);
-    emitter.emit("tray.add", item);
     tomato.set("tray", tray);
+    emitter.emit("tray.add", item);
   }
 
   function removeTrayItem(id){
@@ -284,11 +353,16 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   tomato.register("ordrinApi", [Option, TrayItem, Tray, Address])
 
+  function updateTip(){
+    var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
+    tomato.set("tip", tip);
+    updateFee();
+  }
+
   function updateFee(){
     var subtotal = getTray().getSubtotal();
     getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
-    var tip = toCents(getElementsByClassName(elements.menu, "tipInput")[0].value+"");
-    tomato.set("tip", tip);
+    var tip = getTip();
     getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
     if(noProxy){
       var total = subtotal + tip;
@@ -456,12 +530,13 @@ if(!ordrin.hasOwnProperty("emitter")){
       addToTray : addDialogItemToTray,
       removeTrayItem : removeTrayItemFromNode,
       optionCheckbox : validateCheckbox,
-      updateTray : updateFee,
+      updateTray : updateTip,
       updateAddress : saveAddressForm,
       editAddress : showAddressForm,
       updateDateTime : saveDateTimeForm,
       editDeliveryTime : showDateTimeForm,
-      closeError : hideErrorDialog
+      closeError : hideErrorDialog,
+      confirmOrder : confirmOrder
     }
     var node = event.srcElement;
     while(!node.hasAttribute("data-listener")){
@@ -477,7 +552,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
   }
 
-  function submitOrder(){
+  function confirmOrder(){
     var form = document.forms.ordrinOrder;
     if(!addressExists()){
       handleError({msg:"No address set"});
@@ -517,9 +592,9 @@ if(!ordrin.hasOwnProperty("emitter")){
       setDeliveryTime("ASAP");
     } else {
       var split = form.time.value.split(":");
-      var hours = split[0]="12"?0:+split[0];
+      var hours = split[0]==="12"?0:+split[0];
       var minutes = +split[1];
-      if(form.ampm.value = "PM"){
+      if(form.ampm.value === "PM"){
         hours += 12;
       }
       
@@ -709,13 +784,26 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function getElements(){
-    var menu          = document.getElementById("ordrinMenu");
-    elements.menu     = menu;
-    elements.dialog   = getElementsByClassName(menu, "optionsDialog")[0];
-    elements.dialogBg = getElementsByClassName(menu, "dialogBg")[0];
-    elements.errorDialog = getElementsByClassName(menu, "errorDialog")[0];
-    elements.errorBg = getElementsByClassName(menu, "errorBg")[0];
-    elements.tray     = getElementsByClassName(menu, "tray")[0];
+    switch(page ){
+    case "menu":
+      var menu          = document.getElementById("ordrinMenu");
+      elements.menu     = menu;
+      elements.dialog   = getElementsByClassName(menu, "optionsDialog")[0];
+      elements.dialogBg = getElementsByClassName(menu, "dialogBg")[0];
+      elements.errorDialog = getElementsByClassName(menu, "errorDialog")[0];
+      elements.errorBg = getElementsByClassName(menu, "errorBg")[0];
+      elements.tray     = getElementsByClassName(menu, "tray")[0];
+      break;
+    case "confirm":
+      var confirm          = document.getElementById("ordrinConfirm");
+      elements.menu     = confirm;
+      elements.dialog   = getElementsByClassName(confirm, "optionsDialog")[0];
+      elements.dialogBg = getElementsByClassName(confirm, "dialogBg")[0];
+      elements.errorDialog = getElementsByClassName(confirm, "errorDialog")[0];
+      elements.errorBg = getElementsByClassName(confirm, "errorBg")[0];
+      elements.tray     = getElementsByClassName(confirm, "tray")[0];
+      break;
+    }
   }
 
   function handleError(error){
@@ -763,6 +851,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     switch(page){
       case "menu": initMenuPage(); break;
       case "restaurants": initRestaurantsPage(); break;
+      case "confirm": initConfirmPage(); break;
     }
     if(!emitter.listeners("mustard.error").length){
       emitter.on("mustard.error", handleError);

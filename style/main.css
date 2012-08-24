@@ -1,10 +1,10 @@
-#ordrinMenu .center{
+#ordrinConfirm .center, #ordrinMenu .center{
   margin-right: auto;
   margin-left: auto;
   text-align: center;
 }
 /* form styling */
-#ordrinMenu .close-popup-box {
+#ordrinConfirm .close-popup-box, #ordrinMenu .close-popup-box {
   position: relative;
   top: -18px;
   left: 98%;
@@ -12,7 +12,7 @@
   width: 56px;
   float: left;
 }
-#ordrinMenu .popup-box-container{
+#ordrinConfirm .popup-box-container, #ordrinMenu .popup-box-container{
   border-radius: 10px;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
@@ -25,7 +25,7 @@
   -moz-box-shadow: 3px 3px 15px 0 #222222;
   -webkit-box-shadow: 3px 3px 15px 0 #222222;
 }
-#ordrinMenu .dialog{
+#ordrinConfirm .dialog, #ordrinMenu .dialog{
   z-index: 1050;
   position: fixed;
   background-color: white;
@@ -40,25 +40,25 @@
   -webkit-border-radius: 6px;
   border-radius: 6px;
 }
-#ordrinMenu .closeDialog{
+#ordrinConfirm .closeDialog, #ordrinMenu .closeDialog{
   position: absolute;
   top: 0;
   left: 0;
   clip: rect(0 56px 57px 0);
 }
-#ordrinMenu .closeDialog:hover {
+#ordrinConfirm .closeDialog:hover, #ordrinMenu .closeDialog:hover {
   clip: rect(57px 56px 114px 0);
   top: -57px;
   cursor: pointer;
 }
-#ordrinMenu .popup-container{
+#ordrinConfirm .popup-container, #ordrinMenu .popup-container{
   position: fixed;
   top: 0;
   left: 0;
   margin: 0;
   z-index: 2006;
 }
-#ordrinMenu .fade-to-gray, .fade-to-white {
+#ordrinConfirm .fade-to-gray, #ordrinMenu .fade-to-gray, #ordrinMenu .fade-to-white {
   position: fixed;
   top: 0;
   left: 0;
@@ -67,7 +67,7 @@
   width: 100%;
   z-index: 2005;
 }
-#ordrinMenu .fade-to-gray {
+#ordrinConfirm .fade-to-gray, #ordrinMenu .fade-to-gray {
   -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
   filter: alpha(opacity=50);
   -moz-opacity: 0.5;
@@ -75,7 +75,7 @@
   opacity: 0.5;
   background: black;
 }
-#ordrinMenu .buttonRed {
+#ordrinConfirm .buttonRed, #ordrinMenu .buttonRed {
   background: #C81E1E;
   border-radius: 8px;
   -webkit-border-radius: 8px;
@@ -97,50 +97,50 @@
 - Blue: #8ed4ce;
 - Salmon: #ff6762;
 **/
-#ordrinMenu {
+#ordrinConfirm #ordrinMenu {
     font-family: Arial, Helvetica, sans-serif;
 }
-#ordrinMenu h1 {
+#ordrinConfirm h1, #ordrinMenu h1 {
     font-family: "Arial Black", Arial, Helvetica, sans-serif;
     font-size: 30px;
     padding-bottom: 20px;
     padding-top: 30px;
 }
-#ordrinMenu address {
+#ordrinConfirm address, #ordrinMenu address {
     border: 5px solid #d2142e;
     padding: 15px;
     font-size: 20px;
     margin-bottom: 20px;
     width: 610px;
 }
-#ordrinMenu ul{
+#ordrinConfirm ul, #ordrinMenu ul{
   list-style-type: none;
   padding-left: 0;
 }
-#ordrinMenu{
+#ordrinConfirm, #ordrinMenu{
   font-weight: normal;
   font-family: "Helvetica";
   font-size: 15px;
   padding-left: 10px;
 }
-#ordrinMenu .header{
+#ordrinConfirm .header, #ordrinMenu .header{
   font-weight: bold;
   font-size: 18px;
 }
-#ordrinMenu .hidden{
+#ordrinConfirm .hidden, #ordrinMenu .hidden{
   display: none;
 }
-#ordrinMenu .price{
+#ordrinConfirm .price, #ordrinMenu .price{
   padding-right: 5px;
 }
-#ordrinMenu .clear{
+#ordrinConfirm .clear, #ordrinMenu .clear{
   clear: both;
 }
-#ordrinMenu .optionCategory{
+#ordrinConfirm .optionCategory, #ordrinMenu .optionCategory{
   padding-top: 5px;
   padding-bottom: 5px;
 }
-#ordrinMenu .option{
+#ordrinConfirm .option, #ordrinMenu .option{
   width: 210px;
   float: left;
   padding-left: 10px;
@@ -150,7 +150,7 @@
 /*=== the div that shows the info of the restaurant you selected on the menu page ===*/
 /*======menu styles======*/
 /* menu header*/
-#ordrinMenu .menu-hd {
+#ordrinConfirm .menu-hd, #ordrinMenu .menu-hd {
   border-bottom: 1px solid #e6e6dc;
   padding-bottom: 8px;
 }
@@ -210,11 +210,11 @@
   font-size: 12px;
 }
 /* popup menu : heading of the menu item pop-up */
-#ordrinMenu .mItem-add-to-tray .boxright {
+#ordrinConfirm .mItem-add-to-tray .boxright, #ordrinMenu .mItem-add-to-tray .boxright {
   border-bottom: 1px dashed #a7a69b;
   padding-right: 10px;
 }
-#ordrinMenu .mItem-add-to-tray h1 {
+#ordrinConfirm .mItem-add-to-tray h1, #ordrinMenu .mItem-add-to-tray h1 {
   font-weight: bold;
   font-size: 18px;
   color: #d2142e;
@@ -223,29 +223,29 @@
   padding: 0;
   margin: 0;
 }
-#ordrinMenu .mItem-add-to-tray .menu-hd .boxright .slim-col {
+#ordrinConfirm .mItem-add-to-tray .menu-hd .boxright .slim-col, #ordrinMenu .mItem-add-to-tray .menu-hd .boxright .slim-col {
   font-size: 18px;
   text-align: right;
 }
-#ordrinMenu .mItem-add-to-tray .desc {
+#ordrinConfirm .mItem-add-to-tray .desc, #ordrinMenu .mItem-add-to-tray .desc {
   padding-top: 5px;
 }
-#ordrinMenu .mItem-add-to-tray .menu-hd {
+#ordrinConfirm .mItem-add-to-tray .menu-hd, #ordrinMenu .mItem-add-to-tray .menu-hd {
   border: none;
   margin-bottom: 15px;
 }
-#ordrinMenu .menuList{
+#ordrinConfirm .menuList, #ordrinMenu .menuList{
   width: 60%;
   float: left;
 }
-#ordrinMenu p.desc.dialogDescription {
+#ordrinConfirm p.desc.dialogDescription, #ordrinMenu p.desc.dialogDescription {
     font-style: italic;
     font-size: 11px;
     color: rgb(117, 116, 105);
     margin-top: -40px;
 }
 
-#ordrinMenu label {
+#ordrinConfirm label, #ordrinMenu label {
     margin-left: 55px;
     color: rgb(117, 116, 105);
     text-transform: uppercase;
@@ -253,7 +253,7 @@
     font-size: 12px;
 }
 
-#ordrinMenu .buttonRed {
+#ordrinConfirm .buttonRed, #ordrinMenu .buttonRed {
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 55px;
@@ -262,26 +262,26 @@
     font-weight: bold;
 }
 
-#ordrinMenu span.header {
+#ordrinConfirm span.header, #ordrinMenu span.header {
     color: rgb(117, 116, 105);
     font-size: 14px;
 }
 
-#ordrinMenu span.optionPrice {
+#ordrinConfirm span.optionPrice, #ordrinMenu span.optionPrice {
     color: rgb(117, 116, 105);
     font-size: 12px;
 }
 
-#ordrinMenu span.optionName {
+#ordrinConfirm span.optionName, #ordrinMenu span.optionName {
     color: rgb(117, 116, 105);
     font-size: 12px;
 }
 
-#ordrinMenu li.optionCategory {
+#ordrinConfirm li.optionCategory, #ordrinMenu li.optionCategory {
     margin-left: 55px;
 }
 
-#ordrinMenu p.slim-col.itemPrice {
+#ordrinConfirm p.slim-col.itemPrice, #ordrinMenu p.slim-col.itemPrice {
     margin-right: 55px;
     color: rgb(210, 20, 46);
     font-size: 18px;
@@ -318,20 +318,36 @@ border: 1px solid rgb(117, 116, 105);
     padding: 5px;
 }
 
-#ordrinMenu .yourTray {
+#ordrinConfirm div.trayContainer {
+    background: #eeeeee; /* Old browsers */
+    background: -moz-linear-gradient(top,  #eeeeee 0%, #cccccc 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#cccccc)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top,  #eeeeee 0%,#cccccc 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top,  #eeeeee 0%,#cccccc 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top,  #eeeeee 0%,#cccccc 100%); /* IE10+ */
+    background: linear-gradient(to bottom,  #eeeeee 0%,#cccccc 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#eeeeee', endColorstr='#cccccc',GradientType=0 ); /* IE6-9 */
+    border-radius: 5px; 
+    -moz-border-radius: 5px; 
+    -webkit-border-radius: 5px; 
+    border: 1px solid rgb(117, 116, 105);
+    width: 600px;
+}
+
+#ordrinConfirm .yourTray, #ordrinMenu .yourTray {
     font-family: "Arial Black", sans-serif;
     font-size: 1.5em;
     margin-bottom: 10px;
 }
 
-#ordrinMenu li.trayItem {
+#ordrinConfirm li.trayItem, #ordrinMenu li.trayItem {
     border-bottom: 1px dashed rgb(117, 116, 105);
     margin-bottom: 30px;
     font-size: 12px;
     cursor: pointer;
 }
 
-#ordrinMenu div.trayItemRemove {
+#ordrinConfirm div.trayItemRemove, #ordrinMenu div.trayItemRemove {
     width: 2%;
     float: left;
     color: #fff;
@@ -352,86 +368,86 @@ padding: 3px;
 margin-right: 3%;
 }
 
-#ordrinMenu span.trayItemQuantity {
+#ordrinConfirm span.trayItemQuantity, #ordrinMenu span.trayItemQuantity {
 font-size: 10px;
 width: 10%;
 }
 
-#ordrinMenu span.trayOptionPrice {
+#ordrinConfirm span.trayOptionPrice, #ordrinMenu span.trayOptionPrice {
     font-size: 10px;
     float: right;
 }
 
-#ordrinMenu span.trayOptionName {
+#ordrinConfirm span.trayOptionName, #ordrinMenu span.trayOptionName {
     font-size: 10px;
 }
 
-#ordrinMenu span.trayItemName {
+#ordrinConfirm span.trayItemName, #ordrinMenu span.trayItemName {
     font-weight: bold;
     width: 72%;
 }
 
-#ordrinMenu span.trayItemPrice {
+#ordrinConfirm span.trayItemPrice, #ordrinMenu span.trayItemPrice {
     float: right;
     font-weight: bold;
 }
 
-#ordrinMenu label{
+#ordrinConfirm label, #ordrinMenu label{
     margin-left: 0px;
 }
 
-#ordrinMenu input.tipInput{
+#ordrinConfirm input.tipInput, #ordrinMenu input.tipInput{
     width: 50px;
 	  margin-bottom: 5px;
 }
 
-#ordrinMenu div.subtotal {
+#ordrinConfirm div.subtotal, #ordrinMenu div.subtotal {
 	  font-size: 12px;
 	  text-transform: uppercase;
 	  margin-bottom: 5px;
 	  font-weight: bold;
 }
 
-#ordrinMenu div.tip {
+#ordrinConfirm div.tip, #ordrinMenu div.tip {
 	font-size: 12px;
 	text-transform: uppercase;
 	margin-bottom: 5px;
 	font-weight: bold;
 }
 
-#ordrinMenu div.fee {
+#ordrinConfirm div.fee, #ordrinMenu div.fee {
 	font-size: 12px;
 	text-transform: uppercase;
 	margin-bottom: 5px;
 	font-weight: bold;
 }
 
-#ordrinMenu div.tax {
+#ordrinConfirm div.tax, #ordrinMenu div.tax {
 	font-size: 12px;
 	text-transform: uppercase;
 	margin-bottom: 10px;
 	font-weight: bold;
 }
 
-#ordrinMenu div.total {
+#ordrinConfirm div.total, #ordrinMenu div.total {
 	font-weight: bold;
 	text-transform: uppercase;
 	margin-bottom: 5px;
 }
 
-#ordrinMenu div.addressForm {
+#ordrinConfirm div.addressForm, #ordrinMenu div.addressForm {
 	width: 300px;
 }
 
-#ordrinMenu .trayContainer label {
+#ordrinConfirm .trayContainer label, #ordrinMenu .trayContainer label {
 	color: #000;
 }
 
-#ordrinMenu .bold {
+#ordrinConfirm .bold, #ordrinMenu .bold {
 	font-weight: bold;
 }
 
-#ordrinMenu .dateTimeForm label {
+#ordrinConfirm .dateTimeForm label, #ordrinMenu .dateTimeForm label {
 	font-size: 11px;
 	border: 0px;
 	font-style: normal;
@@ -441,7 +457,7 @@ width: 10%;
 	color: black;
 }
 
-#ordrinMenu .timeForm label {
+#ordrinConfirm .timeForm label, #ordrinMenu .timeForm label {
 	font-size: 11px;
 	border: 0px;
 	font-style: normal;
@@ -451,13 +467,13 @@ width: 10%;
 	color: black;
 }
 
-#ordrinMenu .trayContainer p {
+#ordrinConfirm .trayContainer p, #ordrinMenu .trayContainer p {
 	text-transform: uppercase;
 	font-weight: bold;
 	font-size: 12px;
 }
 
-#ordrinMenu .smButtonRed { /*The gradient only seems to be working for Firefox, not Chrome. It should essentially be the same graident as the one used for the "Add to Tray" button */
+#ordrinConfirm .smButtonRed, #ordrinMenu .smButtonRed { /*The gradient only seems to be working for Firefox, not Chrome. It should essentially be the same graident as the one used for the "Add to Tray" button */
     background: #C81E1E;
     font-family: Arial, Helvetica, sans-serif;
     text-transform: uppercase;
@@ -470,9 +486,10 @@ width: 10%;
     background: -moz-linear-gradient(-90deg, #DC372D, #A5281E);
     filter: progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr='#DC372D', endColorstr='#A5281E');
     color: #FFFFFF;
+    cursor: pointer;
 }
 
-#ordrinMenu .link{
+#ordrinConfirm .link, #ordrinMenu .link{
     cursor: pointer;
     color: #0000FF;
     text-decoration: underline;

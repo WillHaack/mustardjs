@@ -32,6 +32,8 @@ task('templateLoader.js', function(){
   data.trayItem = trayItem.replace(spaces, "").replace(/"/g, "\\\"");
   var restaurants = fs.readFileSync("./templates/restaurants.html.mustache", "utf8");
   data.restaurants = restaurants.replace(spaces, "").replace(/"/g, "\\\"");
+  var confirm = fs.readFileSync("./templates/confirm.html.mustache", "utf8");
+  data.confirm = confirm.replace(spaces, "").replace(/"/g, "\\\"");
   data.mustache = fs.readFileSync("./mustache/mustache.js", "utf8");
   var input = fs.readFileSync("./script/templateLoader.js.mustache", "utf8");
   var output = Mustache.render(input, data).replace(/\r/g, "");

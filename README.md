@@ -1,6 +1,6 @@
 # Mustard - client side food ordering
 
-Mustard is a library that makes it easy to add Ordr.in powered food ordering to any website. This currently involves displaying a list of restaurants and an interactive menu.
+Mustard is a library that makes it easy to add Ordr.in powered food ordering to any website. This currently involves displaying a list of restaurants, an interactive menu, and a confirmation page.
 
 ## Installation
 
@@ -77,7 +77,7 @@ Mustard may use the following values if they are set in `ordrin.init` *before* M
  - [`restaurantsTemplate`](#restaurant-list-template)
  - [`menu_uri`](#menu-uri-root)
  - [`rid`](#restaurant-id)
- - [`menu`](#menu-1)
+ - [`menu`](#menu)
  - [`menuTemplate`](#menu-template)
  - [`dialogTemplate`](#dialog-template)
  - [`trayItemTemplate`](#tray-item-template)
@@ -88,7 +88,7 @@ Mustard may use the following values if they are set in `ordrin.init` *before* M
 After Mustard has loaded, it will emit an event `moduleLoaded.mustard` with a reference to `ordrin.mustard`, which will have the following functions:
 
  - [`getRid()`](#restaurant-id)
- - [`getMenu()`](#menu-1)
+ - [`getMenu()`](#menu)
  - [`getAddress()`](#delivery-address)
  - [`setAddress(address)`](#delivery-address)
  - [`getDeliveryTime()`](#delivery-datetime)
@@ -100,7 +100,7 @@ After Mustard has loaded, it will emit an event `moduleLoaded.mustard` with a re
 
 ### The Pages
 
-Mustard can render two pages: a list of restaurants and a menu.
+Mustard can render three pages: a list of restaurants, a menu, and a confirmation page.
 
 Both pages currently use the following values. Many can be initialized in `ordrin.init`, and some can be accessed through `ordrin.mustard`
 
@@ -137,6 +137,27 @@ Init: `ordrin.init.noProxy`
 
 Mustard will render a restaurant list into  a `<div>` with the id `ordrinRestaurants` when it loads if `page` is set to `restaurants`. After Mustard has loaded, a new restaurant list can be rendered into the same `<div>` by calling `ordrin.mustard.setAddress()` or `ordrin.mustard.setDeliveryTime()`
 
+#### Menu
+A menu in the same structure as the value of the `menu` key in the return value of the [Restaurant API](http://ordr.in/developers/restaurant) details function. If this is not provided before Mustard loads, Mustard will attempt to download it from the API using the restaurant ID.
+
+Direct: `ordrin.init.menu`
+
+Accessors: `ordrin.mustard.getMenu()`
+
+#### Tray
+A tray of items. An instance of `Tray`.
+
+Init: `ordrin.init.tray`
+
+Accessor: `ordrin.mustard.getTray()`, `ordrin.mustard.setTray()`
+
+#### Tip
+The tip as an integer number of cents.
+
+Direct: `ordrin.init.tip`
+
+Accessor: `ordrin.mustard.getTip()`
+
 This page also uses the following values:
 
 #### Restaurant List
@@ -163,13 +184,6 @@ Init: `ordrin.init.rid`
 
 Accessors: `ordrin.mustard.getRid()`
 
-#### Menu
-A menu in the same structure as the value of the `menu` key in the return value of the [Restaurant API](http://ordr.in/developers/restaurant) details function. If this is not provided before Mustard loads, Mustard will attempt to download it from the API using the restaurant ID.
-
-Direct: `ordrin.init.menu`
-
-Accessors: `ordrin.mustard.getMenu()`
-
 #### Menu Template
 A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering the menu. The default is at `templates/menu.html.mustache`.
 
@@ -181,20 +195,17 @@ A string containing a [Mustache](https://github.com/janl/mustache.js) template f
 Init: `ordrin.init.dialogTemplate`
 
 #### Tray Item Template
-A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering an itemin the tray. The default is at `templates/trayItem.html.mustache`.
+A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering an item in the tray. The default is at `templates/trayItem.html.mustache`.
 
 Init: `ordrin.init.trayItemTemplate`
 
-#### Tray
-A tray of items. An instance of `Tray`.
+### Confirm
 
-Init: `ordrin.init.tray`
+Mustard will render a confirmation page into a `<div>` with teh id `ordrinConfirm` when it loads if `"confirm"`.
 
-Accessor: `ordrin.mustard.getTray()`, `ordrin.mustard.setTray()`
+This page also uses the following values:
 
-#### Tip
-The tip as an integer number of cents.
+#### Confirm Template
+A string containing a [Mustache](https://github.com/janl/mustache.js) template for rendering the confirmation page. The default is at `templates/confirm.html.mustache`.
 
-Direct: `ordrin.init.tip`
-
-Accessor: `ordrin.mustard.getTip()`
+Init: `ordrin.init.confirmTemplate`
