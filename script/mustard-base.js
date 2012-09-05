@@ -145,7 +145,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       renderMenu(newMenu);
     } else {
       if(!noProxy){
-        api.getDetails(rid, function(err, data){
+        api.restaurant.getDetails(rid, function(err, data){
           setMenu(data.menu);
           renderMenu(data.menu);
         });
