@@ -2287,6 +2287,7 @@ if(!ordrin.hasOwnProperty("emitter")){
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+          delivery = data.delivery;
           if(data.delivery === 0){
             handleError({delivery:0, msg:data.msg});
           }
