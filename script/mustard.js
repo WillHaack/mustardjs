@@ -1088,6 +1088,10 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   function toDollars(value){
+    if( !value ) {
+      return '0.00';
+    }
+
     var cents = value.toString();
     while(cents.length<3){
       cents = '0'+cents;
@@ -2253,6 +2257,10 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function toDollars(value){
+    if( !value ) {
+      return '0.00';
+    }
+
     var cents = value.toString();
     while(cents.length<3){
       cents = '0'+cents;
