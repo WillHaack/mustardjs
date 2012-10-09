@@ -597,7 +597,7 @@ if(!ordrin.hasOwnProperty("Tomato")){
     }
 
     function reviver(key, value){
-      if(typeof value === "object" && typeof value.constructor === "string"){
+      if(value && typeof value === "object" && typeof value.constructor === "string"){
         var constructor = namespace[value.constructor];
         delete value.constructor;
         var result = new constructor();
@@ -2049,7 +2049,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function getTip(){
-    return tomato.get("tip");
+    return tomato.get("tip") ? tomato.get("tip") : 0.00;
   }
 
   function setRestaurant(rid, newMenu){
