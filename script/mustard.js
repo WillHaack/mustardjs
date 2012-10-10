@@ -600,7 +600,7 @@ if(!ordrin.hasOwnProperty("Tomato")){
       if(value && typeof value === "object" && typeof value.constructor === "string"){
         var constructor = namespace[value.constructor];
         delete value.constructor;
-        var result = new constructor( value );
+        var result = new constructor();
         if(result.deserialize instanceof Function){
           result.deserialize(value);
           return result;
@@ -934,21 +934,15 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   var Address = function Address(addr, city, state, zip, phone, addr2){
-    if( typeof addr === 'object' ) { 
-      this.addr  = addr.addr;
-      this.city  = addr.city;
-      this.state = addr.state;
-      this.zip   = addr.zip;
-      this.phone = String(addr.phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
-      this.addr2 = addr.addr2;
-    } else {
-      this.addr  = addr;
-      this.city  = city;
-      this.state = state;
-      this.zip   = zip;
-      this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
-      this.addr2 = addr2;
+    if( addr === undefined ) {
+      return;
     }
+    this.addr  = addr;
+    this.city  = city;
+    this.state = state;
+    this.zip   = zip;
+    this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
+    this.addr2 = addr2;
     var that = this;
 
 
