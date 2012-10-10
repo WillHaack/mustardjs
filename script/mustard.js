@@ -600,7 +600,7 @@ if(!ordrin.hasOwnProperty("Tomato")){
       if(value && typeof value === "object" && typeof value.constructor === "string"){
         var constructor = namespace[value.constructor];
         delete value.constructor;
-        var result = new constructor();
+        var result = new constructor( value );
         if(result.deserialize instanceof Function){
           result.deserialize(value);
           return result;
@@ -934,27 +934,37 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   var Address = function Address(addr, city, state, zip, phone, addr2){
-    this.addr  = addr;
-    this.city  = city;
-    this.state = state;
-    this.zip   = zip;
-    this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
-    this.addr2 = addr2;
+    if( typeof addr === 'object' ) { 
+      this.addr  = addr.addr;
+      this.city  = addr.city;
+      this.state = addr.state;
+      this.zip   = addr.zip;
+      this.phone = String(addr.phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
+      this.addr2 = addr.addr2;
+    } else {
+      this.addr  = addr;
+      this.city  = city;
+      this.state = state;
+      this.zip   = zip;
+      this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
+      this.addr2 = addr2;
+    }
+    var that = this;
 
 
     var validate = function validate(){
       var fieldErrors = [];
       // validate state
-      if (/^[A-Z]{2}$/.test(this.state) == false){
+      if (/^[A-Z]{2}$/.test(that.state) == false){
         fieldErrors.push(new FieldError("state", "Invalid State format. It should be two upper case letters."));
       }
       // validate zip
-      if (/^\d{5}$/.test(this.zip) == false){
+      if (/^\d{5}$/.test(that.zip) == false){
         fieldErrors.push(new FieldError("zip", "Invalid Zip code. Should be 5 numbers"));
       }
       // validate phone number
       formatPhoneNumber();
-      if (this.phone.length != 12){
+      if (that.phone.length != 12){
         fieldErrors.push(new FieldError("phone", "Invalid Phone number. Should be 10 digits"));
       }
       if (fieldErrors.length != 0){
@@ -965,7 +975,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     var formatPhoneNumber = function formatPhoneNumber(){
-      this.phone = this.phone.substring(0, 3) + "-" + this.phone.substring(3, 6) + "-" + this.phone.substring(6);
+      that.phone = that.phone.substring(0, 3) + "-" + that.phone.substring(3, 6) + "-" + that.phone.substring(6);
     }
     validate();
   }
