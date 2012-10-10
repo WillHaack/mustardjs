@@ -2012,6 +2012,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   function setAddress(address){
     tomato.set("address", address);
     switch(page){
+      case "confirm":
       case "menu":
         var addressHtml = Mustache.render(addressTemplate, address);
         getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
@@ -2033,7 +2034,11 @@ if(!ordrin.hasOwnProperty("emitter")){
   function setDeliveryTime(deliveryTime){
     tomato.set("deliveryTime", deliveryTime);
     switch(page){
-      case "menu": getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime; deliveryCheck(); break;
+      case "confirm":
+      case "menu": 
+        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime; 
+        deliveryCheck(); 
+        break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
     }
