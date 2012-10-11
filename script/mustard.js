@@ -1999,6 +1999,18 @@ if(!ordrin.hasOwnProperty("emitter")){
     allItems = extractAllItems(menu);
   }
 
+  function getDetails(){
+    return tomato.get("details");
+  }
+
+  function detailsExists(){
+    return tomato.hasKey("details");
+  }
+
+  function setDetails(details) {
+    return tomato.set("details", details);
+  }
+
   function getAddress(){
     return tomato.get("address");
   }
@@ -2061,15 +2073,20 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.get("tip") ? tomato.get("tip") : 0.00;
   }
 
-  function setRestaurant(rid, newMenu){
+  function setRestaurant(rid, newMenu, details){
     setRid(rid);
     if(newMenu){
+      if( details ) {
+        setDetails( details );
+      }
       setMenu(newMenu);
       renderMenu(newMenu);
     } else {
       if(!noProxy){
         api.restaurant.getDetails(rid, function(err, data){
           setMenu(data.menu);
+          delete data.menu;
+          setDetails(data);
           renderMenu(data.menu);
         });
       }
@@ -2101,6 +2118,9 @@ if(!ordrin.hasOwnProperty("emitter")){
     if(tomato.hasKey("address")){
       data.address = getAddress();
     }
+    if(tomato.hasKey("details")) {
+      data.details = getDetails();
+    }
     var menuHtml = Mustache.render(tomato.get("menuTemplate"), data);
     document.getElementById("ordrinMenu").innerHTML = menuHtml;
     processNewMenuPage();
@@ -2108,10 +2128,13 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function initMenuPage(){
     if(render){
-      setRestaurant(getRid(), getMenu());
+      setRestaurant(getRid(), getMenu(), getDetails());
     } else {
       if(menuExists()){
         setMenu(getMenu());
+        if(detailsExists()) {
+          setDetails(getDetails());
+        }
       } else {
         api.restaurant.getDetails(getRid(), function(err, data){
           setMenu(data.menu);
