@@ -2180,11 +2180,14 @@ if(!ordrin.hasOwnProperty("emitter")){
     return new Tray(items);
   }
 
-  function renderConfirm(tray){
+  function renderConfirm(tray, details){
     var data = {deliveryTime:getDeliveryTime(), address:getAddress()};
     data.tray = tray;
     data.checkoutUri = tomato.get("checkoutUri");
     data.rid = getRid();
+    if( details ) {
+      data.details = details;
+    }
     var confirmHtml = Mustache.render(tomato.get("confirmTemplate"), data);
     var confirmDiv = document.getElementById("ordrinConfirm");
     confirmDiv.innerHTML = confirmHtml;
@@ -2200,10 +2203,12 @@ if(!ordrin.hasOwnProperty("emitter")){
     } else {
       api.restaurant.getDetails(getRid(), function(err, data){
         setMenu(data.menu);
+        delete data.menu;
+        setDetails(data);
         if(!trayExists()){
           setTray(buildTrayFromString(tomato.get("trayString")));
         }
-        renderConfirm(getTray());
+        renderConfirm(getTray(), getDetails());
       });
     }
   }
