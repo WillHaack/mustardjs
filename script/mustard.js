@@ -1134,6 +1134,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         this.name = name;
       }
       if(price !== undefined){
+        this.priceDollars = price;
         this.price = toCents(price);
         this.quantityPrice = toDollars(this.quantity * this.price);
       }
