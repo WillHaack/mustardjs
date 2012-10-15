@@ -2020,7 +2020,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.hasKey("address");
   }
 
-  var addressTemplate="{{addr}}<br>{{#addr2}}{{this}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
+  var addressTemplate="{{addr}}<br>{{#addr2}}{{addr2}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
 
   function setAddress(address){
     tomato.set("address", address);
