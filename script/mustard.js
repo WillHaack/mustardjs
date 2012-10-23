@@ -1963,7 +1963,14 @@ if(!ordrin.hasOwnProperty("emitter")){
         if(err){
           handleError(err);
         } else {
-          console.log(data);
+          var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
+          for( var i = 0; i < deliveryTime.length; i++ ) {
+            deliveryTime[i].innerHTML = data.del;
+          }
+          var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
+          for( var j = 0; j < minOrder.length; j++ ) {
+            minOrder[j].innerHTML = data.mino;
+          }
           delivery = data.delivery;
           if(data.delivery === 0){
             handleError(data);
@@ -2329,7 +2336,10 @@ if(!ordrin.hasOwnProperty("emitter")){
           handleError(err);
         } else {
           // Check what to do with fee and tax values
-          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee ? data.fee : "0.00";
+          var feeValues = getElementsByClassName(elements.menu, "feeValue");
+          for( var i = 0; i < feeValues.length; i++ ) {
+            feeValues[i].innerHTML = data.fee ? data.fee : "0.00";
+          }
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
