@@ -2329,8 +2329,8 @@ if(!ordrin.hasOwnProperty("emitter")){
           handleError(err);
         } else {
           // Check what to do with fee and tax values
-          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee ? data.fee : 0.00;
-          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : 0.00;
+          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee ? data.fee : "0.00";
+          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
           delivery = data.delivery;
