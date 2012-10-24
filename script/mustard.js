@@ -934,27 +934,31 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   var Address = function Address(addr, city, state, zip, phone, addr2){
+    if( addr === undefined ) {
+      return;
+    }
     this.addr  = addr;
     this.city  = city;
     this.state = state;
     this.zip   = zip;
     this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
     this.addr2 = addr2;
+    var that = this;
 
 
     var validate = function validate(){
       var fieldErrors = [];
       // validate state
-      if (/^[A-Z]{2}$/.test(this.state) == false){
+      if (/^[A-Z]{2}$/.test(that.state) == false){
         fieldErrors.push(new FieldError("state", "Invalid State format. It should be two upper case letters."));
       }
       // validate zip
-      if (/^\d{5}$/.test(this.zip) == false){
+      if (/^\d{5}$/.test(that.zip) == false){
         fieldErrors.push(new FieldError("zip", "Invalid Zip code. Should be 5 numbers"));
       }
       // validate phone number
       formatPhoneNumber();
-      if (this.phone.length != 12){
+      if (that.phone.length != 12){
         fieldErrors.push(new FieldError("phone", "Invalid Phone number. Should be 10 digits"));
       }
       if (fieldErrors.length != 0){
@@ -965,7 +969,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
 
     var formatPhoneNumber = function formatPhoneNumber(){
-      this.phone = this.phone.substring(0, 3) + "-" + this.phone.substring(3, 6) + "-" + this.phone.substring(6);
+      that.phone = that.phone.substring(0, 3) + "-" + that.phone.substring(3, 6) + "-" + that.phone.substring(6);
     }
     validate();
   }
@@ -1130,6 +1134,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         this.name = name;
       }
       if(price !== undefined){
+        this.priceDollars = price;
         this.price = toCents(price);
         this.quantityPrice = toDollars(this.quantity * this.price);
       }
@@ -1958,7 +1963,14 @@ if(!ordrin.hasOwnProperty("emitter")){
         if(err){
           handleError(err);
         } else {
-          console.log(data);
+          var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
+          for( var i = 0; i < deliveryTime.length; i++ ) {
+            deliveryTime[i].innerHTML = data.del ? data.del : '45';
+          }
+          var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
+          for( var j = 0; j < minOrder.length; j++ ) {
+            minOrder[j].innerHTML = data.mino ? data.mino : '0.00';
+          }
           delivery = data.delivery;
           if(data.delivery === 0){
             handleError(data);
@@ -1995,6 +2007,18 @@ if(!ordrin.hasOwnProperty("emitter")){
     allItems = extractAllItems(menu);
   }
 
+  function getDetails(){
+    return tomato.get("details");
+  }
+
+  function detailsExists(){
+    return tomato.hasKey("details");
+  }
+
+  function setDetails(details) {
+    return tomato.set("details", details);
+  }
+
   function getAddress(){
     return tomato.get("address");
   }
@@ -2003,11 +2027,12 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.hasKey("address");
   }
 
-  var addressTemplate="{{addr}}<br>{{#addr2}}{{this}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
+  var addressTemplate="{{addr}}<br>{{#addr2}}{{addr2}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
 
   function setAddress(address){
     tomato.set("address", address);
     switch(page){
+      case "confirm":
       case "menu":
         var addressHtml = Mustache.render(addressTemplate, address);
         getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
@@ -2029,7 +2054,11 @@ if(!ordrin.hasOwnProperty("emitter")){
   function setDeliveryTime(deliveryTime){
     tomato.set("deliveryTime", deliveryTime);
     switch(page){
-      case "menu": getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime; deliveryCheck(); break;
+      case "confirm":
+      case "menu": 
+        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime; 
+        deliveryCheck(); 
+        break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
     }
@@ -2052,15 +2081,20 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.get("tip") ? tomato.get("tip") : 0.00;
   }
 
-  function setRestaurant(rid, newMenu){
+  function setRestaurant(rid, newMenu, details){
     setRid(rid);
     if(newMenu){
+      if( details ) {
+        setDetails( details );
+      }
       setMenu(newMenu);
       renderMenu(newMenu);
     } else {
       if(!noProxy){
         api.restaurant.getDetails(rid, function(err, data){
           setMenu(data.menu);
+          delete data.menu;
+          setDetails(data);
           renderMenu(data.menu);
         });
       }
@@ -2092,6 +2126,9 @@ if(!ordrin.hasOwnProperty("emitter")){
     if(tomato.hasKey("address")){
       data.address = getAddress();
     }
+    if(tomato.hasKey("details")) {
+      data.details = getDetails();
+    }
     var menuHtml = Mustache.render(tomato.get("menuTemplate"), data);
     document.getElementById("ordrinMenu").innerHTML = menuHtml;
     processNewMenuPage();
@@ -2099,10 +2136,13 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function initMenuPage(){
     if(render){
-      setRestaurant(getRid(), getMenu());
+      setRestaurant(getRid(), getMenu(), getDetails());
     } else {
       if(menuExists()){
         setMenu(getMenu());
+        if(detailsExists()) {
+          setDetails(getDetails());
+        }
       } else {
         api.restaurant.getDetails(getRid(), function(err, data){
           setMenu(data.menu);
@@ -2148,11 +2188,14 @@ if(!ordrin.hasOwnProperty("emitter")){
     return new Tray(items);
   }
 
-  function renderConfirm(tray){
+  function renderConfirm(tray, details){
     var data = {deliveryTime:getDeliveryTime(), address:getAddress()};
     data.tray = tray;
     data.checkoutUri = tomato.get("checkoutUri");
     data.rid = getRid();
+    if( details ) {
+      data.details = details;
+    }
     var confirmHtml = Mustache.render(tomato.get("confirmTemplate"), data);
     var confirmDiv = document.getElementById("ordrinConfirm");
     confirmDiv.innerHTML = confirmHtml;
@@ -2168,10 +2211,12 @@ if(!ordrin.hasOwnProperty("emitter")){
     } else {
       api.restaurant.getDetails(getRid(), function(err, data){
         setMenu(data.menu);
+        delete data.menu;
+        setDetails(data);
         if(!trayExists()){
           setTray(buildTrayFromString(tomato.get("trayString")));
         }
-        renderConfirm(getTray());
+        renderConfirm(getTray(), getDetails());
       });
     }
   }
@@ -2291,8 +2336,11 @@ if(!ordrin.hasOwnProperty("emitter")){
           handleError(err);
         } else {
           // Check what to do with fee and tax values
-          getElementsByClassName(elements.menu, "feeValue")[0].innerHTML = data.fee;
-          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax;
+          var feeValues = getElementsByClassName(elements.menu, "feeValue");
+          for( var i = 0; i < feeValues.length; i++ ) {
+            feeValues[i].innerHTML = data.fee ? data.fee : "0.00";
+          }
+          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
           getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
           delivery = data.delivery;
