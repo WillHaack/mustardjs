@@ -1965,11 +1965,11 @@ if(!ordrin.hasOwnProperty("emitter")){
         } else {
           var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
           for( var i = 0; i < deliveryTime.length; i++ ) {
-            deliveryTime[i].innerHTML = data.del;
+            deliveryTime[i].innerHTML = data.del ? data.del : '45';
           }
           var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
           for( var j = 0; j < minOrder.length; j++ ) {
-            minOrder[j].innerHTML = data.mino;
+            minOrder[j].innerHTML = data.mino ? data.mino : '0.00';
           }
           delivery = data.delivery;
           if(data.delivery === 0){
