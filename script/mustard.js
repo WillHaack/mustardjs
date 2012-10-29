@@ -2056,7 +2056,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     switch(page){
       case "confirm":
       case "menu": 
-        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime; 
+        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime.replace("+"," "); 
         deliveryCheck(); 
         break;
       case "restaurants": downloadRestaurants(); break;
