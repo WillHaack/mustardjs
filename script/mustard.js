@@ -2832,6 +2832,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       setDeliveryTime : setDeliveryTime,
       getTray : getTray,
       setTray : setTray,
+      updateTip : updateTip,
       getTip : getTip,
       setRestaurant : setRestaurant
     };
