@@ -939,7 +939,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
     this.addr  = addr;
     this.city  = city;
-    this.state = state;
+    // make upper case for validation
+    this.state = state.toUpperCase();
     this.zip   = zip;
     this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
     this.addr2 = addr2;
