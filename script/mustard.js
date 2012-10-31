@@ -2050,6 +2050,10 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.get("deliveryTime");
   }
 
+  function getFormattedDeliveryTime() {
+    return formatDeliveryTime( tomato.get("deliveryTime") );
+  };
+
   function deliveryTimeExists(){
     return tomato.hasKey("deliveryTime");
   }
@@ -2059,12 +2063,62 @@ if(!ordrin.hasOwnProperty("emitter")){
     switch(page){
       case "confirm":
       case "menu": 
-        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime.replace("+"," "); 
+        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = formatDeliveryTime( deliveryTime ); 
         deliveryCheck(); 
         break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
     }
+  }
+
+  function formatDeliveryTime( deliveryTime ) {
+    var formattedDelivery = '',
+        currentTime = new Date(),
+        currentDate = currentTime.getDate(),
+        dayOfWeek = [ 'Sunday', 'Monday', 'Tuesday',
+                      'Wednesday', 'Thursday', 'Friday',
+                      'Saturday' ];
+    var deliveryHour, deliveryMinutes;
+
+    if( deliveryTime === 'ASAP' ) {
+      return deliveryTime;
+    }
+
+    deliveryTime = deliveryTime instanceof Date
+                   ? deliveryTime
+                   : new Date( deliveryTime.replace('+',' ') );
+
+    // today, tomorrow or future
+    if( currentDate === deliveryTime.getDate() ) {
+      formattedDelivery += "Today, ";
+    } else if( new Date(currentTime.getTime() + 86400000).getDate() === deliveryTime.getDate() ) {
+      formattedDelivery += "Tomorrow, ";
+    } else {
+      formattedDelivery += ( deliveryTime.getMonth() + 1 ) + '-'
+                         + ( deliveryTime.getDate() ) + ", ";
+    }
+    
+    // day of week
+    formattedDelivery += dayOfWeek[ deliveryTime.getDay() ] + ' ';
+  
+    deliveryHour = deliveryTime.getHours();
+    if( deliveryHour > 12 ) {
+      deliveryHour = deliveryHour - 12;
+    } else if ( deliveryHour === 0 ) {
+      deliveryHour = 12;
+    }
+
+    deliveryMinutes = deliveryTime.getMinutes();
+    if( deliveryMinutes < 10 ) {
+      deliveryMinutes = '0' + deliveryMinutes;
+    }
+
+    // AM/PM
+    formattedDelivery += (deliveryTime.getHours() < 11) 
+                             ? deliveryHour + ':' + deliveryMinutes + 'AM'
+                             : deliveryHour + ':' + deliveryMinutes + 'PM';
+    
+    return formattedDelivery;
   }
 
   function getTray(){
@@ -2120,6 +2174,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
     listen("click", document.body, clicked);
     listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
+    setDeliveryTime( getDeliveryTime() );
     updateFee();
   }
 
