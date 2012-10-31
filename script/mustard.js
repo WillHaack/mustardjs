@@ -1973,7 +1973,9 @@ if(!ordrin.hasOwnProperty("emitter")){
             minOrder[j].innerHTML = data.mino ? data.mino : '0.00';
           }
           delivery = data.delivery;
-          if(data.delivery === 0){
+          if( data.delivery === 1 ) {
+            updateFee();
+          } else if(data.delivery === 0){
             handleError(data);
           }
         }
