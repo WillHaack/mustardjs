@@ -939,7 +939,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     }
     this.addr  = addr;
     this.city  = city;
-    this.state = state;
+    // make upper case for validation
+    this.state = state.toUpperCase();
     this.zip   = zip;
     this.phone = String(phone).replace(/[^\d]/g, ''); // remove all non-number, and stringify
     this.addr2 = addr2;
@@ -1972,7 +1973,9 @@ if(!ordrin.hasOwnProperty("emitter")){
             minOrder[j].innerHTML = data.mino ? data.mino : '0.00';
           }
           delivery = data.delivery;
-          if(data.delivery === 0){
+          if( data.delivery === 1 ) {
+            updateFee();
+          } else if(data.delivery === 0){
             handleError(data);
           }
         }
@@ -2832,6 +2835,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       setDeliveryTime : setDeliveryTime,
       getTray : getTray,
       setTray : setTray,
+      updateTip : updateTip,
       getTip : getTip,
       setRestaurant : setRestaurant
     };
