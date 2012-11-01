@@ -2145,6 +2145,9 @@ if(!ordrin.hasOwnProperty("emitter")){
         setDetails( details );
       }
       setMenu(newMenu);
+      if(!trayExists() && tomato.hasKey("trayString")){
+        setTray(buildTrayFromString(tomato.get("trayString")));
+      } 
       renderMenu(newMenu);
     } else {
       if(!noProxy){
@@ -2273,7 +2276,7 @@ if(!ordrin.hasOwnProperty("emitter")){
         setDetails(data);
         if(!trayExists()){
           setTray(buildTrayFromString(tomato.get("trayString")));
-        }
+        } 
         renderConfirm(getTray(), getDetails());
       });
     }
