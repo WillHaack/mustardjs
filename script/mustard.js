@@ -1966,11 +1966,11 @@ if(!ordrin.hasOwnProperty("emitter")){
         } else {
           var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
           for( var i = 0; i < deliveryTime.length; i++ ) {
-            deliveryTime[i].innerHTML = data.del ? data.del : '45';
+            deliveryTime[i].innerHTML = data.del ? data.del : 'TBD';
           }
           var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
           for( var j = 0; j < minOrder.length; j++ ) {
-            minOrder[j].innerHTML = data.mino ? data.mino : '0.00';
+            minOrder[j].innerHTML = data.mino ? data.mino : 'TBD';
           }
           delivery = data.delivery;
           if( data.delivery === 1 ) {
@@ -2399,7 +2399,7 @@ if(!ordrin.hasOwnProperty("emitter")){
           // Check what to do with fee and tax values
           var feeValues = getElementsByClassName(elements.menu, "feeValue");
           for( var i = 0; i < feeValues.length; i++ ) {
-            feeValues[i].innerHTML = data.fee ? data.fee : "0.00";
+            feeValues[i].innerHTML = data.fee ? data.fee : "TBD";
           }
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
