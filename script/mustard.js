@@ -1075,6 +1075,10 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   function toCents(value){
+    if( !value ) {
+      return 0;
+    }
+
     if(value.indexOf('.') < 0){
       return (+value)*100;
     } else {
@@ -1946,6 +1950,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   var noProxy = tomato.get("noProxy");
 
   var delivery;
+  var mino;
 
   var tray;
 
@@ -1970,7 +1975,8 @@ if(!ordrin.hasOwnProperty("emitter")){
           }
           var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
           for( var j = 0; j < minOrder.length; j++ ) {
-            minOrder[j].innerHTML = data.mino ? data.mino : 'TBD';
+            mino = data.mino ? data.mino : 'TBD'
+            minOrder[j].innerHTML = mino;
           }
           delivery = data.delivery;
           if( data.delivery === 1 ) {
@@ -2590,6 +2596,12 @@ if(!ordrin.hasOwnProperty("emitter")){
       handleError({msg:"The restaurant will not deliver this order at this time"});
       return;
     }
+
+    if( getTray().getTotal() < ( mino * 100 ) ) {
+      handleError({msg:"The minimum order for this restaruant is $" + mino + "."});
+      return;
+    }
+
     var address = getAddress()
     form.addr.value = address.addr || '';
     form.addr2.value = address.addr2 || '';
