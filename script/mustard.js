@@ -2086,8 +2086,8 @@ if(!ordrin.hasOwnProperty("emitter")){
                       'Saturday' ];
     var deliveryHour, deliveryMinutes;
 
-    if( deliveryTime === 'ASAP' ) {
-      return deliveryTime;
+    if( deliveryTime.toUpperCase() === 'ASAP' ) {
+      return 'ASAP';
     }
 
     deliveryTime = deliveryTime instanceof Date
