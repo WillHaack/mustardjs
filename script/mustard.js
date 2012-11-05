@@ -1075,6 +1075,10 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   function toCents(value){
+    if( !value ) {
+      return 0;
+    }
+
     if(value.indexOf('.') < 0){
       return (+value)*100;
     } else {
@@ -1946,6 +1950,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   var noProxy = tomato.get("noProxy");
 
   var delivery;
+  var mino;
 
   var tray;
 
@@ -1966,11 +1971,12 @@ if(!ordrin.hasOwnProperty("emitter")){
         } else {
           var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
           for( var i = 0; i < deliveryTime.length; i++ ) {
-            deliveryTime[i].innerHTML = data.del ? data.del : '45';
+            deliveryTime[i].innerHTML = data.del ? data.del : 'TBD';
           }
           var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
           for( var j = 0; j < minOrder.length; j++ ) {
-            minOrder[j].innerHTML = data.mino ? data.mino : '0.00';
+            mino = data.mino ? data.mino : 'TBD'
+            minOrder[j].innerHTML = mino;
           }
           delivery = data.delivery;
           if( data.delivery === 1 ) {
@@ -2050,6 +2056,10 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.get("deliveryTime");
   }
 
+  function getFormattedDeliveryTime() {
+    return formatDeliveryTime( tomato.get("deliveryTime") );
+  };
+
   function deliveryTimeExists(){
     return tomato.hasKey("deliveryTime");
   }
@@ -2059,12 +2069,62 @@ if(!ordrin.hasOwnProperty("emitter")){
     switch(page){
       case "confirm":
       case "menu": 
-        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = deliveryTime.replace("+"," "); 
+        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = formatDeliveryTime( deliveryTime ); 
         deliveryCheck(); 
         break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
     }
+  }
+
+  function formatDeliveryTime( deliveryTime ) {
+    var formattedDelivery = '',
+        currentTime = new Date(),
+        currentDate = currentTime.getDate(),
+        dayOfWeek = [ 'Sunday', 'Monday', 'Tuesday',
+                      'Wednesday', 'Thursday', 'Friday',
+                      'Saturday' ];
+    var deliveryHour, deliveryMinutes;
+
+    if( deliveryTime === 'ASAP' ) {
+      return deliveryTime;
+    }
+
+    deliveryTime = deliveryTime instanceof Date
+                   ? deliveryTime
+                   : new Date( deliveryTime.replace('+',' ') );
+
+    // today, tomorrow or future
+    if( currentDate === deliveryTime.getDate() ) {
+      formattedDelivery += "Today, ";
+    } else if( new Date(currentTime.getTime() + 86400000).getDate() === deliveryTime.getDate() ) {
+      formattedDelivery += "Tomorrow, ";
+    } else {
+      formattedDelivery += ( deliveryTime.getMonth() + 1 ) + '-'
+                         + ( deliveryTime.getDate() ) + ", ";
+    }
+    
+    // day of week
+    formattedDelivery += dayOfWeek[ deliveryTime.getDay() ] + ' ';
+  
+    deliveryHour = deliveryTime.getHours();
+    if( deliveryHour > 12 ) {
+      deliveryHour = deliveryHour - 12;
+    } else if ( deliveryHour === 0 ) {
+      deliveryHour = 12;
+    }
+
+    deliveryMinutes = deliveryTime.getMinutes();
+    if( deliveryMinutes < 10 ) {
+      deliveryMinutes = '0' + deliveryMinutes;
+    }
+
+    // AM/PM
+    formattedDelivery += (deliveryTime.getHours() < 11) 
+                             ? deliveryHour + ':' + deliveryMinutes + 'AM'
+                             : deliveryHour + ':' + deliveryMinutes + 'PM';
+    
+    return formattedDelivery;
   }
 
   function getTray(){
@@ -2091,6 +2151,9 @@ if(!ordrin.hasOwnProperty("emitter")){
         setDetails( details );
       }
       setMenu(newMenu);
+      if(!trayExists() && tomato.hasKey("trayString")){
+        setTray(buildTrayFromString(tomato.get("trayString")));
+      } 
       renderMenu(newMenu);
     } else {
       if(!noProxy){
@@ -2120,6 +2183,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
     listen("click", document.body, clicked);
     listen("change", getElementsByClassName(elements.menu, "ordrinDateSelect")[0], dateSelected);
+    setDeliveryTime( getDeliveryTime() );
     updateFee();
   }
 
@@ -2218,7 +2282,7 @@ if(!ordrin.hasOwnProperty("emitter")){
         setDetails(data);
         if(!trayExists()){
           setTray(buildTrayFromString(tomato.get("trayString")));
-        }
+        } 
         renderConfirm(getTray(), getDetails());
       });
     }
@@ -2341,7 +2405,7 @@ if(!ordrin.hasOwnProperty("emitter")){
           // Check what to do with fee and tax values
           var feeValues = getElementsByClassName(elements.menu, "feeValue");
           for( var i = 0; i < feeValues.length; i++ ) {
-            feeValues[i].innerHTML = data.fee ? data.fee : "0.00";
+            feeValues[i].innerHTML = data.fee ? data.fee : "TBD";
           }
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
@@ -2532,6 +2596,12 @@ if(!ordrin.hasOwnProperty("emitter")){
       handleError({msg:"The restaurant will not deliver this order at this time"});
       return;
     }
+
+    if( getTray().getTotal() < ( mino * 100 ) ) {
+      handleError({msg:"The minimum order for this restaruant is $" + mino + "."});
+      return;
+    }
+
     var address = getAddress()
     form.addr.value = address.addr || '';
     form.addr2.value = address.addr2 || '';
