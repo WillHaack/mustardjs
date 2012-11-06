@@ -2086,13 +2086,23 @@ if(!ordrin.hasOwnProperty("emitter")){
                       'Saturday' ];
     var deliveryHour, deliveryMinutes;
 
-    if( deliveryTime === 'ASAP' ) {
-      return deliveryTime;
+    if( deliveryTime.toUpperCase() === 'ASAP' ) {
+      return 'ASAP';
     }
 
     deliveryTime = deliveryTime instanceof Date
                    ? deliveryTime
                    : new Date( deliveryTime.replace('+',' ') );
+
+    // if delivery year is in the past we need to correct it
+    if( deliveryTime.getFullYear() < currentTime.getFullYear() ) {
+      // if we switched year +1, otherwise set to current year
+      if( deliveryTime.getMonth() === '0' && currentTime.getMonth() === '11' ) {
+        deliveryTime.setFullYear( currentTime.getFullYear() + 1 );
+      } else {
+        deliveryTime.setFullYear( currentTime.getFullYear() );
+      }
+    }
 
     // today, tomorrow or future
     if( currentDate === deliveryTime.getDate() ) {
