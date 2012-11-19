@@ -2704,7 +2704,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   function createDialogBox(node){
     var itemId = node.getAttribute("data-miid");
     buildDialogBox(itemId);
-    showDialogBox();
+    showDialogBox( node );
   }
 
   function createEditDialogBox(node){
@@ -2723,7 +2723,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
     quantity.setAttribute("value", trayItem.quantity);
     elements.dialog.setAttribute("data-tray-id", trayItemId);
-    showDialogBox();
+    showDialogBox( node );
   }
 
   function buildDialogBox(id){
@@ -2731,7 +2731,12 @@ if(!ordrin.hasOwnProperty("emitter")){
     elements.dialog.setAttribute("data-miid", id);
   }
   
-  function showDialogBox(){
+  function showDialogBox( node ){
+    // if in an iframe, fix top
+    if( top !== self ) {
+      elements.dialog.style.top =  ( node.offsetTop - 250 ) + "px";
+    }
+
     // show background
     elements.dialogBg.className = elements.dialogBg.className.replace("hidden", "");
 
