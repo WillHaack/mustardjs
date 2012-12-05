@@ -2423,6 +2423,8 @@ if(!ordrin.hasOwnProperty("emitter")){
           delivery = data.delivery;
           if(data.delivery === 0){
             handleError({delivery:0, msg:data.msg});
+          } else {
+            hideErrorDialog();
           }
         }
       });
