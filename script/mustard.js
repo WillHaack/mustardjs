@@ -2449,11 +2449,11 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function showErrorDialog(msg){
     // show background
-    elements.errorBg.className = elements.errorBg.className.replace("hidden", "");
+    elements.errorBg.className = elements.errorBg.className.replace(/hidden/g, "");
 
     getElementsByClassName(elements.errorDialog, "errorMsg")[0].innerHTML = msg;
     // show the dialog
-    elements.errorDialog.className = elements.errorDialog.className.replace("hidden", "");
+    elements.errorDialog.className = elements.errorDialog.className.replace(/hidden/g, "");
   }
 
   function hideErrorDialog(){
