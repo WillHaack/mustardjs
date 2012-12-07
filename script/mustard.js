@@ -2405,8 +2405,12 @@ if(!ordrin.hasOwnProperty("emitter")){
     var tip = getTip();
     getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
     if(noProxy){
-      var total = subtotal + tip;
-      getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+      var total = subtotal + tip,
+          totalElements = getElementsByClassName(elements.menu, "totalValue")
+          i;
+        for( i = 0; i < totalElements.length; i++ ) { 
+          totalElements[i].innerHTML = toDollars(total);
+        }
     } else {
       api.restaurant.getFee(getRid(), toDollars(subtotal), toDollars(tip), getDeliveryTime(), getAddress(), function(err, data){
         if(err){
@@ -2418,8 +2422,12 @@ if(!ordrin.hasOwnProperty("emitter")){
             feeValues[i].innerHTML = data.fee ? data.fee : "TBD";
           }
           getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
-          var total = subtotal + tip + toCents(data.fee) + toCents(data.tax);
-          getElementsByClassName(elements.menu, "totalValue")[0].innerHTML = toDollars(total);
+          var total = subtotal + tip + toCents(data.fee) + toCents(data.tax),
+              totalElements = getElementsByClassName(elements.menu, "totalValue")
+              i;
+          for( i = 0; i < totalElements.length; i++ ) {
+            totalElements[i].innerHTML = toDollars(total);
+          };
           delivery = data.delivery;
           if(data.delivery === 0){
             handleError({delivery:0, msg:data.msg});
