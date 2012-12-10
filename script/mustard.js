@@ -1963,34 +1963,6 @@ if(!ordrin.hasOwnProperty("emitter")){
   var Tray = api.Tray;
   var Address = api.Address;
 
-  function deliveryCheck(){
-    if(!noProxy){
-      api.restaurant.getDeliveryCheck(getRid(), getDeliveryTime(), getAddress(), function(err, data){
-        if(err){
-          handleError(err);
-        } else {
-          var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
-          for( var i = 0; i < deliveryTime.length; i++ ) {
-            deliveryTime[i].innerHTML = data.del ? data.del : 'TBD';
-          }
-          var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
-          for( var j = 0; j < minOrder.length; j++ ) {
-            mino = data.mino ? data.mino : 'TBD'
-            minOrder[j].innerHTML = mino;
-          }
-          delivery = data.delivery;
-          if( data.delivery === 1 ) {
-            updateFee();
-          } else if(data.delivery === 0){
-            handleError(data);
-          }
-        }
-      });
-    } else {
-      delivery = true;
-    }
-  }
-  
   function getRid(){
     return tomato.get("rid");
   }
@@ -2045,7 +2017,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       case "menu":
         var addressHtml = Mustache.render(addressTemplate, address);
         getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
-        deliveryCheck();
+        updateFee();
         break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
@@ -2070,7 +2042,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       case "confirm":
       case "menu": 
         getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = formatDeliveryTime( deliveryTime ); 
-        deliveryCheck(); 
+        updateFee(); 
         break;
       case "restaurants": downloadRestaurants(); break;
       default: break;
@@ -2416,6 +2388,16 @@ if(!ordrin.hasOwnProperty("emitter")){
         if(err){
           handleError(err);
         } else {
+          var deliveryTime = getElementsByClassName(elements.menu, "deliveryTimeValue");
+          for( var i = 0; i < deliveryTime.length; i++ ) {
+            deliveryTime[i].innerHTML = data.del ? data.del : 'TBD';
+          }
+          var minOrder = getElementsByClassName(elements.menu, "minOrderValue");
+          for( var j = 0; j < minOrder.length; j++ ) {
+            mino = data.mino ? data.mino : 'TBD'
+            minOrder[j].innerHTML = mino;
+          }
+
           // Check what to do with fee and tax values
           var feeValues = getElementsByClassName(elements.menu, "feeValue");
           for( var i = 0; i < feeValues.length; i++ ) {
