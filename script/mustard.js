@@ -2033,7 +2033,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function addressExists(){
-    return tomato.hasKey("address");
+    return tomato.hasKey("address") && tomato.get("address").addr;
   }
 
   var addressTemplate="{{addr}}<br>{{#addr2}}{{addr2}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
@@ -2841,6 +2841,11 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function addDialogItemToTray(){
     var trayItem = createItemFromDialog();
+    if(!addressExists()){
+      handleError({msg:"We need your address to be sure this restaurant delivers to you. Please enter it."});
+      hideDialogBox();
+      return;
+    }
     addTrayItem(trayItem);
     hideDialogBox();
     if(!delivery){
