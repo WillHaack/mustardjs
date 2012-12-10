@@ -1,4 +1,4 @@
-;!function(exports, undefined) {
+(function(exports) {
 
   var isArray = Array.isArray ? Array.isArray : function _isArray(obj) {
     return Object.prototype.toString.call(obj) === "[object Array]";
@@ -544,7 +544,7 @@
     exports.EventEmitter2 = EventEmitter; 
   }
 
-}(typeof process !== 'undefined' && typeof process.title !== 'undefined' && typeof exports !== 'undefined' ? exports : window);
+}(typeof process !== 'undefined' && typeof process.title !== 'undefined' && typeof exports !== 'undefined' ? exports : window));
 var ordrin = typeof ordrin === "object" ? ordrin : {};
 if(!ordrin.hasOwnProperty("Tomato")){
   ordrin.Tomato = function Tomato(){
