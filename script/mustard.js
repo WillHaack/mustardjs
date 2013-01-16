@@ -2058,7 +2058,11 @@ if(!ordrin.hasOwnProperty("emitter")){
         currentDate = currentTime.getDate(),
         dayOfWeek = [ 'Sunday', 'Monday', 'Tuesday',
                       'Wednesday', 'Thursday', 'Friday',
-                      'Saturday' ];
+                      'Saturday' ],
+        month     = [ 'January', 'February', 'March',
+                      'April', 'May', 'June', 'July',
+                      'August', 'September', 'October',
+                      'November', 'December' ];
     var deliveryHour, deliveryMinutes;
 
     if( deliveryTime.toUpperCase() === 'ASAP' ) {
@@ -2085,7 +2089,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     } else if( new Date(currentTime.getTime() + 86400000).getDate() === deliveryTime.getDate() ) {
       formattedDelivery += "Tomorrow, ";
     } else {
-      formattedDelivery += ( deliveryTime.getMonth() + 1 ) + '-'
+      formattedDelivery += month[ deliveryTime.getMonth() ] + " "
                          + ( deliveryTime.getDate() ) + ", ";
     }
     
