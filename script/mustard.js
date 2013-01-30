@@ -556,7 +556,6 @@ if(!ordrin.hasOwnProperty("Tomato")){
 
     function isCustomObject(obj){
       if(typeof obj === "object" && obj !== null){
-        console.log( obj.constructor );
         var name = obj.constructor.name
                    ? obj.constructor.name
                    : obj.constructor.toString().match(/function ([^(]+)/)[1];
