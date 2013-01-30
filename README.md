@@ -18,7 +18,7 @@ The minimal page that will serve an menu is the following (assuming that `mustar
     <!--[if lt IE 9]><script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
     <script>
       var ordrin = typeof ordrin==="undefined"?{}:ordrin;
-      var ordrin = typeof ordrin==="undefined"?{}:ordrin;
+      var ordrin.init = typeof ordrin.init==="undefined"?{}:ordrin.init;
       ordrin.init.rid = 141; // the restaurant's ordr.in ID
       ordrin.init.page = "menu";
       ordrin.init.render = true;
