@@ -2192,6 +2192,12 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function renderMenu(menuData){
+    var menu_div = document.getElementById("ordrinMenu");
+    if( !menu_div ) {
+      setTimeout( function() { renderMenu(menuData), 1000 } );
+      return;
+    }
+
     var data = {menu:menuData, deliveryTime:getDeliveryTime()};
     data.confirmUrl = tomato.get("confirmUrl");
     if(tomato.hasKey("address")){
@@ -2202,9 +2208,11 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
     var menuHtml = Mustache.render(tomato.get("menuTemplate"), data);
 
-    document.getElementById("ordrinMenu").innerHTML = menuHtml;
+    menu_div.innerHTML = menuHtml;
     processNewMenuPage();
   }
+
+  
 
   function initMenuPage(){
     if(render){
