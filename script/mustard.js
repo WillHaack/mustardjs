@@ -812,7 +812,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     dateTime = this.parseDateTime(dateTime);
 
     if(dateTime === null){
-      callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+      callback({msg:"Invalid order time: "+JSON.stringify(deliveryTime)});
     }
 
     var params = [
@@ -829,7 +829,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     dateTime = this.parseDateTime(dateTime);
 
     if(dateTime === null){
-      callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+      callback({msg:"Invalid order time: "+JSON.stringify(deliveryTime)});
     }
 
     var params = [
@@ -847,7 +847,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     dateTime = this.parseDateTime(dateTime);
 
     if(dateTime === null){
-      callback({msg:"Invalid delivery time: "+JSON.stringify(deliveryTime)});
+      callback({msg:"Invalid order time: "+JSON.stringify(deliveryTime)});
     }
 
     var params = [
@@ -957,6 +957,15 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
     var validate = function validate(){
       var fieldErrors = [];
+      // validate addr
+      if ( that.addr.length === 0 ){
+        fieldErrors.push(new FieldError("addr", "Street Address 1 is required."));
+      }
+
+      // validate city
+      if ( that.city.length === 0 ){
+        fieldErrors.push(new FieldError("city", "City is required."));
+      }
       // validate state
       if (/^[A-Z]{2}$/.test(that.state) == false){
         fieldErrors.push(new FieldError("state", "Invalid State format. It should be two upper case letters."));
