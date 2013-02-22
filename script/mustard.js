@@ -637,10 +637,12 @@ if(!ordrin.hasOwnProperty("Tomato")){
 
     this.get = function(key){
       if(this.hasKey(key)){
-        return JSON.parse(store[key].value, reviver);
-      } else {
-        return undefined;
+        if( store[key].value ) {
+          return JSON.parse(store[key].value, reviver);
+        }
       }
+
+      return undefined;
     }
 
     this.hasKey = function(key){
