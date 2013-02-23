@@ -718,15 +718,16 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   function stringify(obj){
-    return Object.keys(obj).map(function(k) {
-      if(Array.isArray(obj[k])){
-        return obj[k].map(function(v){
-          return escape(stringifyPrimitive(k))+'='+escape(stringifyPrimitive(v));
-        });
+    var props = [];
+    for( var prop in obj ) {
+      if( Array.isArray( obj[ prop ] ) ) {
+        props.push( stringify( obj[ prop ] ) );
       } else {
-        return escape(stringifyPrimitive(k))+'='+escape(stringifyPrimitive(obj[k]));
+        props.push( escape(stringifyPrimitive(k))+'='+escape(stringifyPrimitive(obj[k])) );
       }
-    }).join('&');
+    }
+
+    return props.join('&');
   }
 
   function formatExpirationMonth(expirationMonth){
@@ -1098,6 +1099,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       return 0;
     }
 
+    // convert to string for IE indexOf
+    value = value.toString();
     if(value.indexOf('.') < 0){
       return (+value)*100;
     } else {
@@ -1118,6 +1121,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   function toDollars(value){
     if( !value ) {
       return '0.00';
+    }
+    
+    value = value.toString();
+    if( value.indexOf('.') !== -1 ) {
+      return value;
     }
 
     var cents = value.toString();
@@ -1142,6 +1150,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
   var TrayItem = function TrayItem(id, quantity, options, name, price){
     if(id !== undefined){
+      price = toDollars( price );
       this.id  = id;
       this.quantity = +quantity;
       for(var i=0; i<options.length; i++){
@@ -1204,7 +1213,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     var string = "";
     for (var id in this.items){
       if(this.items.hasOwnProperty(id)){
-        string += "+" + this.items[id].buildItemString();
+        var item = this.items[id];
+        if( !item.bbuildItemStringg ) {
+          item = new TrayItem( item['id'], item['quantity'], item['options'], item['name'], item['price'] );
+        }
+        string += "+" + item.buildItemString();
       }
     }
     return string.substring(1); // remove that first plus
@@ -1226,7 +1239,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     var subtotal = 0;
     for(var id in this.items){
       if(this.items.hasOwnProperty(id)){
-        subtotal += this.items[id].getTotalPrice();
+        var item = this.items[id];
+        if( !item.getTotalPrice ) {
+          item = new TrayItem( item['id'], item['quantity'], item['options'], item['name'], item['price'] );
+        }
+        subtotal += item.getTotalPrice();
       }
     }
     return subtotal;
@@ -2149,7 +2166,12 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function getTray(){
-    return tomato.get("tray");
+    var tray = tomato.get("tray");
+    // IE8 has issues stripping off the prototype methods, so we have to recreate
+    if( !tray.getSubtotal ) {
+      tray = new Tray( tray.items );
+    }
+    return tray;
   }
 
   function trayExists(){
@@ -2405,6 +2427,11 @@ if(!ordrin.hasOwnProperty("emitter")){
       return '0.00';
     }
 
+    value = value.toString();
+    if( value.indexOf('.') !== -1 ) {       
+      return value;
+    } 
+
     var cents = value.toString();
     while(cents.length<3){
       cents = '0'+cents;
@@ -2422,6 +2449,11 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function updateFee(){
+    // if we don't have an address we can't do fee update
+    if( typeof getAddress().addr == 'undefined' ) {
+      return;
+    }
+
     var subtotal = getTray().getSubtotal();
     getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
     var tip = getTip();
@@ -2645,7 +2677,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       return;
     }
     if(!delivery){
-      handleError({msg:"The restaurant will not deliver this order at this time"});
+      handleError({msg:"The restaurant is not open for online ordering at this time"});
       return;
     }
 
@@ -2753,6 +2785,9 @@ if(!ordrin.hasOwnProperty("emitter")){
     var itemId = node.getAttribute("data-miid");
     var trayItemId = node.getAttribute("data-tray-id");
     var trayItem = getTray().items[trayItemId];
+    if( !trayItem.hasOptionSelected ) {
+      trayItem = new TrayItem( trayItem['id'], trayItem['quantity'], trayItem['options'], trayItem['name'], trayItem['price'] );
+    }
     buildDialogBox(itemId);
     var options = getElementsByClassName(elements.dialog, "option");
     for(var i=0; i<options.length; i++){
@@ -2909,7 +2944,6 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function handleError(error){
-    console.log(error);
     if(typeof error === "object" && typeof error.msg !== "undefined"){
       showErrorDialog(error.msg);
     } else {
