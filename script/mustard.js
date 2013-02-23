@@ -2767,7 +2767,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     if(typeof node.getElementsByClassName !== "undefined"){
       return node.getElementsByClassName(className);
     }
-    var re = new RegExp("\\b"+className+"\\b");
+    var re = new RegExp("(?:\\s|^)"+className+"(?:\\s|$)");
     var nodes = [];
     for(var i=0; i<node.children.length; i++){
       var child = node.children[i];
