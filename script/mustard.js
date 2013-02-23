@@ -2308,6 +2308,13 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function renderConfirm(tray, details){
+    var confirmDiv = document.getElementById("ordrinConfirm");
+    if( !confirmDiv ) {
+      setTimeout( function() { renderConfirm(tray, details), 1000 } );
+      return;
+    }
+
+
     var data = {deliveryTime:getDeliveryTime(), address:getAddress()};
     data.tray = tray;
     data.checkoutUri = tomato.get("checkoutUri");
@@ -2316,7 +2323,6 @@ if(!ordrin.hasOwnProperty("emitter")){
       data.details = details;
     }
     var confirmHtml = Mustache.render(tomato.get("confirmTemplate"), data);
-    var confirmDiv = document.getElementById("ordrinConfirm");
     confirmDiv.innerHTML = confirmHtml;
     processNewMenuPage();
   }
