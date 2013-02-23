@@ -718,15 +718,16 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   }
 
   function stringify(obj){
-    return Object.keys(obj).map(function(k) {
-      if(Array.isArray(obj[k])){
-        return obj[k].map(function(v){
-          return escape(stringifyPrimitive(k))+'='+escape(stringifyPrimitive(v));
-        });
+    var props = [];
+    for( var prop in obj ) {
+      if( Array.isArray( obj[ prop ] ) ) {
+        props.push( stringify( obj[ prop ] ) );
       } else {
-        return escape(stringifyPrimitive(k))+'='+escape(stringifyPrimitive(obj[k]));
+        props.push( escape(stringifyPrimitive(k))+'='+escape(stringifyPrimitive(obj[k])) );
       }
-    }).join('&');
+    }
+
+    return props.join('&');
   }
 
   function formatExpirationMonth(expirationMonth){
