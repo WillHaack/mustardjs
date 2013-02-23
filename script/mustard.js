@@ -2909,7 +2909,6 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function handleError(error){
-    console.log(error);
     if(typeof error === "object" && typeof error.msg !== "undefined"){
       showErrorDialog(error.msg);
     } else {
