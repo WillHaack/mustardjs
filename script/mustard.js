@@ -2089,16 +2089,22 @@ if(!ordrin.hasOwnProperty("emitter")){
         dayOfWeek = [ 'Sunday', 'Monday', 'Tuesday',
                       'Wednesday', 'Thursday', 'Friday',
                       'Saturday' ];
-    var deliveryHour, deliveryMinutes;
+    var deliveryHour, deliveryMinutes, deliveryParts;
 
     if( deliveryTime.toUpperCase() === 'ASAP' ) {
       return 'ASAP';
     }
 
-    deliveryTime = deliveryTime instanceof Date
-                   ? deliveryTime
-                   : new Date( deliveryTime.replace('+',' ') );
+    if( ! (deliveryTime instanceof Date) ) {
+      deliveryParts = deliveryTime.match(/(\d+)\D+(\d+)\D+(\d+)\D(\d+)/)
+      deliveryTime = new Date();
+      deliveryTime.setMonth( parseInt( deliveryParts[1] ) - 1 );
+      deliveryTime.setDate( deliveryParts[2] );
+      deliveryTime.setHours( deliveryParts[3] );
+      deliveryTime.setMinutes( deliveryParts[4] );
+    }
 
+    //   --- is this still necessary?
     // if delivery year is in the past we need to correct it
     if( deliveryTime.getFullYear() < currentTime.getFullYear() ) {
       // if we switched year +1, otherwise set to current year
