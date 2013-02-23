@@ -2149,7 +2149,12 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function getTray(){
-    return tomato.get("tray");
+    var tray = tomato.get("tray");
+    // IE8 has issues stripping off the prototype methods, so we have to recreate
+    if( !tray.getSubtotal ) {
+      tray = new Tray( tray.items );
+    }
+    return tray;
   }
 
   function trayExists(){
@@ -2422,6 +2427,11 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function updateFee(){
+    // if we don't have an address we can't do fee update
+    if( typeof getAddress().addr == 'undefined' ) {
+      return;
+    }
+
     var subtotal = getTray().getSubtotal();
     getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
     var tip = getTip();
@@ -2645,7 +2655,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       return;
     }
     if(!delivery){
-      handleError({msg:"The restaurant will not deliver this order at this time"});
+      handleError({msg:"The restaurant is not open for online ordering at this time"});
       return;
     }
 
