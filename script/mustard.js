@@ -1098,6 +1098,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
       return 0;
     }
 
+    // convert to string for IE indexOf
+    value = value.toString();
     if(value.indexOf('.') < 0){
       return (+value)*100;
     } else {
@@ -1118,6 +1120,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
   function toDollars(value){
     if( !value ) {
       return '0.00';
+    }
+    
+    value = value.toString();
+    if( value.indexOf('.') !== -1 ) {
+      return value;
     }
 
     var cents = value.toString();
@@ -1142,6 +1149,7 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
 
   var TrayItem = function TrayItem(id, quantity, options, name, price){
     if(id !== undefined){
+      price = toDollars( price );
       this.id  = id;
       this.quantity = +quantity;
       for(var i=0; i<options.length; i++){
@@ -1204,7 +1212,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     var string = "";
     for (var id in this.items){
       if(this.items.hasOwnProperty(id)){
-        string += "+" + this.items[id].buildItemString();
+        var item = this.items[id];
+        if( !item.bbuildItemStringg ) {
+          item = new TrayItem( item['id'], item['quantity'], item['options'], item['name'], item['price'] );
+        }
+        string += "+" + item.buildItemString();
       }
     }
     return string.substring(1); // remove that first plus
@@ -1226,7 +1238,11 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
     var subtotal = 0;
     for(var id in this.items){
       if(this.items.hasOwnProperty(id)){
-        subtotal += this.items[id].getTotalPrice();
+        var item = this.items[id];
+        if( !item.getTotalPrice ) {
+          item = new TrayItem( item['id'], item['quantity'], item['options'], item['name'], item['price'] );
+        }
+        subtotal += item.getTotalPrice();
       }
     }
     return subtotal;
@@ -2410,6 +2426,11 @@ if(!ordrin.hasOwnProperty("emitter")){
       return '0.00';
     }
 
+    value = value.toString();
+    if( value.indexOf('.') !== -1 ) {       
+      return value;
+    } 
+
     var cents = value.toString();
     while(cents.length<3){
       cents = '0'+cents;
@@ -2763,6 +2784,9 @@ if(!ordrin.hasOwnProperty("emitter")){
     var itemId = node.getAttribute("data-miid");
     var trayItemId = node.getAttribute("data-tray-id");
     var trayItem = getTray().items[trayItemId];
+    if( !trayItem.hasOptionSelected ) {
+      trayItem = new TrayItem( trayItem['id'], trayItem['quantity'], trayItem['options'], trayItem['name'], trayItem['price'] );
+    }
     buildDialogBox(itemId);
     var options = getElementsByClassName(elements.dialog, "option");
     for(var i=0; i<options.length; i++){
