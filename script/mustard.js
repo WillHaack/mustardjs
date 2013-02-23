@@ -2457,7 +2457,11 @@ if(!ordrin.hasOwnProperty("emitter")){
     var subtotal = getTray().getSubtotal();
     getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
     var tip = getTip();
-    getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
+    if( getElementsByClassName(elements.menu, "tipValue")[0].tagName === 'INPUT') {
+      getElementsByClassName(elements.menu, "tipValue")[0].value = toDollars(tip);
+    } else {
+      getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
+    }
     if(noProxy){
       var total = subtotal + tip,
           totalElements = getElementsByClassName(elements.menu, "totalValue")
@@ -2763,7 +2767,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     if(typeof node.getElementsByClassName !== "undefined"){
       return node.getElementsByClassName(className);
     }
-    var re = new RegExp("\\b"+className+"\\b");
+    var re = new RegExp("(?:\\s|^)"+className+"(?:\\s|$)");
     var nodes = [];
     for(var i=0; i<node.children.length; i++){
       var child = node.children[i];
