@@ -2926,7 +2926,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     addTrayItem(trayItem);
     hideDialogBox();
     if(!delivery){
-      handleError({msg:"The restaurant will not deliver to this address at the chosen time"});
+      handleError({msg:"The restaurant is not available for online ordering to this address at the chosen time"});
     }
   }
 
