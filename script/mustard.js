@@ -970,8 +970,8 @@ var ordrin = typeof ordrin === "undefined" ? {} : ordrin;
         fieldErrors.push(new FieldError("city", "City is required."));
       }
       // validate state
-      if (/^[A-Z]{2}$/.test(that.state) == false){
-        fieldErrors.push(new FieldError("state", "Invalid State format. It should be two upper case letters."));
+      if (/^[a-zA-Z]{2}$/.test(that.state) == false){
+        fieldErrors.push(new FieldError("state", "Invalid State format. It should be two letters."));
       }
       // validate zip
       if (/^\d{5}$/.test(that.zip) == false){
