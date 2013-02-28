@@ -2722,17 +2722,33 @@ if(!ordrin.hasOwnProperty("emitter")){
   function saveDateTimeForm(){
     var form = document.forms["ordrinDateTime"];
     var date = form.date.value;
+    var deliveryTime, deliveryParts, dateTime; 
+    hideErrorDialog();
     if(date === "ASAP"){
       setDeliveryTime("ASAP");
     } else {
+      var now = new Date();
       var split = form.time.value.split(":");
       var hours = split[0]==="12"?0:+split[0];
       var minutes = +split[1];
       if(form.ampm.value === "PM"){
         hours += 12;
       }
-      
       var time = padLeft(hours,2)+":"+padLeft(minutes,2);
+      dateTime = date+"+"+time;
+
+      deliveryParts = dateTime.match(/(\d+)\D+(\d+)\D+(\d+)\D(\d+)/)
+      deliveryTime = new Date();
+      deliveryTime.setMonth( parseInt( deliveryParts[1] ) - 1 );
+      deliveryTime.setDate( deliveryParts[2] );
+      deliveryTime.setHours( deliveryParts[3] );
+      deliveryTime.setMinutes( deliveryParts[4] );
+
+      if( deliveryTime < now ) {
+        showErrorDialog( "Selected time is in the past." );
+        return;
+      }
+      
       setDeliveryTime(date+"+"+time);
     }
     hideElement(getElementsByClassName(elements.menu, "dateTimeForm")[0]);
@@ -2926,7 +2942,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     addTrayItem(trayItem);
     hideDialogBox();
     if(!delivery){
-      handleError({msg:"The restaurant is not available for online ordering to this address at the chosen time"});
+      handleError({msg:"The restaurant is not available for online orders to this address at the chosen time"});
     }
   }
 
