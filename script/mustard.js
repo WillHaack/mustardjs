@@ -2001,6 +2001,7 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   var delivery;
   var mino;
+  var meals;
 
   var tray;
 
@@ -2502,6 +2503,7 @@ if(!ordrin.hasOwnProperty("emitter")){
           for( i = 0; i < totalElements.length; i++ ) {
             totalElements[i].innerHTML = toDollars(total);
           };
+          meals = data.meals;
           delivery = data.delivery;
           if(data.delivery === 0){
             handleError({delivery:0, msg:data.msg});
@@ -2803,8 +2805,29 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function createDialogBox(node){
     var itemId = node.getAttribute("data-miid");
-    buildDialogBox(itemId);
-    showDialogBox( node );
+    var isAvailable = false;
+
+    for( var availMeal in allItems[itemId].availability ) {
+      if( !meals ) {
+        isAvailable = true;
+        break;
+      }
+      for( var meal in meals ) {
+        if( allItems[itemId].availability[ meal ] === meals[ meal ] ) {
+          isAvailable = true;
+          break;
+        }
+        if( isAvailable ) { break; }
+      } 
+    }
+
+    if( isAvailable ) {
+      buildDialogBox(itemId);
+      showDialogBox( node );
+      hideErrorDialog();
+    } else {
+      showErrorDialog("Sorry, this item is not currently available");
+    }
   }
 
   function createEditDialogBox(node){
