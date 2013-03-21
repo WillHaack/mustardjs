@@ -2813,9 +2813,11 @@ if(!ordrin.hasOwnProperty("emitter")){
         break;
       }
       for( var meal in meals ) {
-        if( allItems[itemId].availability[ meal ] === meals[ meal ] ) {
-          isAvailable = true;
-          break;
+        for( var avail in allItems[itemId].availability ) {
+          if( allItems[itemId].availability[ avail ] == meals[ meal ] ) {
+            isAvailable = true;
+            break;
+          }
         }
         if( isAvailable ) { break; }
       } 
