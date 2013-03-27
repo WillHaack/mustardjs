@@ -1997,6 +1997,12 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   var render = tomato.get("render");
 
+  if(!tomato.hasKey("invisible")){
+    tomato.set("invisible", false);
+  }
+
+  var invisible = tomato.get("invisible");
+
   var noProxy = tomato.get("noProxy");
 
   var delivery;
@@ -2066,8 +2072,10 @@ if(!ordrin.hasOwnProperty("emitter")){
     switch(page){
       case "confirm":
       case "menu":
-        var addressHtml = Mustache.render(addressTemplate, address);
-        getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
+        if( !invisible ) {
+          var addressHtml = Mustache.render(addressTemplate, address);
+          getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
+        }
         updateFee();
         break;
       case "restaurants": downloadRestaurants(); break;
@@ -2092,7 +2100,9 @@ if(!ordrin.hasOwnProperty("emitter")){
     switch(page){
       case "confirm":
       case "menu": 
-        getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = formatDeliveryTime( deliveryTime ); 
+        if( !invisible ) {
+          getElementsByClassName(elements.menu, "dateTime")[0].innerHTML = formatDeliveryTime( deliveryTime ); 
+        }
         updateFee(); 
         break;
       case "restaurants": downloadRestaurants(); break;
@@ -2189,6 +2199,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function setRestaurant(rid, newMenu, details){
+    page = "menu";
     setRid(rid);
     if(newMenu){
       if( details ) {
@@ -2198,14 +2209,19 @@ if(!ordrin.hasOwnProperty("emitter")){
       if(!trayExists() && tomato.hasKey("trayString")){
         setTray(buildTrayFromString(tomato.get("trayString")));
       } 
-      renderMenu(newMenu);
+      if( !invisible ) {
+        renderMenu(newMenu);
+      }
+      processNewMenuPage();
     } else {
       if(!noProxy){
         api.restaurant.getDetails(rid, function(err, data){
           setMenu(data.menu);
           delete data.menu;
           setDetails(data);
-          renderMenu(data.menu);
+          if( !invisible ) {
+            renderMenu(data.menu);
+          }
         });
       }
     }
@@ -2325,15 +2341,18 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
     var confirmHtml = Mustache.render(tomato.get("confirmTemplate"), data);
     confirmDiv.innerHTML = confirmHtml;
-    processNewMenuPage();
   }
 
   function initConfirmPage(){
+    page = "confirm";
     if(menuExists()){
       if(!trayExists()){
         setTray(buildTrayFromString(tomato.get("trayString")));
       }
-      renderConfirm(getTray());
+      if( !invisible ) {
+        renderConfirm(getTray());
+      }
+      processNewMenuPage();
     } else {
       api.restaurant.getDetails(getRid(), function(err, data){
         setMenu(data.menu);
@@ -2342,7 +2361,10 @@ if(!ordrin.hasOwnProperty("emitter")){
         if(!trayExists()){
           setTray(buildTrayFromString(tomato.get("trayString")));
         } 
-        renderConfirm(getTray(), getDetails());
+        if( !invisible ) {
+          renderConfirm(getTray(), getDetails());
+        }
+        processNewMenuPage();
       });
     }
   }
@@ -2370,7 +2392,9 @@ if(!ordrin.hasOwnProperty("emitter")){
         for(var i=0; i<data.length; i++){
           data[i].is_delivering = !!(data[i].is_delivering);
         }
-        renderRestaurants(data);
+        if( !invisible ) {
+          renderRestaurants(data);
+        }
       });
     }
   }
@@ -2460,13 +2484,17 @@ if(!ordrin.hasOwnProperty("emitter")){
     if( typeof getAddress().addr == 'undefined' ) {
       return;
     }
+    var subtotalElem = getElementsByClassName(elements.menu, "subtotalValue")[0];
+    var tipElem = getElementsByClassName(elements.menu, "tipValue")[0];
 
     var subtotal = getTray().getSubtotal();
-    getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
+    if( subtotalElem ) {
+      subtotalElem.innerHTML = toDollars(subtotal);
+    }
     var tip = getTip();
-    if( getElementsByClassName(elements.menu, "tipValue")[0].tagName === 'INPUT') {
+    if( tipElem && tipElem.tagName === 'INPUT') {
       getElementsByClassName(elements.menu, "tipValue")[0].value = toDollars(tip);
-    } else {
+    } else if( tipElem ) {
       getElementsByClassName(elements.menu, "tipValue")[0].innerHTML = toDollars(tip);
     }
     if(noProxy){
@@ -2496,7 +2524,10 @@ if(!ordrin.hasOwnProperty("emitter")){
           for( var i = 0; i < feeValues.length; i++ ) {
             feeValues[i].innerHTML = data.fee ? data.fee : "TBD";
           }
-          getElementsByClassName(elements.menu, "taxValue")[0].innerHTML = data.tax ? data.tax : "0.00";
+          var taxElem = getElementsByClassName(elements.menu, "taxValue")[0];
+          if( taxElem ) {
+            taxElem.innerHTML = data.tax ? data.tax : "0.00";
+          }
           var total = subtotal + tip + toCents(data.fee) + toCents(data.tax),
               totalElements = getElementsByClassName(elements.menu, "totalValue")
               i;
@@ -2516,10 +2547,12 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function hideElement(element){
+    if( !element ) { return; }
     element.className += " hidden";
   }
 
   function unhideElement(element){
+    if( !element ) { return; }
     element.className = element.className.replace(/\s?\bhidden\b\s?/g, ' ').replace(/(\s){2,}/g, '$1');
   }
 
@@ -2532,6 +2565,10 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function showErrorDialog(msg){
+    if( invisible ) {
+      console.log( msg );
+      return;
+    }
     // show background
     elements.errorBg.className = elements.errorBg.className.replace(/hidden/g, "");
 
@@ -2547,6 +2584,10 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
   
   function listen(evnt, elem, func) {
+    if( !elem ) {
+      return; 
+    }
+
     if (elem.addEventListener)  // W3C DOM
       elem.addEventListener(evnt,func,false);
     else if (elem.attachEvent) { // IE DOM
@@ -2571,6 +2612,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function clearNode(node){
+    if( !node ) { return; }
     while(node.firstChild){
       node.removeChild(node.firstChild);
     }
@@ -2601,7 +2643,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function populateAddressForm(){
-    if(addressExists()){
+    if(addressExists() &&  document.forms["ordrinAddress"]){
       var address = getAddress();
       var form = document.forms["ordrinAddress"];
       form.addr.value = address.addr || '';
@@ -2626,6 +2668,9 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function initializeDateForm(){
+    if( !form || !form.date ) {
+      return;
+    } 
     var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
     var months = ["Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"];
     var form = document.forms["ordrinDateTime"];
@@ -2699,17 +2744,21 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
 
     var address = getAddress()
-    form.addr.value = address.addr || '';
-    form.addr2.value = address.addr2 || '';
-    form.city.value = address.city || '';
-    form.state.value = address.state || '';
-    form.zip.value = address.zip || '';
-    form.phone.value = address.phone || '';
-    form.dateTime.value = getDeliveryTime();
-    form.tray.value = getTray().buildTrayString();
-    form.tip.value = tomato.get("tip");
-    form.rid.value = getRid();
-    form.submit();
+    if( !invisible ) {
+      form.addr.value = address.addr || '';
+      form.addr2.value = address.addr2 || '';
+      form.city.value = address.city || '';
+      form.state.value = address.state || '';
+      form.zip.value = address.zip || '';
+      form.phone.value = address.phone || '';
+      form.dateTime.value = getDeliveryTime();
+      form.tray.value = getTray().buildTrayString();
+      form.tip.value = tomato.get("tip");
+      form.rid.value = getRid();
+      form.submit();
+    }
+
+    emitter.emit("order.confirmed", true);
   }
 
   function showAddressForm(){
@@ -2747,7 +2796,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       deliveryTime.setMinutes( deliveryParts[4] );
 
       if( deliveryTime < now ) {
-        showErrorDialog( "Selected time is in the past." );
+        handleError( { msg : "Selected time is in the past." } );
         return;
       }
       
@@ -2788,6 +2837,9 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function getElementsByClassName(node, className){
+    if( !node ) {
+      return [];
+    }
     if(typeof node.getElementsByClassName !== "undefined"){
       return node.getElementsByClassName(className);
     }
@@ -2813,11 +2865,9 @@ if(!ordrin.hasOwnProperty("emitter")){
         break;
       }
       for( var meal in meals ) {
-        for( var avail in allItems[itemId].availability ) {
-          if( allItems[itemId].availability[ avail ] == meals[ meal ] ) {
-            isAvailable = true;
-            break;
-          }
+        if( allItems[itemId].availability[ meal ] === meals[ meal ] ) {
+          isAvailable = true;
+          break;
         }
         if( isAvailable ) { break; }
       } 
@@ -2828,7 +2878,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       showDialogBox( node );
       hideErrorDialog();
     } else {
-      showErrorDialog("Sorry, this item is not currently available");
+      handleError( { msg : "Sorry, this item is not currently available" } );
     }
   }
 
@@ -2995,6 +3045,10 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function handleError(error){
+    if( invisible ) {
+      console.log( error );
+      return;
+    }
     if(typeof error === "object" && typeof error.msg !== "undefined"){
       showErrorDialog(error.msg);
     } else if (typeof error === "object" && typeof error._msg !== "undefined") {
@@ -3012,6 +3066,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   }
 
   function addTrayItemNode(item){
+    if( !elements.tray ) { return; }
     var newNode = renderItemHtml(item);
     var pageTrayItems = getElementsByClassName(elements.tray, "trayItem");
     for(var i=0; i<pageTrayItems.length; i++){
@@ -3056,7 +3111,8 @@ if(!ordrin.hasOwnProperty("emitter")){
       setTray : setTray,
       updateTip : updateTip,
       getTip : getTip,
-      setRestaurant : setRestaurant
+      setRestaurant : setRestaurant,
+      initConfirmPage : initConfirmPage
     };
     emitter.on("tray.add", addTrayItemNode);
     emitter.on("tray.remove", removeTrayItemNode);
