@@ -2807,17 +2807,15 @@ if(!ordrin.hasOwnProperty("emitter")){
     var itemId = node.getAttribute("data-miid");
     var isAvailable = false;
 
-    for( var availMeal in allItems[itemId].availability ) {
+    for( var i = 0; i < allItems[itemId].availability.length; i++ ) {
       if( !meals ) {
         isAvailable = true;
         break;
       }
-      for( var meal in meals ) {
-        for( var avail in allItems[itemId].availability ) {
-          if( allItems[itemId].availability[ avail ] == meals[ meal ] ) {
-            isAvailable = true;
-            break;
-          }
+      for( var j = 0; j < meals.length; j++ ) {
+        if( allItems[itemId].availability[ i ] == meals[ j ] ) {
+          isAvailable = true;
+          break;
         }
         if( isAvailable ) { break; }
       } 
