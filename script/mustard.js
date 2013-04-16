@@ -2486,11 +2486,24 @@ if(!ordrin.hasOwnProperty("emitter")){
     }
     var subtotalElem = getElementsByClassName(elements.menu, "subtotalValue")[0];
     var tipElem = getElementsByClassName(elements.menu, "tipValue")[0];
+    var countElem = getElementsByClassName(elements.menu, "itemCount")[0];
 
     var subtotal = getTray().getSubtotal();
     if( subtotalElem ) {
       subtotalElem.innerHTML = toDollars(subtotal);
     }
+  
+    if( countElem ) {
+      Object.size = function(obj) {
+          var size = 0, key;
+          for (key in obj) {
+              if (obj.hasOwnProperty(key)) size++;
+          }
+          return size;
+      };
+      countElem.innerHTML =  Object.size( getTray().items );
+    }
+
     var tip = getTip();
     if( tipElem && tipElem.tagName === 'INPUT') {
       getElementsByClassName(elements.menu, "tipValue")[0].value = toDollars(tip);
@@ -2897,7 +2910,9 @@ if(!ordrin.hasOwnProperty("emitter")){
       checkbox.checked = trayItem.hasOptionSelected(optId);
     }
     var button = getElementsByClassName(elements.dialog, "buttonRed")[0];
-    button.setAttribute("value", "Save to Tray");
+    if( button ) {
+      button.setAttribute("value", "Save to Tray");
+    }
     var quantity = getElementsByClassName(elements.dialog, "itemQuantity")[0];
     quantity.setAttribute("value", trayItem.quantity);
     elements.dialog.setAttribute("data-tray-id", trayItemId);
@@ -3046,7 +3061,7 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function handleError(error){
     if( invisible ) {
-      console.log( error );
+      emitter.emit("ordrin.error", error);
       return;
     }
     if(typeof error === "object" && typeof error.msg !== "undefined"){
