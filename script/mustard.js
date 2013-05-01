@@ -2461,6 +2461,12 @@ if(!ordrin.hasOwnProperty("emitter")){
       return;
     }
 
+    // check if we should show provider
+    if( tomato.get( "details" ).rds_info.name  !== "Ordr.in" ) {
+      var provider = getElementsByClassName(elements.menu, "provider")[0];
+      provider.className = provider.className.replace(/\s*hidden\s*/,'');
+    }
+
     var subtotal = getTray().getSubtotal();
     getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
     var tip = getTip();
