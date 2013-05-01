@@ -2001,6 +2001,7 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   var delivery;
   var mino;
+  var meals;
 
   var tray;
 
@@ -2460,6 +2461,12 @@ if(!ordrin.hasOwnProperty("emitter")){
       return;
     }
 
+    // check if we should show provider
+    if( tomato.get( "details" ).rds_info.name  !== "Ordr.in" ) {
+      var provider = getElementsByClassName(elements.menu, "provider")[0];
+      provider.className = provider.className.replace(/\s*hidden\s*/,'');
+    }
+
     var subtotal = getTray().getSubtotal();
     getElementsByClassName(elements.menu, "subtotalValue")[0].innerHTML = toDollars(subtotal);
     var tip = getTip();
@@ -2502,11 +2509,17 @@ if(!ordrin.hasOwnProperty("emitter")){
           for( i = 0; i < totalElements.length; i++ ) {
             totalElements[i].innerHTML = toDollars(total);
           };
+          meals = data.meals;
           delivery = data.delivery;
           if(data.delivery === 0){
             handleError({delivery:0, msg:data.msg});
           } else {
             hideErrorDialog();
+            // unhide details element if it exists
+            var featDetails = document.getElementById('feat-details');
+            if( featDetails ) {
+              featDetails.className = featDetails.className.replace(/\s*hidden\s*/,'')
+            }
           }
         }
       });
@@ -2722,17 +2735,33 @@ if(!ordrin.hasOwnProperty("emitter")){
   function saveDateTimeForm(){
     var form = document.forms["ordrinDateTime"];
     var date = form.date.value;
+    var deliveryTime, deliveryParts, dateTime; 
+    hideErrorDialog();
     if(date === "ASAP"){
       setDeliveryTime("ASAP");
     } else {
+      var now = new Date();
       var split = form.time.value.split(":");
       var hours = split[0]==="12"?0:+split[0];
       var minutes = +split[1];
       if(form.ampm.value === "PM"){
         hours += 12;
       }
-      
       var time = padLeft(hours,2)+":"+padLeft(minutes,2);
+      dateTime = date+"+"+time;
+
+      deliveryParts = dateTime.match(/(\d+)\D+(\d+)\D+(\d+)\D(\d+)/)
+      deliveryTime = new Date();
+      deliveryTime.setMonth( parseInt( deliveryParts[1] ) - 1 );
+      deliveryTime.setDate( deliveryParts[2] );
+      deliveryTime.setHours( deliveryParts[3] );
+      deliveryTime.setMinutes( deliveryParts[4] );
+
+      if( deliveryTime < now ) {
+        showErrorDialog( "Selected time is in the past." );
+        return;
+      }
+      
       setDeliveryTime(date+"+"+time);
     }
     hideElement(getElementsByClassName(elements.menu, "dateTimeForm")[0]);
@@ -2787,8 +2816,29 @@ if(!ordrin.hasOwnProperty("emitter")){
 
   function createDialogBox(node){
     var itemId = node.getAttribute("data-miid");
-    buildDialogBox(itemId);
-    showDialogBox( node );
+    var isAvailable = false;
+
+    for( var i = 0; i < allItems[itemId].availability.length; i++ ) {
+      if( !meals ) {
+        isAvailable = true;
+        break;
+      }
+      for( var j = 0; j < meals.length; j++ ) {
+        if( allItems[itemId].availability[ i ] == meals[ j ] ) {
+          isAvailable = true;
+          break;
+        }
+        if( isAvailable ) { break; }
+      } 
+    }
+
+    if( isAvailable ) {
+      buildDialogBox(itemId);
+      showDialogBox( node );
+      hideErrorDialog();
+    } else {
+      showErrorDialog("Sorry, this item is not currently available");
+    }
   }
 
   function createEditDialogBox(node){
@@ -2926,7 +2976,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     addTrayItem(trayItem);
     hideDialogBox();
     if(!delivery){
-      handleError({msg:"The restaurant is not available for online ordering to this address at the chosen time"});
+      handleError({msg:"The restaurant is not available for online orders to this address at the chosen time"});
     }
   }
 
@@ -2956,6 +3006,8 @@ if(!ordrin.hasOwnProperty("emitter")){
   function handleError(error){
     if(typeof error === "object" && typeof error.msg !== "undefined"){
       showErrorDialog(error.msg);
+    } else if (typeof error === "object" && typeof error._msg !== "undefined") {
+      showErrorDialog(error._msg);
     } else {
       showErrorDialog(JSON.stringify(error));
     }
