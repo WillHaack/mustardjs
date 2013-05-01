@@ -2509,6 +2509,11 @@ if(!ordrin.hasOwnProperty("emitter")){
             handleError({delivery:0, msg:data.msg});
           } else {
             hideErrorDialog();
+            // unhide details element if it exists
+            var featDetails = document.getElementById('feat-details');
+            if( featDetails ) {
+              featDetails.className = featDetails.className.replace(/\s*hidden\s*/,'')
+            }
           }
         }
       });
