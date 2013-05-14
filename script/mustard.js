@@ -2065,16 +2065,19 @@ if(!ordrin.hasOwnProperty("emitter")){
     return tomato.hasKey("address") && tomato.get("address").addr;
   }
 
-  var addressTemplate="{{addr}}<br>{{#addr2}}{{addr2}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
+  var addressTemplate= tomato.hasKey("addressTemplate")
+                       ? tomato.get("addressTemplate")
+                       : "{{addr}}<br>{{#addr2}}{{addr2}}<br>{{/addr2}}{{city}}, {{state}} {{zip}}<br>{{phone}}<br><a data-listener=\"editAddress\">Edit</a>";
 
   function setAddress(address){
     tomato.set("address", address);
     switch(page){
       case "confirm":
       case "menu":
-        if( !invisible ) {
+        var addressElement = getElementsByClassName(elements.menu, "address")[0];
+        if( addressElement ) {
           var addressHtml = Mustache.render(addressTemplate, address);
-          getElementsByClassName(elements.menu, "address")[0].innerHTML = addressHtml;
+          addressElement.innerHTML = addressHtml;
         }
         updateFee();
         break;
@@ -2497,7 +2500,7 @@ if(!ordrin.hasOwnProperty("emitter")){
       Object.size = function(obj) {
           var size = 0, key;
           for (key in obj) {
-              if (obj.hasOwnProperty(key)) size++;
+              if (obj.hasOwnProperty(key)) size += obj[key].quantity;
           }
           return size;
       };
@@ -2827,8 +2830,8 @@ if(!ordrin.hasOwnProperty("emitter")){
     try {
       var address = new api.Address(form.addr.value, form.city.value, form.state.value, form.zip.value, form.phone.value, form.addr2.value);
       setAddress(address);
-      populateAddressForm();
       hideElement(getElementsByClassName(elements.menu, "addressForm")[0]);
+      populateAddressForm();
     } catch(e){
       console.log(e.stack);
       if(typeof e.fields !== "undefined"){
@@ -2889,6 +2892,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     if( isAvailable ) {
       buildDialogBox(itemId);
       showDialogBox( node );
+      emitter.emit("menuitem.shown", true);
       hideErrorDialog();
     } else {
       handleError( { msg : "Sorry, this item is not currently available" } );
@@ -2917,6 +2921,7 @@ if(!ordrin.hasOwnProperty("emitter")){
     quantity.setAttribute("value", trayItem.quantity);
     elements.dialog.setAttribute("data-tray-id", trayItemId);
     showDialogBox( node );
+    emitter.emit("menuitem.shown", true);
   }
 
   function buildDialogBox(id){
@@ -3025,7 +3030,7 @@ if(!ordrin.hasOwnProperty("emitter")){
   function addDialogItemToTray(){
     var trayItem = createItemFromDialog();
     if(!addressExists()){
-      handleError({msg:"We need your address to be sure this restaurant delivers to you. Please enter it."});
+      handleError({msg:"We need your address to be sure this restaurant delivers to you."});
       hideDialogBox();
       return;
     }
