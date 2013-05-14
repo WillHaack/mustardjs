@@ -2491,6 +2491,12 @@ if(!ordrin.hasOwnProperty("emitter")){
     var tipElem = getElementsByClassName(elements.menu, "tipValue")[0];
     var countElem = getElementsByClassName(elements.menu, "itemCount")[0];
 
+    // check if we should show provider
+    if( tomato.get( "details" ).rds_info.name  !== "Ordr.in" ) {
+      var provider = getElementsByClassName(elements.menu, "provider")[0];
+      provider.className = provider.className.replace(/\s*hidden\s*/,'');
+    }
+
     var subtotal = getTray().getSubtotal();
     if( subtotalElem ) {
       subtotalElem.innerHTML = toDollars(subtotal);
@@ -2556,6 +2562,11 @@ if(!ordrin.hasOwnProperty("emitter")){
             handleError({delivery:0, msg:data.msg});
           } else {
             hideErrorDialog();
+            // unhide details element if it exists
+            var featDetails = document.getElementById('feat-details');
+            if( featDetails ) {
+              featDetails.className = featDetails.className.replace(/\s*hidden\s*/,'')
+            }
           }
         }
       });
@@ -2875,13 +2886,13 @@ if(!ordrin.hasOwnProperty("emitter")){
     var itemId = node.getAttribute("data-miid");
     var isAvailable = false;
 
-    for( var availMeal in allItems[itemId].availability ) {
+    for( var i = 0; i < allItems[itemId].availability.length; i++ ) {
       if( !meals ) {
         isAvailable = true;
         break;
       }
-      for( var meal in meals ) {
-        if( allItems[itemId].availability[ meal ] === meals[ meal ] ) {
+      for( var j = 0; j < meals.length; j++ ) {
+        if( allItems[itemId].availability[ i ] == meals[ j ] ) {
           isAvailable = true;
           break;
         }
