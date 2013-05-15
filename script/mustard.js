@@ -2870,8 +2870,10 @@ if(!ordrin.hasOwnProperty("emitter")){
   
   function showDialogBox( node ){
     // if in an iframe, fix top
-    if( top !== self ) {
+    if( top !== self && document.body.scrollTop === 0 ) {
       elements.dialog.style.top =  ( node.offsetTop - 250 ) + "px";
+    } else {
+      elements.dialog.style.top =  "0px";
     }
 
     // show background
